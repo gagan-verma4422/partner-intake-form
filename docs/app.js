@@ -649,31 +649,21 @@ function render() {
               : index < currentStepIndex
                 ? "is-complete"
                 : "";
-          const isClickable = step.id !== "thankyou" || submissionState.status === "success";
-          return isClickable
-            ? `
-              <button
-                class="step-item ${statusClass} is-clickable"
-                type="button"
-                data-action="goto-step"
-                data-step-index="${index}"
-              >
-                <div class="step-item__index">${index + 1}</div>
-                <div class="step-item__copy">
-                  <strong>${escapeHtml(content.eyebrow)}</strong>
-                  <span>${escapeHtml(content.title)}</span>
-                </div>
-              </button>
-            `
-            : `
-              <div class="step-item ${statusClass}">
-                <div class="step-item__index">${index + 1}</div>
-                <div class="step-item__copy">
-                  <strong>${escapeHtml(content.eyebrow)}</strong>
-                  <span>${escapeHtml(content.title)}</span>
-                </div>
+          if (step.id === "thankyou" && submissionState.status !== "success") return "";
+          return `
+            <button
+              class="step-item ${statusClass} is-clickable"
+              type="button"
+              data-action="goto-step"
+              data-step-index="${index}"
+            >
+              <div class="step-item__index">${index + 1}</div>
+              <div class="step-item__copy">
+                <strong>${escapeHtml(content.eyebrow)}</strong>
+                <span>${escapeHtml(content.title)}</span>
               </div>
-            `;
+            </button>
+          `;
         })
         .join("")}
     </div>
