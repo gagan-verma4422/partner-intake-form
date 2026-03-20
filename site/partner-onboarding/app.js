@@ -540,6 +540,7 @@ if (app instanceof HTMLElement) {
   app.addEventListener("input", handleInput);
   app.addEventListener("change", handleInput);
   app.addEventListener("keydown", handleKeyDown);
+  app.addEventListener("focusout", handleBlur);
   render();
 } else {
   console.error('Partner onboarding app could not start because the "#app" container was not found.');
@@ -648,15 +649,31 @@ function render() {
               : index < currentStepIndex
                 ? "is-complete"
                 : "";
-          return `
-            <div class="step-item ${statusClass}">
-              <div class="step-item__index">${index + 1}</div>
-              <div class="step-item__copy">
-                <strong>${escapeHtml(content.eyebrow)}</strong>
-                <span>${escapeHtml(content.title)}</span>
+          const isClickable = step.id !== "thankyou" || submissionState.status === "success";
+          return isClickable
+            ? `
+              <button
+                class="step-item ${statusClass} is-clickable"
+                type="button"
+                data-action="goto-step"
+                data-step-index="${index}"
+              >
+                <div class="step-item__index">${index + 1}</div>
+                <div class="step-item__copy">
+                  <strong>${escapeHtml(content.eyebrow)}</strong>
+                  <span>${escapeHtml(content.title)}</span>
+                </div>
+              </button>
+            `
+            : `
+              <div class="step-item ${statusClass}">
+                <div class="step-item__index">${index + 1}</div>
+                <div class="step-item__copy">
+                  <strong>${escapeHtml(content.eyebrow)}</strong>
+                  <span>${escapeHtml(content.title)}</span>
+                </div>
               </div>
-            </div>
-          `;
+            `;
         })
         .join("")}
     </div>
@@ -738,9 +755,9 @@ function renderIntroStep() {
         <h3>Primary contact</h3>
         <p class="section-card__intro">Please provide the primary contact for this inquiry.</p>
         <div class="field-grid">
-          ${renderTextField("First name", "contact.firstName", state.contact.firstName, "text", "Ada", "is-half")}
-          ${renderTextField("Last name", "contact.lastName", state.contact.lastName, "text", "Lovelace", "is-half")}
-          ${renderTextField("Email", "contact.email", state.contact.email, "email", "name@company.com", "is-half")}
+          ${renderTextField("First name *", "contact.firstName", state.contact.firstName, "text", "Ada", "is-half")}
+          ${renderTextField("Last name *", "contact.lastName", state.contact.lastName, "text", "Lovelace", "is-half")}
+          ${renderTextField("Email *", "contact.email", state.contact.email, "email", "name@company.com", "is-half")}
           ${renderTextField("WhatsApp number", "contact.whatsapp", state.contact.whatsapp, "tel", "+1 555 000 0000", "is-half")}
         </div>
       </section>
@@ -749,8 +766,8 @@ function renderIntroStep() {
         <h3>Company details</h3>
         <p class="section-card__intro">Please provide basic company information.</p>
         <div class="field-grid">
-          ${renderTextField("Company name", "company.companyName", state.company.companyName, "text", "Acme Payments", "is-half")}
-          ${renderSelectField("Entity type", "company.entityType", state.company.entityType, ENTITY_TYPES, "Choose one", "is-half")}
+          ${renderTextField("Company name *", "company.companyName", state.company.companyName, "text", "Acme Payments", "is-half")}
+          ${renderSelectField("Entity type *", "company.entityType", state.company.entityType, ENTITY_TYPES, "Choose one", "is-half")}
           ${renderTextField("URL", "company.url", state.company.url, "url", "https://www.company.com")}
         </div>
       </section>
@@ -768,7 +785,7 @@ function renderRoleStep() {
         <p class="section-card__intro">Please provide information on your role in the flow of funds and your licensing status for ${escapeHtml(selectedFlowPhrase)}.</p>
         <div class="field-grid">
           <div class="field">
-            <label>Are you currently in the flow of funds business?</label>
+            <label>Are you currently in the flow of funds business? *</label>
             ${renderSegmentedButtons("role.inFlow", state.role.inFlow, [
               { value: "yes", label: "Yes" },
               { value: "no", label: "No" },
@@ -776,7 +793,7 @@ function renderRoleStep() {
           </div>
 
           <div class="field">
-            <label>Who is the end customer?</label>
+            <label>Who is the end customer? *</label>
             ${renderChipSelector("role.endCustomers", state.role.endCustomers, [
               { value: "sender", label: "Sender" },
               { value: "receiver", label: "Receiver" },
@@ -784,7 +801,7 @@ function renderRoleStep() {
           </div>
 
           <div class="field is-half">
-            <label>Are you licensed in the countries in which you operate?</label>
+            <label>Are you licensed in the countries in which you operate? *</label>
             ${renderSegmentedButtons("role.licensed", state.role.licensed, [
               { value: "yes", label: "Yes" },
               { value: "no", label: "No" },
@@ -792,7 +809,7 @@ function renderRoleStep() {
           </div>
 
           <div class="field is-half">
-            <label>Do you hold any additional licenses?</label>
+            <label>Do you hold any additional licenses? *</label>
             ${renderSegmentedButtons("role.additionalLicenses", state.role.additionalLicenses, [
               { value: "yes", label: "Yes" },
               { value: "no", label: "No" },
@@ -802,7 +819,7 @@ function renderRoleStep() {
           ${
             state.role.additionalLicenses === "yes"
               ? renderTextareaField(
-                  "Where do you hold additional licenses?",
+                  "Where do you hold additional licenses? *",
                   "role.additionalLicenseLocations",
                   state.role.additionalLicenseLocations,
                   "List jurisdictions and, if useful, the license type."
@@ -811,7 +828,7 @@ function renderRoleStep() {
           }
 
           <div class="field">
-            <label>Which commercial model do you prefer?</label>
+            <label>Which commercial model do you prefer? *</label>
             ${renderSegmentedButtons("role.pricingModel", state.role.pricingModel, [
               { value: "wholesale", label: "Wholesale pricing" },
               { value: "revshare", label: "Revenue share" },
@@ -833,7 +850,7 @@ function renderFinancialsStep() {
         <p class="section-card__intro">Please provide directional ranges for the business supporting ${escapeHtml(selectedFlowPhrase)}.</p>
         <div class="field-grid">
           ${renderSelectField(
-            "Annual company revenue",
+            "Annual company revenue *",
             "financials.revenueRange",
             state.financials.revenueRange,
             RANGE_OPTIONS.revenue.map((option) => ({ value: option, label: option })),
@@ -841,7 +858,7 @@ function renderFinancialsStep() {
             "is-half"
           )}
           ${renderSelectField(
-            "Annual volume",
+            "Annual volume *",
             "financials.annualVolumeRange",
             state.financials.annualVolumeRange,
             RANGE_OPTIONS.volume.map((option) => ({ value: option, label: option })),
@@ -849,7 +866,7 @@ function renderFinancialsStep() {
             "is-half"
           )}
           ${renderSelectField(
-            "Payment count",
+            "Payment count *",
             "financials.paymentCountRange",
             state.financials.paymentCountRange,
             RANGE_OPTIONS.payments.map((option) => ({ value: option, label: option })),
@@ -934,7 +951,7 @@ function renderMarketsStep() {
     <div class="section-stack">
       <section class="section-card">
         <h3>Transaction types</h3>
-        <p class="section-card__intro">Please select the transaction types relevant to ${escapeHtml(selectedFlowPhrase)}.</p>
+        <p class="section-card__intro">Please select the transaction types relevant to ${escapeHtml(selectedFlowPhrase)}. *</p>
         ${renderChipSelector(
           "transactionTypes",
           state.transactionTypes,
@@ -948,11 +965,11 @@ function renderMarketsStep() {
         ${renderSearchMultiSelect(
           "operatingCountries",
           state.operatingCountries,
-          "In which countries do you intend to operate?",
+          "In which countries do you intend to operate? *",
           "Select the countries most relevant to your current or planned operations."
         )}
         <div class="field" style="margin-top: 18px;">
-          <label>Which currencies are relevant to your business?</label>
+          <label>Which currencies are relevant to your business? *</label>
           ${renderSearchMultiSelect(
             "currencies",
             state.currencies,
@@ -998,7 +1015,7 @@ function renderCollectionsStep() {
         <p class="section-card__intro">Please provide information on the users sending funds.</p>
         <div class="field-grid">
           <div class="field">
-            <label>Who are the originating users?</label>
+            <label>Who are the originating users? *</label>
             ${renderChipSelector("collections.senderTypes", state.collections.senderTypes, [
               { value: "consumers", label: "Consumers" },
               { value: "businesses", label: "Businesses" },
@@ -1006,7 +1023,7 @@ function renderCollectionsStep() {
           </div>
 
           ${renderTextField(
-            "Number of users (payers)",
+            "Number of users (payers) *",
             "collections.payerCount",
             state.collections.payerCount,
             "number",
@@ -1026,12 +1043,12 @@ function renderCollectionsStep() {
         ${renderSearchMultiSelect(
           "collections.senderCountries",
           state.collections.senderCountries,
-          "List the countries where sender users are located",
+          "List the countries where sender users are located *",
           "Select the countries where your sender users are located."
         )}
 
         <div class="field" style="margin-top: 18px;">
-          <label>Which currencies are used for sending funds?</label>
+          <label>Which currencies are used for sending funds? *</label>
           ${renderSearchMultiSelect(
             "collections.senderCurrencies",
             state.collections.senderCurrencies,
@@ -1055,7 +1072,7 @@ function renderDisbursementsStep() {
         <p class="section-card__intro">Please provide information on the users receiving funds.</p>
         <div class="field-grid">
           <div class="field">
-            <label>Who are the receiving users?</label>
+            <label>Who are the receiving users? *</label>
             ${renderChipSelector("disbursements.receiverTypes", state.disbursements.receiverTypes, [
               { value: "consumers", label: "Consumers" },
               { value: "businesses", label: "Businesses" },
@@ -1066,7 +1083,7 @@ function renderDisbursementsStep() {
             showHighRiskQuestion
               ? `
                 <div class="field">
-                  <label>Are any of the businesses operating in high risk industries?</label>
+                  <label>Are any of the businesses operating in high risk industries? *</label>
                   ${renderSegmentedButtons("disbursements.highRiskIndustries", state.disbursements.highRiskIndustries, [
                     { value: "yes", label: "Yes" },
                     { value: "no", label: "No" },
@@ -1077,7 +1094,7 @@ function renderDisbursementsStep() {
           }
 
           ${renderTextField(
-            "Number of receiving users (payees / beneficiaries)",
+            "Number of receiving users (payees / beneficiaries) *",
             "disbursements.payeeCount",
             state.disbursements.payeeCount,
             "number",
@@ -1097,12 +1114,12 @@ function renderDisbursementsStep() {
         ${renderSearchMultiSelect(
           "disbursements.receiverCountries",
           state.disbursements.receiverCountries,
-          "List the countries where receiving users are located",
+          "List the countries where receiving users are located *",
           "Select the countries where your receiving users are located."
         )}
 
         <div class="field" style="margin-top: 18px;">
-          <label>Which currencies are used for delivered funds?</label>
+          <label>Which currencies are used for delivered funds? *</label>
           ${renderSearchMultiSelect(
             "disbursements.receiverCurrencies",
             state.disbursements.receiverCurrencies,
@@ -1514,6 +1531,14 @@ async function handleClick(event) {
 
   const action = button.dataset.action;
 
+  if (action === "goto-step") {
+    activeErrors = [];
+    currentStepIndex = Number(button.dataset.stepIndex);
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
   if (action === "prev-step") {
     activeErrors = [];
     currentStepIndex = Math.max(0, currentStepIndex - 1);
@@ -1615,6 +1640,39 @@ async function handleClick(event) {
   }
 }
 
+function handleBlur(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement)) return;
+
+  const existing = target.parentElement.querySelector(".field-inline-error");
+  if (existing) existing.remove();
+  target.classList.remove("is-invalid");
+
+  let errorMsg = "";
+
+  if (target.name === "contact.email") {
+    const val = target.value.trim();
+    if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+      errorMsg = "Please enter a valid email address.";
+    }
+  }
+
+  if (target.name === "contact.whatsapp") {
+    const val = target.value.trim();
+    if (val && !/^\+?[\d\s\-().]{7,20}$/.test(val)) {
+      errorMsg = "Please enter a valid phone number (e.g. +1 555 000 0000).";
+    }
+  }
+
+  if (errorMsg) {
+    const span = document.createElement("span");
+    span.className = "field-inline-error";
+    span.textContent = errorMsg;
+    target.classList.add("is-invalid");
+    target.insertAdjacentElement("afterend", span);
+  }
+}
+
 function handleInput(event) {
   const target = event.target;
 
@@ -1633,12 +1691,23 @@ function handleInput(event) {
   if (target.type === "range" || target.type === "number") {
     value = target.value === "" ? "" : Number(target.value);
   }
+  if (target.name === "contact.whatsapp") {
+    value = target.value.replace(/[^\d+\s\-().]/g, "");
+    target.value = value;
+  }
 
   setValueByPath(state, target.name, value);
   markSubmissionDirty();
 
   if (target.type === "range") {
     updateRangeOutput(target.name, value, target.dataset.format);
+  }
+
+  // clear inline error for this field while user is correcting it
+  if (target.name === "contact.email" || target.name === "contact.whatsapp") {
+    const existing = target.parentElement && target.parentElement.querySelector(".field-inline-error");
+    if (existing) existing.remove();
+    target.classList.remove("is-invalid");
   }
 
   activeErrors = [];
@@ -1691,6 +1760,11 @@ function validateIntro() {
   }
   if (!state.contact.email.trim()) {
     errors.push("Email");
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.contact.email.trim())) {
+    errors.push("Email — please enter a valid email address");
+  }
+  if (state.contact.whatsapp.trim() && !/^\+?[\d\s\-().]{7,20}$/.test(state.contact.whatsapp.trim())) {
+    errors.push("WhatsApp number — please enter a valid phone number (e.g. +1 555 000 0000)");
   }
   if (!state.company.companyName.trim()) {
     errors.push("Company name");
