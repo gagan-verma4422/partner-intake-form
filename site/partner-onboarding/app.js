@@ -578,9 +578,9 @@ function ensureLayout() {
   }
 
   app.innerHTML = `
-    <main class="page-shell">
+    <div class="page-shell">
       <div class="shell-frame">
-        <aside class="sidebar">
+        <aside class="sidebar" role="navigation" aria-label="Form progress">
           <div class="brand-lockup">
             <div class="brand-chip">
               <span class="brand-chip__dot"></span>
@@ -591,15 +591,15 @@ function ensureLayout() {
           <div class="step-map" data-render="step-map"></div>
         </aside>
 
-        <section class="question-panel">
-          <div class="panel-inner">
+        <section class="question-panel" id="main-content" role="main" tabindex="-1">
+          <form class="panel-inner panel-form" aria-label="Partner intake form">
             <header class="panel-header" data-render="panel-header"></header>
-            <div class="step-body" data-render="step-body"></div>
+            <div class="step-body" data-render="step-body" role="region" aria-label="Current form step"></div>
             <footer class="step-footer" data-render="step-footer"></footer>
-          </div>
+          </form>
         </section>
       </div>
-    </main>
+    </div>
   `;
 
   app.dataset.layoutReady = "true";
@@ -614,6 +614,7 @@ function render() {
   const currentStep = steps[currentStepIndex];
   const currentContent = STEP_CONTENT[currentStep.id];
   const recommendedDocs = getRecommendedDocs();
+  const progressPercent = Math.round(((currentStepIndex + 1) / steps.length) * 100);
   const stepMap = app.querySelector('[data-render="step-map"]');
   const panelHeader = app.querySelector('[data-render="panel-header"]');
   const stepBody = app.querySelector('[data-render="step-body"]');
@@ -639,6 +640,9 @@ function render() {
               type="button"
               data-action="goto-step"
               data-step-index="${index}"
+              aria-current="${index === currentStepIndex ? "step" : "false"}"
+              aria-label="Step ${index + 1}: ${escapeHtml(content.eyebrow)}. ${escapeHtml(content.title)}"
+              aria-disabled="${isUnlocked ? "false" : "true"}"
               ${isUnlocked ? "" : "disabled"}
             >
               <div class="step-item__index">${index + 1}</div>
@@ -657,8 +661,16 @@ function render() {
     <p class="panel-header__eyebrow">${escapeHtml(currentContent.eyebrow)}</p>
     <h2>${escapeHtml(currentContent.title)}</h2>
     <p>${escapeHtml(currentContent.description)}</p>
-    <div class="progress-rail">
-      <span style="width: ${Math.round(((currentStepIndex + 1) / steps.length) * 100)}%"></span>
+    <div
+      class="progress-rail"
+      role="progressbar"
+      aria-label="Form progress"
+      aria-valuenow="${progressPercent}"
+      aria-valuemin="0"
+      aria-valuemax="100"
+      aria-valuetext="Step ${currentStepIndex + 1} of ${steps.length}"
+    >
+      <span style="width: ${progressPercent}%"></span>
     </div>
   `;
 
@@ -890,10 +902,12 @@ function renderSolutionsStep() {
       <section class="section-card">
         <h3>Solutions of interest</h3>
         <p class="section-card__intro">Select the solution areas you would like to discuss. The remaining steps will adjust to your selection.</p>
-        <div class="option-grid">
+        <div class="option-grid grid auto-rows-fr md:grid-cols-2">
           ${flowModules
             .map((module) => {
               const entry = state.modules[module.key];
+              const titleId = `module-${module.key}-title`;
+              const descriptionId = `module-${module.key}-description`;
               return `
                 <button
                   class="option-card option-card--button ${entry.interested ? "is-selected" : ""}"
@@ -903,9 +917,11 @@ function renderSolutionsStep() {
                   data-key="${module.key}"
                   data-field="interested"
                   aria-pressed="${entry.interested ? "true" : "false"}"
+                  aria-labelledby="${titleId}"
+                  aria-describedby="${descriptionId}"
                 >
-                  <span class="option-card__title">${escapeHtml(module.label)}</span>
-                  <span class="option-card__description">${escapeHtml(module.description)}</span>
+                  <span class="option-card__title" id="${titleId}">${escapeHtml(module.label)}</span>
+                  <span class="option-card__description" id="${descriptionId}">${escapeHtml(module.description)}</span>
                 </button>
               `;
             })
@@ -982,11 +998,10 @@ function renderCollectionsStep() {
         )}
 
         <div class="field" style="margin-top: 18px;">
-          <label>Which currencies are used for sending funds? *</label>
           ${renderSearchMultiSelect(
             "collections.senderCurrencies",
             state.collections.senderCurrencies,
-            "",
+            "Which currencies are used for sending funds? *",
             "",
             "Search currencies"
           )}
@@ -1054,11 +1069,10 @@ function renderDisbursementsStep() {
         )}
 
         <div class="field" style="margin-top: 18px;">
-          <label>Which currencies are used for delivered funds? *</label>
           ${renderSearchMultiSelect(
             "disbursements.receiverCurrencies",
             state.disbursements.receiverCurrencies,
-            "",
+            "Which currencies are used for delivered funds? *",
             "",
             "Search currencies"
           )}
@@ -1151,7 +1165,7 @@ function renderThankYouStep(recommendedDocs) {
   return `
     <div class="thank-you">
       <section class="thank-you__hero">
-        <span class="brand-chip">
+        <span class="brand-chip thank-you__chip">
           <span class="brand-chip__dot"></span>
           Available documents
         </span>
@@ -1169,7 +1183,6 @@ function renderThankYouStep(recommendedDocs) {
         </div>
         <div class="thank-you__actions">
           <button class="button" type="button" data-action="download-pack">Download documents</button>
-          <button class="mini-button" type="button" data-action="restart">Restart questionnaire</button>
         </div>
       </section>
 
@@ -1287,7 +1300,7 @@ function renderSelectField(label, name, value, options, placeholder, className =
 
 function renderSegmentedButtons(path, selected, options) {
   return `
-    <div class="segmented">
+    <div class="segmented" role="group" aria-label="${escapeHtml(path)}">
       ${options
         .map(
           (option) => `
@@ -1297,6 +1310,7 @@ function renderSegmentedButtons(path, selected, options) {
               data-action="set-value"
               data-path="${path}"
               data-value="${option.value}"
+              aria-pressed="${selected === option.value ? "true" : "false"}"
             >
               ${escapeHtml(option.label)}
             </button>
@@ -1319,6 +1333,7 @@ function renderChipSelector(path, selectedValues, options) {
               data-action="toggle-array"
               data-path="${path}"
               data-value="${option.value}"
+              aria-pressed="${selectedValues.includes(option.value) ? "true" : "false"}"
             >
               ${escapeHtml(option.label)}
             </button>
@@ -1333,6 +1348,8 @@ function renderSearchMultiSelect(path, selectedValues, title = "", intro = "", p
   const definition = getSearchSelectorDefinition(path);
   const query = getSelectorQuery(path);
   const suggestions = getSearchSuggestions(path, query, selectedValues);
+  const inputId = selectorInputId(path);
+  const descriptionId = intro ? `${inputId}-description` : "";
 
   return `
     <div class="search-select">
@@ -1341,8 +1358,8 @@ function renderSearchMultiSelect(path, selectedValues, title = "", intro = "", p
           ? `
             <div class="search-select__header">
               <div>
-                ${title ? `<strong>${escapeHtml(title)}</strong>` : ""}
-                ${intro ? `<p>${escapeHtml(intro)}</p>` : ""}
+                ${title ? `<label class="search-select__label" for="${inputId}">${escapeHtml(title)}</label>` : ""}
+                ${intro ? `<p id="${descriptionId}">${escapeHtml(intro)}</p>` : ""}
               </div>
               <div class="selection-chip is-soft">${selectedValues.length} ${escapeHtml(definition.selectionLabel)}</div>
             </div>
@@ -1353,6 +1370,7 @@ function renderSearchMultiSelect(path, selectedValues, title = "", intro = "", p
       <div class="search-select__input-wrap">
         <input
           class="text-input search-select__input"
+          id="${inputId}"
           type="text"
           name="selector-search:${path}"
           data-selector-search="${path}"
@@ -1360,6 +1378,7 @@ function renderSearchMultiSelect(path, selectedValues, title = "", intro = "", p
           placeholder="${escapeHtml(placeholder || definition.placeholder)}"
           autocomplete="off"
           spellcheck="false"
+          ${descriptionId ? `aria-describedby="${descriptionId}"` : ""}
         />
 
         ${
@@ -1421,16 +1440,18 @@ function renderSearchMultiSelect(path, selectedValues, title = "", intro = "", p
 }
 
 function renderRangeCard(label, name, value, min, max, step, format, help = "") {
+  const inputId = toId(name);
   return `
     <div class="range-card">
       <div class="range-card__header">
-        <strong>${escapeHtml(label)}</strong>
+        <label class="range-card__label" for="${inputId}">${escapeHtml(label)}</label>
         <span class="range-card__value" data-output="${name}" data-format="${format}">
           ${escapeHtml(formatOutput(value, format))}
         </span>
       </div>
       <input
         class="range-input"
+        id="${inputId}"
         type="range"
         name="${name}"
         min="${min}"
@@ -1446,16 +1467,18 @@ function renderRangeCard(label, name, value, min, max, step, format, help = "") 
 
 function renderInterestGrid(items, storeKey, withShare) {
   return `
-    <div class="option-grid">
+    <div class="option-grid grid auto-rows-fr md:grid-cols-2">
       ${items
         .map((item) => {
           const entry = state[storeKey][item.key];
           const selected = entry.current || entry.interested;
+          const titleId = `${storeKey}-${item.key}-title`;
+          const descriptionId = `${storeKey}-${item.key}-description`;
 
           return `
-            <article class="option-card ${selected ? "is-selected" : ""}">
-              <h4>${escapeHtml(item.label)}</h4>
-              <p>${escapeHtml(item.description)}</p>
+            <article class="option-card ${selected ? "is-selected" : ""}" role="group" aria-labelledby="${titleId}" aria-describedby="${descriptionId}">
+              <h4 id="${titleId}">${escapeHtml(item.label)}</h4>
+              <p id="${descriptionId}">${escapeHtml(item.description)}</p>
               <div class="toggle-pair">
                 <button
                   class="pill-button ${entry.current ? "is-active" : ""}"
@@ -1464,6 +1487,7 @@ function renderInterestGrid(items, storeKey, withShare) {
                   data-store="${storeKey}"
                   data-key="${item.key}"
                   data-field="current"
+                  aria-pressed="${entry.current ? "true" : "false"}"
                 >
                   Current use
                 </button>
@@ -1474,6 +1498,7 @@ function renderInterestGrid(items, storeKey, withShare) {
                   data-store="${storeKey}"
                   data-key="${item.key}"
                   data-field="interested"
+                  aria-pressed="${entry.interested ? "true" : "false"}"
                 >
                   Interested in Veem
                 </button>
@@ -2328,6 +2353,10 @@ function restoreUiState(snapshot) {
 
 function toId(value) {
   return value.replace(/[^a-zA-Z0-9]+/g, "-");
+}
+
+function selectorInputId(path) {
+  return `selector-${toId(path)}`;
 }
 
 function escapeHtml(value) {
