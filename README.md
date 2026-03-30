@@ -16,7 +16,6 @@ That folder contains the production site files:
 - `app.js`
 - `styles.css`
 - `config.js`
-- `assets/docs/...`
 
 ## Required deployment steps
 
@@ -28,7 +27,6 @@ That folder contains the production site files:
    - `/partner-intake-form/app.js`
    - `/partner-intake-form/styles.css`
    - `/partner-intake-form/config.js`
-   - `/partner-intake-form/assets/docs/...`
 
 3. Redirect:
    - `/partner-intake-form`
@@ -41,8 +39,6 @@ That folder contains the production site files:
    The current file uses a Zapier webhook. Replace it with the final production webhook or endpoint before launch.
 
 5. Ensure the submission endpoint accepts the form POST request and returns a `2xx` response on success.
-
-6. Verify the downloadable files in `assets/docs/` remain publicly accessible, because the Thank You screen links directly to them.
 
 ## Submission behavior
 

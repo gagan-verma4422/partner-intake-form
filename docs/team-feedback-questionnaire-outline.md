@@ -37,7 +37,7 @@ Page description:
 `Please provide the primary contact details for this inquiry together with basic company information.`
 
 Page footer:
-`This information will be used for follow-up correspondence.`
+`Fields marked with * are required.`
 
 ### Primary contact
 
@@ -82,54 +82,55 @@ Descriptions should help users quickly understand the difference between Collect
 
 Shown only when `Collections` is selected.
 
-Page title: `Provide information on originating users.`
+Page title: `Provide information about your collections flow.`
 
 Page description:
-`Please provide information on the users who send funds into your collections flow.`
+`Please share details about the users sending funds and where funds move in your collections flow.`
 
 Page footer:
-`This information helps us assess your collections requirements.`
+`Fields marked with * are required.`
 
 ### Originating users
 
 Section description:
-`Please provide information on the users sending funds.`
+`Please provide information about where funds are coming from and where they are going in your collections flow.`
 
-- Who are the originating users?
+- What type of users are sending funds?
   Options: Consumers, Businesses, Sole proprietors
 - Number of users (payers)
 - Are these users actual or estimated?
   Options: Actual, Estimated
-- List the countries where sender users are located
-- Which currencies are used for sending funds?
+- From which countries will funds be sent?
+- In which currencies will funds be sent?
+- To which countries will funds be delivered?
+- In which currencies will funds be delivered?
 
 ## 4. Disbursement Information
 
 Shown only when `Disbursements` is selected.
 
-Page title: `Provide information on receiving users.`
+Page title: `Provide information about your disbursement flow.`
 
 Page description:
-`Please provide information on the users who receive funds from your disbursement flow.`
+`Please share details about the users receiving funds and where funds move in your disbursement flow.`
 
 Page footer:
-`This information helps us assess your disbursement requirements.`
+`Fields marked with * are required.`
 
 ### Receiving users
 
-Section description:
-`Please provide information on the users receiving funds.`
-
-- Who are the receiving users?
+- What type of users are receiving funds?
   Options: Consumers, Businesses, Sole proprietors
-- Are any of the businesses operating in high risk industries?
+- Do any of these businesses operate in high risk industries?
   Options: Yes, No
   Note: only shown when `Businesses` is selected above
-- Number of receiving users (payees / beneficiaries)
+- Number of users receiving funds
 - Are these users actual or estimated?
   Options: Actual, Estimated
-- List the countries where receiving users are located
-- Which currencies are used for delivered funds?
+- From countries
+- From currencies
+- To countries
+- To currencies
 
 ## 5. Product Scope
 
@@ -139,7 +140,7 @@ Page description:
 `Select the products and additional services most relevant to your business.`
 
 Page footer:
-`Please focus on the solutions most relevant to your near-term plans.`
+`Fields marked with * are required.`
 
 ### Products
 
@@ -208,7 +209,7 @@ Page description:
 `Please provide directional ranges for revenue, payment volume, payment count, and expected growth over the next 12 months.`
 
 Page footer:
-`Approximate figures are acceptable.`
+`Fields marked with * are required.`
 
 ### Company financials
 
@@ -226,7 +227,7 @@ Section description:
 Page title: `Provide business profile and licensing information.`
 
 Page footer:
-`Please answer based on your current operating model.`
+`Fields marked with * are required.`
 
 ### Business profile
 
@@ -255,7 +256,7 @@ Page description:
 `You may use this section to provide implementation considerations, launch timing, priorities, or any other relevant context.`
 
 Page footer:
-`Continue to view the available documents.`
+`Fields marked with * are required.`
 
 ### Summary
 
@@ -284,28 +285,12 @@ Section description:
 Page title: `Thank you for your submission.`
 
 Page description:
-`Based on the information provided, the following documents are available for download.`
+`Explore Veem solutions and partnership resources using the links below.`
 
 ### Completion screen
 
 - Submission confirmation
-- Document count
-- Products indicated
-
-### Available documents
-
-Section description:
-`KYC, account issuance, and coverage are included with all submissions. Additional documents appear based on the information provided.`
-
-Reviewer note:
-Confirm that the document set and document names are appropriate for the information collected in the form.
-
-- Modular KYC Workbook
-- Account Issuance Overview
-- Global Payments & Account Coverage
-- Collections Overview
-- Disbursements Overview
-- Stablecoin Overview
+- Links to Veem solution pages and partnership resources
 
 ## Feedback prompts for the team
 
@@ -320,4 +305,4 @@ Confirm that the document set and document names are appropriate for the informa
 - Are there fields that should be optional instead of required?
 - Are there any places where the user may hesitate or need extra explanation?
 - Does the Review page summarize the right information for internal follow-up?
-- Are the available documents aligned to what we want to share after submission?
+- Are the final-page resources aligned to what we want to share after submission?

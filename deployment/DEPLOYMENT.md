@@ -16,12 +16,10 @@ Deploy the contents of the `site/partner-intake-form/` folder so these files res
 - `/partner-intake-form/app.js`
 - `/partner-intake-form/styles.css`
 - `/partner-intake-form/config.js`
-- `/partner-intake-form/assets/docs/...`
 
 Important:
 
 - redirect `/partner-intake-form` to `/partner-intake-form/`
-- keep the `assets/docs` files under the same folder because the thank-you screen links directly to them
 
 ## 2. Zapier webhook contract
 
@@ -36,10 +34,6 @@ The frontend sends:
   "userAgent": "browser user agent string",
   "contact": {},
   "company": {},
-  "selectedDocuments": [
-    "Modular KYC Workbook",
-    "Account Issuance Overview"
-  ],
   "summary": "Plain-text submission summary...",
   "rawData": {
     "contact": {},
@@ -101,7 +95,6 @@ Recommended production behavior:
 - use a Zapier Catch Hook URL as `submissionWebhookUrl`
 - map `rawData` into your Zap or store the entire webhook body
 - use `summary` for email/slack-friendly notifications
-- use `selectedDocuments` if you want document-based routing or tagging
 
 There is still a sample Node implementation in `deployment/partner-intake-form-submission-handler.example.js` if you ever decide to place your own backend between the site and Zapier.
 
@@ -124,14 +117,6 @@ window.VEEM_ONBOARDING_CONFIG = {
     app.js
     styles.css
     config.js
-    assets/
-      docs/
-        veem-account-issuance-overview.pdf
-        veem-collections-overview.pdf
-        veem-disbursements-overview.pdf
-        veem-global-payments-account-coverage.xlsx
-        veem-modular-kyc.xlsx
-        veem-stablecoin-overview.pdf
 ```
 
 ## 6. Notes for the web team

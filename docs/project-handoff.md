@@ -14,7 +14,7 @@ Its purpose is to help Veem collect structured information from prospective part
 - financial profile
 - business profile and licensing context
 
-The experience ends with a review screen and a document recommendation / download screen based on the responses entered.
+The experience ends with a review screen and a final page with Veem solution and partnership links.
 
 ## Current goal
 
@@ -92,7 +92,7 @@ The sidebar uses progressive locking:
 - Removed numeric placeholders from payer / payee count fields
 - Made `Are these users actual or estimated?` required with no default selection
 - Replaced the old `Who is the end customer?` question with current flow-of-funds business status questions
-- Updated Review summary behavior and document page messaging
+- Updated Review summary behavior and final page messaging
 
 ## Current product scope
 
@@ -143,7 +143,7 @@ The project is still being refined in these areas:
 ## Known implementation notes
 
 - The app is static and does not require a build step.
-- The thank-you page recommends downloadable documents based on answers in the form.
+- The thank-you page now shares Veem solution and partnership links after submission.
 - The deployment folder includes an example backend handler, but backend integration may still need production wiring depending on deployment target.
 
 ## How to continue work safely
