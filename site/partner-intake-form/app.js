@@ -651,6 +651,8 @@ const state = {
   additionalServices: buildInterestMap(ADDITIONAL_SERVICES),
   collections: {
     senderTypes: [],
+    receiverTypes: [],
+    highRiskIndustries: "",
     payerCount: "",
     payerCountBasis: "",
     senderCountries: [],
@@ -659,6 +661,7 @@ const state = {
     receiverCurrencies: [],
   },
   disbursements: {
+    senderTypes: [],
     receiverTypes: [],
     highRiskIndustries: "",
     payeeCount: "",
@@ -1103,18 +1106,95 @@ function renderMarketsStep() {
 }
 
 function renderCollectionsStep() {
+  const showHighRiskQuestion =
+    state.collections.senderTypes.includes("businesses") ||
+    state.collections.receiverTypes.includes("businesses");
+
   return `
     <div class="section-stack">
+      <div class="flow-split-grid">
+        <section class="flow-split-card">
+          <span class="flow-split-card__eyebrow">From</span>
+          <p>Share who is sending funds and the source countries and currencies.</p>
+          <div class="flow-split-card__grid">
+            <div class="flow-field-box">
+              <div class="field">
+                <label>${renderLabelText("Type of users *")}</label>
+                ${renderChipSelector("collections.senderTypes", state.collections.senderTypes, [
+                  { value: "consumers", label: "Consumers" },
+                  { value: "businesses", label: "Businesses" },
+                  { value: "soleProprietors", label: "Sole proprietors" },
+                ])}
+              </div>
+            </div>
+            <div class="flow-field-box">
+              ${renderSearchMultiSelect(
+                "collections.senderCountries",
+                state.collections.senderCountries,
+                "What countries are funds coming from? *"
+              )}
+            </div>
+            <div class="flow-field-box">
+              ${renderSearchMultiSelect(
+                "collections.senderCurrencies",
+                state.collections.senderCurrencies,
+                "Which currencies are the funds sent in? *",
+                "",
+                "Search currencies"
+              )}
+            </div>
+          </div>
+        </section>
+
+        <section class="flow-split-card">
+          <span class="flow-split-card__eyebrow">To</span>
+          <p>Share who is receiving funds and the destination countries and currencies.</p>
+          <div class="flow-split-card__grid">
+            <div class="flow-field-box">
+              <div class="field">
+                <label>${renderLabelText("Type of users *")}</label>
+                ${renderChipSelector("collections.receiverTypes", state.collections.receiverTypes, [
+                  { value: "consumers", label: "Consumers" },
+                  { value: "businesses", label: "Businesses" },
+                  { value: "soleProprietors", label: "Sole proprietors" },
+                ])}
+              </div>
+            </div>
+            <div class="flow-field-box">
+              ${renderSearchMultiSelect(
+                "collections.receiverCountries",
+                state.collections.receiverCountries,
+                "What countries are funds going to? *"
+              )}
+            </div>
+            <div class="flow-field-box">
+              ${renderSearchMultiSelect(
+                "collections.receiverCurrencies",
+                state.collections.receiverCurrencies,
+                "Which currencies are the funds received in? *",
+                "",
+                "Search currencies"
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+
       <section class="section-card">
         <div class="field-grid">
-          <div class="field">
-            <label>${renderLabelText("What type of users are sending funds? *")}</label>
-            ${renderChipSelector("collections.senderTypes", state.collections.senderTypes, [
-              { value: "consumers", label: "Consumers" },
-              { value: "businesses", label: "Businesses" },
-              { value: "soleProprietors", label: "Sole proprietors" },
-            ])}
-          </div>
+          ${
+            showHighRiskQuestion
+              ? `
+                <div class="field">
+                  <label>${renderLabelText("Do any of these businesses operate in high risk industries? *")}</label>
+                  ${renderSegmentedButtons("collections.highRiskIndustries", state.collections.highRiskIndustries, [
+                    { value: "yes", label: "Yes" },
+                    { value: "no", label: "No" },
+                  ])}
+                </div>
+              `
+              : ""
+          }
 
           ${renderTextField(
             "Number of users (payers) *",
@@ -1134,24 +1214,44 @@ function renderCollectionsStep() {
           </div>
         </div>
       </section>
+    </div>
+  `;
+}
 
+function renderDisbursementsStep() {
+  const showHighRiskQuestion =
+    state.disbursements.senderTypes.includes("businesses") ||
+    state.disbursements.receiverTypes.includes("businesses");
+
+  return `
+    <div class="section-stack">
       <div class="flow-split-grid">
         <section class="flow-split-card">
           <span class="flow-split-card__eyebrow">From</span>
-          <p>Select the source countries and currencies.</p>
+          <p>Share who is sending funds and the source countries and currencies.</p>
           <div class="flow-split-card__grid">
             <div class="flow-field-box">
+              <div class="field">
+                <label>${renderLabelText("Type of users *")}</label>
+                ${renderChipSelector("disbursements.senderTypes", state.disbursements.senderTypes, [
+                  { value: "consumers", label: "Consumers" },
+                  { value: "businesses", label: "Businesses" },
+                  { value: "soleProprietors", label: "Sole proprietors" },
+                ])}
+              </div>
+            </div>
+            <div class="flow-field-box">
               ${renderSearchMultiSelect(
-                "collections.senderCountries",
-                state.collections.senderCountries,
-                "From countries *"
+                "disbursements.senderCountries",
+                state.disbursements.senderCountries,
+                "What countries are funds coming from? *"
               )}
             </div>
             <div class="flow-field-box">
               ${renderSearchMultiSelect(
-                "collections.senderCurrencies",
-                state.collections.senderCurrencies,
-                "From currencies *",
+                "disbursements.senderCurrencies",
+                state.disbursements.senderCurrencies,
+                "Which currencies are the funds sent in? *",
                 "",
                 "Search currencies"
               )}
@@ -1161,20 +1261,30 @@ function renderCollectionsStep() {
 
         <section class="flow-split-card">
           <span class="flow-split-card__eyebrow">To</span>
-          <p>Select the destination countries and currencies.</p>
+          <p>Share who is receiving funds and the destination countries and currencies.</p>
           <div class="flow-split-card__grid">
             <div class="flow-field-box">
+              <div class="field">
+                <label>${renderLabelText("Type of users *")}</label>
+                ${renderChipSelector("disbursements.receiverTypes", state.disbursements.receiverTypes, [
+                  { value: "consumers", label: "Consumers" },
+                  { value: "businesses", label: "Businesses" },
+                  { value: "soleProprietors", label: "Sole proprietors" },
+                ])}
+              </div>
+            </div>
+            <div class="flow-field-box">
               ${renderSearchMultiSelect(
-                "collections.receiverCountries",
-                state.collections.receiverCountries,
-                "To countries *"
+                "disbursements.receiverCountries",
+                state.disbursements.receiverCountries,
+                "What countries are funds going to? *"
               )}
             </div>
             <div class="flow-field-box">
               ${renderSearchMultiSelect(
-                "collections.receiverCurrencies",
-                state.collections.receiverCurrencies,
-                "To currencies *",
+                "disbursements.receiverCurrencies",
+                state.disbursements.receiverCurrencies,
+                "Which currencies are the funds received in? *",
                 "",
                 "Search currencies"
               )}
@@ -1182,26 +1292,9 @@ function renderCollectionsStep() {
           </div>
         </section>
       </div>
-    </div>
-  `;
-}
 
-function renderDisbursementsStep() {
-  const showHighRiskQuestion = state.disbursements.receiverTypes.includes("businesses");
-
-  return `
-    <div class="section-stack">
       <section class="section-card">
         <div class="field-grid">
-          <div class="field">
-            <label>${renderLabelText("What type of users are receiving funds? *")}</label>
-            ${renderChipSelector("disbursements.receiverTypes", state.disbursements.receiverTypes, [
-              { value: "consumers", label: "Consumers" },
-              { value: "businesses", label: "Businesses" },
-              { value: "soleProprietors", label: "Sole proprietors" },
-            ])}
-          </div>
-
           ${
             showHighRiskQuestion
               ? `
@@ -1234,54 +1327,6 @@ function renderDisbursementsStep() {
           </div>
         </div>
       </section>
-
-      <div class="flow-split-grid">
-        <section class="flow-split-card">
-          <span class="flow-split-card__eyebrow">From</span>
-          <p>Select the source countries and currencies.</p>
-          <div class="flow-split-card__grid">
-            <div class="flow-field-box">
-              ${renderSearchMultiSelect(
-                "disbursements.senderCountries",
-                state.disbursements.senderCountries,
-                "From countries *"
-              )}
-            </div>
-            <div class="flow-field-box">
-              ${renderSearchMultiSelect(
-                "disbursements.senderCurrencies",
-                state.disbursements.senderCurrencies,
-                "From currencies *",
-                "",
-                "Search currencies"
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section class="flow-split-card">
-          <span class="flow-split-card__eyebrow">To</span>
-          <p>Select the destination countries and currencies.</p>
-          <div class="flow-split-card__grid">
-            <div class="flow-field-box">
-              ${renderSearchMultiSelect(
-                "disbursements.receiverCountries",
-                state.disbursements.receiverCountries,
-                "To countries *"
-              )}
-            </div>
-            <div class="flow-field-box">
-              ${renderSearchMultiSelect(
-                "disbursements.receiverCurrencies",
-                state.disbursements.receiverCurrencies,
-                "To currencies *",
-                "",
-                "Search currencies"
-              )}
-            </div>
-          </div>
-        </section>
-      </div>
     </div>
   `;
 }
@@ -1381,7 +1426,7 @@ function renderThankYouStep() {
     <div class="thank-you">
       <section class="thank-you__hero">
         <h3>Thank you for completing the questionnaire.</h3>
-        <p>We’re excited to review your responses. Questions? Reach out to Shaina at <a href="mailto:shaina.murugan@veem.com">shaina.murugan@veem.com</a>.</p>
+        <p>We are excited to review your responses. If you have any questions, please reach out to Halima Sadia at <a href="mailto:halima.sadia@veem.com">halima.sadia@veem.com</a>.</p>
         ${
           submissionState.submittedAt
             ? `<p class="completion-note">Submission received on ${escapeHtml(formatSubmittedAt(submissionState.submittedAt))}.</p>`
@@ -2067,6 +2112,16 @@ function validateCollections() {
   if (!state.collections.senderTypes.length) {
     errors.push("Originating user type");
   }
+  if (!state.collections.receiverTypes.length) {
+    errors.push("Receiving user type");
+  }
+  if (
+    (state.collections.senderTypes.includes("businesses") ||
+      state.collections.receiverTypes.includes("businesses")) &&
+    !state.collections.highRiskIndustries
+  ) {
+    errors.push("High risk industry status");
+  }
   if (!state.collections.payerCount) {
     errors.push("Number of payer users");
   }
@@ -2092,10 +2147,17 @@ function validateCollections() {
 function validateDisbursements() {
   const errors = [];
 
+  if (!state.disbursements.senderTypes.length) {
+    errors.push("Sending user type");
+  }
   if (!state.disbursements.receiverTypes.length) {
     errors.push("Receiving user type");
   }
-  if (state.disbursements.receiverTypes.includes("businesses") && !state.disbursements.highRiskIndustries) {
+  if (
+    (state.disbursements.senderTypes.includes("businesses") ||
+      state.disbursements.receiverTypes.includes("businesses")) &&
+    !state.disbursements.highRiskIndustries
+  ) {
     errors.push("High risk industry status");
   }
   if (!state.disbursements.payeeCount) {
@@ -2466,6 +2528,8 @@ function buildSummary() {
     lines.push(
       "",
       `Collections sender types: ${state.collections.senderTypes.join(", ") || "N/A"}`,
+      `Collections receiver types: ${state.collections.receiverTypes.join(", ") || "N/A"}`,
+      `High risk industries: ${state.collections.highRiskIndustries || "N/A"}`,
       `Collections payer count: ${state.collections.payerCount || "N/A"} (${state.collections.payerCountBasis})`,
       `Collections from countries: ${state.collections.senderCountries
         .map((code) => countryLookup.get(code)?.name || code)
@@ -2481,6 +2545,7 @@ function buildSummary() {
   if (isModuleSelected("disbursements")) {
     lines.push(
       "",
+      `Disbursements sender types: ${state.disbursements.senderTypes.join(", ") || "N/A"}`,
       `Disbursements receiver types: ${state.disbursements.receiverTypes.join(", ") || "N/A"}`,
       `High risk industries: ${state.disbursements.highRiskIndustries || "N/A"}`,
       `Disbursements payee count: ${state.disbursements.payeeCount || "N/A"} (${state.disbursements.payeeCountBasis})`,

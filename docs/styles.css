@@ -582,8 +582,24 @@ button {
   margin-top: 0;
 }
 
+.flow-field-box .field {
+  display: grid;
+  gap: 10px;
+}
+
+.flow-field-box .field label,
 .flow-field-box .search-select__label {
   font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.flow-field-box .field label {
+  margin-bottom: 0;
+}
+
+.flow-field-box .chip-cloud {
+  margin-top: 0;
 }
 
 .flow-field-box .search-select__tags {
@@ -592,6 +608,28 @@ button {
 
 .flow-field-box .search-select__placeholder {
   font-size: 0.92rem;
+}
+
+.flow-field-box .search-select__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.flow-field-box .search-select__header > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.flow-field-box .search-select__label {
+  display: block;
+  max-width: none;
+}
+
+.flow-field-box .search-select__header .selection-chip.is-soft {
+  flex: 0 0 auto;
+  justify-self: auto;
 }
 
 .review-summary-card {
