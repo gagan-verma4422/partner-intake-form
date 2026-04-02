@@ -744,7 +744,7 @@ function ensureLayout() {
           <div class="brand-lockup">
             <div class="brand-chip">
               <span class="brand-chip__dot"></span>
-              Veem Partner Intake Form
+              Veem Partner
             </div>
           </div>
 
