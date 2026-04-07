@@ -538,18 +538,6 @@ const CURRENCY_SEARCH_OPTIONS = CURRENCY_OPTIONS.map((currency) => ({
   keywords: currency,
 }));
 const SEARCH_SELECTOR_DEFINITIONS = {
-  operatingCountries: {
-    options: COUNTRY_SEARCH_OPTIONS,
-    placeholder: "Search countries",
-    selectionLabel: "selected",
-    emptySelectionLabel: "",
-  },
-  currencies: {
-    options: CURRENCY_SEARCH_OPTIONS,
-    placeholder: "Search currencies",
-    selectionLabel: "selected",
-    emptySelectionLabel: "",
-  },
   "collections.senderCountries": {
     options: COUNTRY_SEARCH_OPTIONS,
     placeholder: "Search countries",
@@ -630,7 +618,6 @@ const state = {
   },
   role: {
     inFlow: "",
-    flowOfFundsChart: null,
     licensed: "",
     additionalLicenses: "",
     additionalLicenseLocations: "",
@@ -644,9 +631,6 @@ const state = {
     averageTicket: 2500,
   },
   modules: buildInterestMap(MODULES),
-  transactionTypes: [],
-  operatingCountries: [],
-  currencies: ["USD"],
   paymentMethods: buildVolumeInterestMap(PAYMENT_METHODS),
   additionalServices: buildInterestMap(ADDITIONAL_SERVICES),
   collections: {
@@ -2470,19 +2454,104 @@ async function submitCurrentResponse() {
 }
 
 function buildSubmissionPayload() {
-  const rawData = cloneSubmissionState(state);
+  const responses = buildSubmissionResponses();
+  const submittedAt = new Date().toISOString();
+  const rawData = buildZapierRawData(submittedAt);
 
   return {
     event: "veem.partner_onboarding.submitted",
     submissionId: generateSubmissionId(),
-    submittedAt: new Date().toISOString(),
+    submittedAt,
     pageUrl: window.location.href,
     userAgent: navigator.userAgent,
-    contact: rawData.contact,
-    company: rawData.company,
+    contact: responses.contact,
+    company: responses.company,
     summary: buildSummary(),
     rawData,
-    responses: rawData,
+    responses,
+  };
+}
+
+function buildSubmissionResponses() {
+  const responses = {
+    contact: state.contact,
+    company: state.company,
+    role: {
+      inFlow: state.role.inFlow,
+      licensed: state.role.licensed,
+      additionalLicenses: state.role.additionalLicenses,
+      additionalLicenseLocations: state.role.additionalLicenseLocations,
+      pricingModel: state.role.pricingModel,
+    },
+    financials: state.financials,
+    modules: state.modules,
+    paymentMethods: state.paymentMethods,
+    additionalServices: state.additionalServices,
+    additionalInfo: state.additionalInfo,
+  };
+
+  if (isModuleSelected("collections")) {
+    responses.collections = state.collections;
+  }
+
+  if (isModuleSelected("disbursements")) {
+    responses.disbursements = state.disbursements;
+  }
+
+  return cloneSubmissionState(responses);
+}
+
+function buildZapierRawData(submittedAt) {
+  const entityTypeLabel = labelForOption(ENTITY_TYPES, state.company.entityType) || state.company.entityType;
+  const pricingModelLabel =
+    state.role.pricingModel === "revshare"
+      ? "Revenue share"
+      : state.role.pricingModel === "wholesale"
+        ? "Wholesale pricing"
+        : state.role.pricingModel;
+  const selectedFlows = getSelectedFlowLabels();
+  const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods);
+  const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices);
+
+  return {
+    "Submission date": submittedAt || "",
+    "First Name": state.contact.firstName || "",
+    "Last name": state.contact.lastName || "",
+    "Email": state.contact.email || "",
+    "Whatsapp Number": state.contact.whatsapp || "",
+    "Company Name": state.company.companyName || "",
+    "Entity Type": entityTypeLabel || "",
+    "Url": state.company.url || "",
+    "Selected flows": selectedFlows.length ? formatList(selectedFlows) : "",
+    "Flow of funds business": state.role.inFlow || "",
+    "Licensed in operating countries": state.role.licensed || "",
+    "Additional licenses": state.role.additionalLicenses || "",
+    "Additional license locations": state.role.additionalLicenseLocations || "",
+    "Pricing model": pricingModelLabel || "",
+    "Annual Revenue range": state.financials.revenueRange || "",
+    "Annual volume range": state.financials.annualVolumeRange || "",
+    "Payment count range": state.financials.paymentCountRange || "",
+    "Expected company growth (next 12 months)": String(state.financials.companyGrowth ?? ""),
+    "Average ticket size": String(state.financials.averageTicket ?? ""),
+    "Products": paymentMethodSummary || "",
+    "Additional services": servicesSummary || "",
+    "Collections sender types": state.collections.senderTypes.join(", "),
+    "Collections from countries": formatCountryList(state.collections.senderCountries),
+    "Collections from currencies": state.collections.senderCurrencies.join(", "),
+    "Collections receiver types": state.collections.receiverTypes.join(", "),
+    "Collections to countries": formatCountryList(state.collections.receiverCountries),
+    "Collections to currencies": state.collections.receiverCurrencies.join(", "),
+    "Collections payer count": state.collections.payerCount || "",
+    "Collections High risk industries": state.collections.highRiskIndustries || "",
+    "Disbursements sender types": state.disbursements.senderTypes.join(", "),
+    "Disbursements from countries": formatCountryList(state.disbursements.senderCountries),
+    "Disbursements from currencies": state.disbursements.senderCurrencies.join(", "),
+    "Disbursements receiver types": state.disbursements.receiverTypes.join(", "),
+    "Disbursements to countries": formatCountryList(state.disbursements.receiverCountries),
+    "Disbursements to currencies": state.disbursements.receiverCurrencies.join(", "),
+    "Disbursements payee count": state.disbursements.payeeCount || "",
+    "Disbursements High risk industries": state.disbursements.highRiskIndustries || "",
+    "Additional info": state.additionalInfo || "",
   };
 }
 
@@ -2490,13 +2559,10 @@ function buildSummary() {
   const entityTypeLabel = labelForOption(ENTITY_TYPES, state.company.entityType);
   const pricingModelLabel = state.role.pricingModel === "revshare" ? "Revenue share" : state.role.pricingModel === "wholesale" ? "Wholesale pricing" : "N/A";
   const selectedFlows = getSelectedFlowLabels();
-  const selectedCountries = state.operatingCountries
-    .map((code) => countryLookup.get(code)?.name || code)
-    .join(", ");
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods);
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices);
   const lines = [
-    "Veem partner onboarding response",
+    "New Partner Intake form submission",
     "",
     `Contact: ${state.contact.firstName} ${state.contact.lastName}`.trim(),
     `Email: ${state.contact.email || "N/A"}`,
@@ -2518,8 +2584,6 @@ function buildSummary() {
     `Payment count range: ${state.financials.paymentCountRange || "N/A"}`,
     `Average ticket size: ${currencyFormatter.format(Number(state.financials.averageTicket || 0))}`,
     "",
-    `Operating countries: ${selectedCountries || "N/A"}`,
-    `Currencies: ${state.currencies.join(", ") || "N/A"}`,
     `Products: ${paymentMethodSummary || "N/A"}`,
     `Additional services: ${servicesSummary || "N/A"}`,
   ];
@@ -2589,6 +2653,10 @@ function summarizeInterestGroup(items, groupState) {
 
 function labelForOption(options, value) {
   return options.find((option) => option.value === value)?.label || value;
+}
+
+function formatCountryList(codes) {
+  return codes.map((code) => countryLookup.get(code)?.name || code).join(", ");
 }
 
 function markSubmissionDirty() {

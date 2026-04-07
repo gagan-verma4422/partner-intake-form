@@ -36,20 +36,41 @@ The frontend sends:
   "company": {},
   "summary": "Plain-text submission summary...",
   "rawData": {
-    "contact": {},
-    "company": {},
-    "role": {},
-    "financials": {},
-    "modules": {},
-    "transactionTypes": [],
-    "operatingCountries": [],
-    "currencies": [],
-    "paymentMethods": {},
-    "storageProducts": {},
-    "additionalServices": {},
-    "collections": {},
-    "disbursements": {},
-    "additionalInfo": ""
+    "First Name": "Ada",
+    "Last name": "Lovelace",
+    "Email": "ada@example.com",
+    "Whatsapp Number": "+1 555 000 0000",
+    "Company Name": "Acme Payments",
+    "Entity Type": "Corporation",
+    "Url": "https://example.com",
+    "Selected flows": "Collections and Disbursements",
+    "Flow of funds business": "yes",
+    "Licensed in operating countries": "yes",
+    "Additional licenses": "no",
+    "Additional license locations": "",
+    "Pricing model": "Wholesale pricing",
+    "Revenue range": "$10M-$50M",
+    "Expected company growth (next 12 months)": "30",
+    "Annual volume range": "$50M-$250M",
+    "Payment count range": "100K-500K",
+    "Average ticket size": "2500",
+    "Products": "Standard ACH (interested, 20% current)",
+    "Additional services": "Risk Services (interested)",
+    "Collections sender types": "businesses",
+    "Collections receiver types": "consumers",
+    "Collections payer count": "1000",
+    "Collections from countries": "United States",
+    "Collections from currencies": "USD",
+    "Collections to countries": "Canada",
+    "Disbursements sender types": "businesses",
+    "Disbursements receiver types": "soleProprietors",
+    "High risk industries": "no",
+    "Disbursements payee count": "500",
+    "Disbursements from countries": "United States",
+    "Disbursements from currencies": "USD",
+    "Disbursements to countries": "Mexico",
+    "Disbursements to currencies": "MXN",
+    "Additional info": "Launch planned for Q3."
   },
   "responses": {
     "contact": {},
@@ -57,18 +78,14 @@ The frontend sends:
     "role": {},
     "financials": {},
     "modules": {},
-    "transactionTypes": [],
-    "operatingCountries": [],
-    "currencies": [],
     "paymentMethods": {},
-    "storageProducts": {},
     "additionalServices": {},
-    "collections": {},
-    "disbursements": {},
     "additionalInfo": ""
   }
 }
 ```
+
+`collections` and `disbursements` are included only when those solution areas are selected in the form.
 
 The webhook should respond with any `2xx` status. If it returns JSON, the frontend can read:
 
