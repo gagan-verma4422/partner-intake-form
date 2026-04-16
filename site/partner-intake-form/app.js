@@ -124,6 +124,15 @@ const ENTITY_TYPES = [
   { value: "other", label: "Other" },
 ];
 
+const USE_CASE_CATEGORIES = [
+  { value: "b2b-payments", label: "B2B Payments", description: "Primary business motion for this opportunity." },
+  { value: "marketplace-platform", label: "Marketplace / Platform", description: "Primary business motion for this opportunity." },
+  { value: "personal-remittance", label: "Personal Remittance", description: "Primary business motion for this opportunity." },
+  { value: "disbursements-payroll", label: "Disbursements / Payroll", description: "Primary business motion for this opportunity." },
+  { value: "embedded-finance", label: "Embedded Finance", description: "Primary business motion for this opportunity." },
+  { value: "other", label: "Other", description: "Primary business motion for this opportunity." },
+];
+
 const RANGE_OPTIONS = {
   revenue: [
     "< $1M",
@@ -450,6 +459,14 @@ const STEP_CONTENT = {
     footer:
       "Fields marked with * are required.",
   },
+  useCase: {
+    eyebrow: "Use Case Category",
+    title: "Choose the dominant commercial framing.",
+    description:
+      "Select the primary business motion for this opportunity.",
+    footer:
+      "Fields marked with * are required.",
+  },
   role: {
     eyebrow: "Business Profile",
     title: "Provide business profile and licensing information.",
@@ -597,6 +614,8 @@ const currencyFormatter = new Intl.NumberFormat("en-US", {
 let currentStepIndex = 0;
 let maxUnlockedStepIndex = 0;
 let activeErrors = [];
+let isLastPageTestingEnabled = false;
+let testingReturnStepIndex = 0;
 const selectorUiState = {};
 const submissionState = {
   status: "idle",
@@ -614,7 +633,12 @@ const state = {
   company: {
     companyName: "",
     entityType: "",
+    entityTypeOther: "",
     url: "",
+  },
+  useCase: {
+    category: "",
+    other: "",
   },
   role: {
     inFlow: "",
@@ -637,6 +661,7 @@ const state = {
     senderTypes: [],
     receiverTypes: [],
     highRiskIndustries: "",
+    highRiskIndustryDetails: "",
     payerCount: "",
     payerCountBasis: "",
     senderCountries: [],
@@ -648,6 +673,7 @@ const state = {
     senderTypes: [],
     receiverTypes: [],
     highRiskIndustries: "",
+    highRiskIndustryDetails: "",
     payeeCount: "",
     payeeCountBasis: "",
     senderCountries: [],
@@ -659,7 +685,12 @@ const state = {
 };
 
 const app = document.getElementById("app");
-const ENABLE_LAST_PAGE_TESTING = false;
+const LAST_PAGE_TEST_SHORTCUT = {
+  key: "t",
+  altKey: true,
+  shiftKey: true,
+};
+const LAST_PAGE_TEST_QUERY_VALUES = new Set(["thankyou", "thank-you", "last-page"]);
 
 if (app instanceof HTMLElement) {
   app.addEventListener("click", handleClick);
@@ -667,6 +698,8 @@ if (app instanceof HTMLElement) {
   app.addEventListener("change", handleInput);
   app.addEventListener("keydown", handleKeyDown);
   app.addEventListener("focusout", handleBlur);
+  document.addEventListener("keydown", handleGlobalKeyDown);
+  applyInitialTestingMode();
   render();
 } else {
   console.error('Partner onboarding app could not start because the "#app" container was not found.');
@@ -693,10 +726,14 @@ function buildVolumeInterestMap(items) {
 function buildSteps() {
   const steps = [
     { id: "intro", validate: validateIntro },
+    { id: "useCase", validate: validateUseCase },
     { id: "solutions", validate: validateSolutions },
   ];
 
   if (!getSelectedFlowLabels().length) {
+    if (isLastPageTestingEnabled) {
+      steps.push({ id: "thankyou", validate: () => [] });
+    }
     return steps;
   }
 
@@ -754,7 +791,7 @@ function render() {
 
   const steps = buildSteps();
   currentStepIndex = Math.min(currentStepIndex, steps.length - 1);
-  maxUnlockedStepIndex = ENABLE_LAST_PAGE_TESTING
+  maxUnlockedStepIndex = isLastPageTestingEnabled
     ? steps.length - 1
     : Math.max(currentStepIndex, Math.min(maxUnlockedStepIndex, steps.length - 1));
   const currentStep = steps[currentStepIndex];
@@ -778,7 +815,7 @@ function render() {
               : index < currentStepIndex
                 ? "is-complete"
                 : "";
-          if (step.id === "thankyou" && submissionState.status !== "success" && !ENABLE_LAST_PAGE_TESTING) return "";
+          if (step.id === "thankyou" && submissionState.status !== "success" && !isLastPageTestingEnabled) return "";
           return `
             <button
               class="step-item ${statusClass} ${isUnlocked ? "is-clickable" : "is-locked"}"
@@ -858,6 +895,8 @@ function renderStepContent(stepId) {
   switch (stepId) {
     case "intro":
       return renderIntroStep();
+    case "useCase":
+      return renderUseCaseStep();
     case "role":
       return renderRoleStep();
     case "financials":
@@ -899,8 +938,44 @@ function renderIntroStep() {
         <div class="field-grid">
           ${renderTextField("Company name *", "company.companyName", state.company.companyName, "text", "Acme Payments", "is-half")}
           ${renderSelectField("Entity type *", "company.entityType", state.company.entityType, ENTITY_TYPES, "Choose one", "is-half")}
+          ${
+            state.company.entityType === "other"
+              ? renderTextField(
+                  "Please specify entity type *",
+                  "company.entityTypeOther",
+                  state.company.entityTypeOther,
+                  "text",
+                  "Enter entity type",
+                  "is-half"
+                )
+              : ""
+          }
           ${renderTextField("URL", "company.url", state.company.url, "url", "https://www.company.com")}
         </div>
+      </section>
+    </div>
+  `;
+}
+
+function renderUseCaseStep() {
+  return `
+    <div class="section-stack">
+      <section class="section-card">
+        <h3>Use case category <span class="required-star">*</span></h3>
+        <p class="section-card__intro">Choose the dominant commercial framing for this opportunity.</p>
+        ${renderChoiceCards("useCase.category", state.useCase.category, USE_CASE_CATEGORIES)}
+        ${
+          state.useCase.category === "other"
+            ? renderTextField(
+                "Please specify use case category *",
+                "useCase.other",
+                state.useCase.other,
+                "text",
+                "",
+                "is-half"
+              )
+            : ""
+        }
       </section>
     </div>
   `;
@@ -1176,6 +1251,19 @@ function renderCollectionsStep() {
                     { value: "no", label: "No" },
                   ])}
                 </div>
+
+                ${
+                  state.collections.highRiskIndustries === "yes"
+                    ? renderTextField(
+                        "Please specify high risk industries *",
+                        "collections.highRiskIndustryDetails",
+                        state.collections.highRiskIndustryDetails,
+                        "text",
+                        "",
+                        "is-half"
+                      )
+                    : ""
+                }
               `
               : ""
           }
@@ -1289,6 +1377,19 @@ function renderDisbursementsStep() {
                     { value: "no", label: "No" },
                   ])}
                 </div>
+
+                ${
+                  state.disbursements.highRiskIndustries === "yes"
+                    ? renderTextField(
+                        "Please specify high risk industries *",
+                        "disbursements.highRiskIndustryDetails",
+                        state.disbursements.highRiskIndustryDetails,
+                        "text",
+                        "",
+                        "is-half"
+                      )
+                    : ""
+                }
               `
               : ""
           }
@@ -1317,6 +1418,7 @@ function renderDisbursementsStep() {
 
 function renderReviewStep() {
   const selectedFlows = getSelectedFlowLabels();
+  const useCaseCategoryLabel = getUseCaseCategoryLabel();
   const pricingModelLabel =
     state.role.pricingModel === "revshare"
       ? "Revenue share"
@@ -1374,6 +1476,10 @@ function renderReviewStep() {
           <div class="summary-card">
             <strong>Selected flows</strong>
             <span>${escapeHtml(selectedFlows.length ? formatList(selectedFlows) : "None indicated")}</span>
+          </div>
+          <div class="summary-card">
+            <strong>Use case category</strong>
+            <span>${escapeHtml(useCaseCategoryLabel || "Not selected")}</span>
           </div>
           <div class="summary-card">
             <strong>Markets and Currencies</strong>
@@ -1441,11 +1547,16 @@ function renderThankYouStep() {
 }
 
 function renderErrorBox(errors) {
+  const alertErrors = errors.filter((error) => shouldRenderErrorInAlert(error));
+  if (!alertErrors.length) {
+    return "";
+  }
+
   const isSubmissionIssue =
-    errors.length === 1 &&
-    (submissionState.status === "error" || errors[0].toLowerCase().includes("server"));
-  const preview = errors.slice(0, 4).join(", ");
-  const remaining = errors.length > 4 ? ` and ${errors.length - 4} more` : "";
+    alertErrors.length === 1 &&
+    (submissionState.status === "error" || alertErrors[0].toLowerCase().includes("server"));
+  const preview = alertErrors.slice(0, 4).join(", ");
+  const remaining = alertErrors.length > 4 ? ` and ${alertErrors.length - 4} more` : "";
   return `
     <div class="alert">
       <strong>${isSubmissionIssue ? "We could not save this submission." : "Please complete the following required fields."}</strong>
@@ -1455,19 +1566,69 @@ function renderErrorBox(errors) {
 }
 
 function renderTextField(label, name, value, type = "text", placeholder = "", className = "") {
+  const inlineError = getInlineFieldError(name);
+  const inputClassName = `text-input ${inlineError ? "is-invalid" : ""}`.trim();
   return `
     <div class="field ${className}">
       <label for="${toId(name)}">${renderLabelText(label)}</label>
       <input
-        class="text-input"
+        class="${inputClassName}"
         id="${toId(name)}"
         name="${name}"
         type="${type}"
         value="${escapeHtml(String(value || ""))}"
         placeholder="${escapeHtml(placeholder)}"
+        aria-invalid="${inlineError ? "true" : "false"}"
       />
+      ${inlineError ? `<span class="field-inline-error">${escapeHtml(inlineError)}</span>` : ""}
     </div>
   `;
+}
+
+function renderChoiceCards(path, selected, options) {
+  return `
+    <div class="option-grid grid auto-rows-fr md:grid-cols-2">
+      ${options
+        .map((option) => {
+          const titleId = `${toId(path)}-${toId(option.value)}-title`;
+          const descriptionId = `${toId(path)}-${toId(option.value)}-description`;
+          return `
+            <button
+              class="option-card option-card--button option-card--choice ${selected === option.value ? "is-selected" : ""}"
+              type="button"
+              data-action="set-value"
+              data-path="${path}"
+              data-value="${option.value}"
+              aria-pressed="${selected === option.value ? "true" : "false"}"
+              aria-labelledby="${titleId}"
+              aria-describedby="${descriptionId}"
+            >
+              <span class="option-card__choice-row">
+                <span class="option-card__selector" aria-hidden="true"></span>
+                <span class="option-card__choice-copy">
+                  <span class="option-card__title" id="${titleId}">${escapeHtml(option.label)}</span>
+                  <span class="option-card__description" id="${descriptionId}">${escapeHtml(option.description)}</span>
+                </span>
+              </span>
+            </button>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function shouldRenderErrorInAlert(error) {
+  return !error.startsWith("URL — ");
+}
+
+function getInlineFieldError(name) {
+  if (name === "company.url") {
+    const urlError = activeErrors.find((error) => error.startsWith("URL — "));
+    return urlError ? urlError.replace(/^URL —\s*/, "") : "";
+  }
+
+  return "";
 }
 
 function renderTextareaField(label, name, value, placeholder = "") {
@@ -1839,6 +2000,8 @@ async function handleClick(event) {
 
   if (action === "set-value") {
     setValueByPath(state, button.dataset.path, button.dataset.value);
+    syncUseCaseState(button.dataset.path);
+    syncHighRiskIndustryState(button.dataset.path);
     markSubmissionDirty();
     activeErrors = [];
     rerenderPreservingPosition();
@@ -1847,6 +2010,7 @@ async function handleClick(event) {
 
   if (action === "toggle-array") {
     toggleArrayValue(button.dataset.path, button.dataset.value);
+    syncHighRiskIndustryState(button.dataset.path);
     markSubmissionDirty();
     activeErrors = [];
     rerenderPreservingPosition();
@@ -1910,6 +2074,11 @@ function handleBlur(event) {
     }
   }
 
+  if (target.name === "company.url") {
+    const val = target.value.trim();
+    errorMsg = getWebsiteUrlError(val);
+  }
+
   if (errorMsg) {
     const span = document.createElement("span");
     span.className = "field-inline-error";
@@ -1959,14 +2128,26 @@ function handleInput(event) {
   }
 
   setValueByPath(state, target.name, value);
+  if (target.name === "company.entityType" && value !== "other") {
+    state.company.entityTypeOther = "";
+  }
+  if (target.name === "useCase.category" && value !== "other") {
+    state.useCase.other = "";
+  }
   markSubmissionDirty();
+
+  if (target.name === "company.entityType" || target.name === "useCase.category") {
+    activeErrors = [];
+    rerenderPreservingPosition();
+    return;
+  }
 
   if (target.type === "range") {
     updateRangeOutput(target.name, value, target.dataset.format);
   }
 
-  // clear inline error for this field while user is correcting it
-  if (target.name === "contact.email" || target.name === "contact.whatsapp") {
+  // Clear inline validation for fields while the user is correcting them.
+  if (target.name === "contact.email" || target.name === "contact.whatsapp" || target.name === "company.url") {
     const existing = target.parentElement && target.parentElement.querySelector(".field-inline-error");
     if (existing) existing.remove();
     target.classList.remove("is-invalid");
@@ -2011,6 +2192,112 @@ function handleKeyDown(event) {
   }
 }
 
+function handleGlobalKeyDown(event) {
+  if (
+    event.key.toLowerCase() !== LAST_PAGE_TEST_SHORTCUT.key ||
+    event.altKey !== LAST_PAGE_TEST_SHORTCUT.altKey ||
+    event.shiftKey !== LAST_PAGE_TEST_SHORTCUT.shiftKey ||
+    event.ctrlKey ||
+    event.metaKey ||
+    event.repeat
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  toggleLastPageTesting();
+}
+
+function applyInitialTestingMode() {
+  if (!isLastPageTestingRequested()) {
+    return;
+  }
+
+  isLastPageTestingEnabled = true;
+  const testingSteps = buildSteps();
+  currentStepIndex = testingSteps.findIndex((step) => step.id === "thankyou");
+  maxUnlockedStepIndex = testingSteps.length - 1;
+}
+
+function isLastPageTestingRequested() {
+  const params = new URLSearchParams(window.location.search);
+  const testMode = (params.get("test") || "").trim().toLowerCase();
+  return LAST_PAGE_TEST_QUERY_VALUES.has(testMode);
+}
+
+function getWebsiteUrlError(value) {
+  if (!value || !value.trim()) {
+    return "";
+  }
+
+  return isValidWebsiteUrl(value) ? "" : "Please enter a valid website URL or domain.";
+}
+
+function isValidWebsiteUrl(value) {
+  const trimmedValue = value.trim();
+  if (!trimmedValue || /\s/.test(trimmedValue)) {
+    return false;
+  }
+
+  const normalizedValue = /^[a-zA-Z][a-zA-Z\d+\-.]*:\/\//.test(trimmedValue)
+    ? trimmedValue
+    : `https://${trimmedValue}`;
+
+  try {
+    const parsed = new URL(normalizedValue);
+    return (
+      (parsed.protocol === "http:" || parsed.protocol === "https:") &&
+      isValidWebsiteHostname(parsed.hostname)
+    );
+  } catch {
+    return false;
+  }
+}
+
+function isValidWebsiteHostname(hostname) {
+  if (!hostname || hostname.length > 253) {
+    return false;
+  }
+
+  const labels = hostname.split(".");
+  if (labels.length < 2) {
+    return false;
+  }
+
+  return labels.every((label) => /^[a-zA-Z0-9-]{1,63}$/.test(label) && !label.startsWith("-") && !label.endsWith("-"));
+}
+
+function toggleLastPageTesting() {
+  const nextTestingState = !isLastPageTestingEnabled;
+  const steps = buildSteps();
+
+  if (nextTestingState) {
+    testingReturnStepIndex = Math.min(currentStepIndex, Math.max(0, steps.length - 1));
+    isLastPageTestingEnabled = true;
+    const testingSteps = buildSteps();
+    currentStepIndex = testingSteps.findIndex((step) => step.id === "thankyou");
+    maxUnlockedStepIndex = testingSteps.length - 1;
+    activeErrors = [];
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    console.info("Last-page testing enabled. Press Alt+Shift+T again to return to the form.");
+    return;
+  }
+
+  isLastPageTestingEnabled = false;
+  const normalSteps = buildSteps();
+  const lastRegularStepIndex = Math.max(
+    0,
+    normalSteps.findIndex((step) => step.id === "thankyou") - 1
+  );
+  currentStepIndex = Math.min(testingReturnStepIndex, lastRegularStepIndex);
+  maxUnlockedStepIndex = Math.min(maxUnlockedStepIndex, lastRegularStepIndex);
+  activeErrors = [];
+  render();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  console.info("Last-page testing disabled.");
+}
+
 function validateIntro() {
   const errors = [];
 
@@ -2033,6 +2320,26 @@ function validateIntro() {
   }
   if (!state.company.entityType) {
     errors.push("Entity type");
+  }
+  if (state.company.entityType === "other" && !state.company.entityTypeOther.trim()) {
+    errors.push("Please specify entity type");
+  }
+  const websiteUrlError = getWebsiteUrlError(state.company.url);
+  if (websiteUrlError) {
+    errors.push(`URL — ${websiteUrlError}`);
+  }
+
+  return errors;
+}
+
+function validateUseCase() {
+  const errors = [];
+
+  if (!state.useCase.category) {
+    errors.push("Use case category");
+  }
+  if (state.useCase.category === "other" && !state.useCase.other.trim()) {
+    errors.push("Please specify use case category");
   }
 
   return errors;
@@ -2106,6 +2413,9 @@ function validateCollections() {
   ) {
     errors.push("High risk industry status");
   }
+  if (state.collections.highRiskIndustries === "yes" && !state.collections.highRiskIndustryDetails.trim()) {
+    errors.push("Collections high risk industry details");
+  }
   if (!state.collections.payerCount) {
     errors.push("Number of payer users");
   }
@@ -2143,6 +2453,9 @@ function validateDisbursements() {
     !state.disbursements.highRiskIndustries
   ) {
     errors.push("High risk industry status");
+  }
+  if (state.disbursements.highRiskIndustries === "yes" && !state.disbursements.highRiskIndustryDetails.trim()) {
+    errors.push("Disbursements high risk industry details");
   }
   if (!state.disbursements.payeeCount) {
     errors.push("Number of payee users");
@@ -2476,6 +2789,7 @@ function buildSubmissionResponses() {
   const responses = {
     contact: state.contact,
     company: state.company,
+    useCase: state.useCase,
     role: {
       inFlow: state.role.inFlow,
       licensed: state.role.licensed,
@@ -2502,7 +2816,8 @@ function buildSubmissionResponses() {
 }
 
 function buildZapierRawData(submittedAt) {
-  const entityTypeLabel = labelForOption(ENTITY_TYPES, state.company.entityType) || state.company.entityType;
+  const entityTypeLabel = getCompanyEntityTypeLabel();
+  const useCaseCategoryLabel = getUseCaseCategoryLabel();
   const pricingModelLabel =
     state.role.pricingModel === "revshare"
       ? "Revenue share"
@@ -2521,7 +2836,10 @@ function buildZapierRawData(submittedAt) {
     "Whatsapp Number": state.contact.whatsapp || "",
     "Company Name": state.company.companyName || "",
     "Entity Type": entityTypeLabel || "",
+    "Entity Type detail": state.company.entityTypeOther || "",
     "Url": state.company.url || "",
+    "Use case category": useCaseCategoryLabel || "",
+    "Use case category detail": state.useCase.other || "",
     "Selected flows": selectedFlows.length ? formatList(selectedFlows) : "",
     "Flow of funds business": state.role.inFlow || "",
     "Licensed in operating countries": state.role.licensed || "",
@@ -2543,6 +2861,7 @@ function buildZapierRawData(submittedAt) {
     "Collections to currencies": state.collections.receiverCurrencies.join(", "),
     "Collections payer count": state.collections.payerCount || "",
     "Collections High risk industries": state.collections.highRiskIndustries || "",
+    "Collections High risk industry details": state.collections.highRiskIndustryDetails || "",
     "Disbursements sender types": state.disbursements.senderTypes.join(", "),
     "Disbursements from countries": formatCountryList(state.disbursements.senderCountries),
     "Disbursements from currencies": state.disbursements.senderCurrencies.join(", "),
@@ -2551,12 +2870,14 @@ function buildZapierRawData(submittedAt) {
     "Disbursements to currencies": state.disbursements.receiverCurrencies.join(", "),
     "Disbursements payee count": state.disbursements.payeeCount || "",
     "Disbursements High risk industries": state.disbursements.highRiskIndustries || "",
+    "Disbursements High risk industry details": state.disbursements.highRiskIndustryDetails || "",
     "Additional info": state.additionalInfo || "",
   };
 }
 
 function buildSummary() {
-  const entityTypeLabel = labelForOption(ENTITY_TYPES, state.company.entityType);
+  const entityTypeLabel = getCompanyEntityTypeLabel();
+  const useCaseCategoryLabel = getUseCaseCategoryLabel();
   const pricingModelLabel = state.role.pricingModel === "revshare" ? "Revenue share" : state.role.pricingModel === "wholesale" ? "Wholesale pricing" : "N/A";
   const selectedFlows = getSelectedFlowLabels();
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods);
@@ -2570,6 +2891,7 @@ function buildSummary() {
     `Company: ${state.company.companyName || "N/A"}`,
     `Entity type: ${entityTypeLabel || "N/A"}`,
     `URL: ${state.company.url || "N/A"}`,
+    `Use case category: ${useCaseCategoryLabel || "N/A"}`,
     "",
     `Selected flows: ${selectedFlows.length ? formatList(selectedFlows) : "N/A"}`,
     `Flow of funds business: ${state.role.inFlow || "N/A"}`,
@@ -2594,6 +2916,7 @@ function buildSummary() {
       `Collections sender types: ${state.collections.senderTypes.join(", ") || "N/A"}`,
       `Collections receiver types: ${state.collections.receiverTypes.join(", ") || "N/A"}`,
       `High risk industries: ${state.collections.highRiskIndustries || "N/A"}`,
+      `Collections high risk industry details: ${state.collections.highRiskIndustryDetails || "N/A"}`,
       `Collections payer count: ${state.collections.payerCount || "N/A"} (${state.collections.payerCountBasis})`,
       `Collections from countries: ${state.collections.senderCountries
         .map((code) => countryLookup.get(code)?.name || code)
@@ -2612,6 +2935,7 @@ function buildSummary() {
       `Disbursements sender types: ${state.disbursements.senderTypes.join(", ") || "N/A"}`,
       `Disbursements receiver types: ${state.disbursements.receiverTypes.join(", ") || "N/A"}`,
       `High risk industries: ${state.disbursements.highRiskIndustries || "N/A"}`,
+      `Disbursements high risk industry details: ${state.disbursements.highRiskIndustryDetails || "N/A"}`,
       `Disbursements payee count: ${state.disbursements.payeeCount || "N/A"} (${state.disbursements.payeeCountBasis})`,
       `Disbursements from countries: ${state.disbursements.senderCountries
         .map((code) => countryLookup.get(code)?.name || code)
@@ -2649,6 +2973,65 @@ function summarizeInterestGroup(items, groupState) {
       return `${item.label} (${states.join(" + ")})`;
     })
     .join(", ");
+}
+
+function getCompanyEntityTypeLabel() {
+  const entityTypeLabel = labelForOption(ENTITY_TYPES, state.company.entityType) || state.company.entityType;
+  if (state.company.entityType === "other" && state.company.entityTypeOther.trim()) {
+    return `${entityTypeLabel} — ${state.company.entityTypeOther.trim()}`;
+  }
+
+  return entityTypeLabel;
+}
+
+function getUseCaseCategoryLabel() {
+  const useCaseCategoryLabel =
+    labelForOption(USE_CASE_CATEGORIES, state.useCase.category) || state.useCase.category;
+  if (state.useCase.category === "other" && state.useCase.other.trim()) {
+    return `${useCaseCategoryLabel} — ${state.useCase.other.trim()}`;
+  }
+
+  return useCaseCategoryLabel;
+}
+
+function syncUseCaseState(path) {
+  if (path === "useCase.category" && state.useCase.category !== "other") {
+    state.useCase.other = "";
+  }
+}
+
+function syncHighRiskIndustryState(path) {
+  if (
+    path === "collections.senderTypes" ||
+    path === "collections.receiverTypes" ||
+    path === "collections.highRiskIndustries"
+  ) {
+    syncHighRiskIndustryStateForFlow("collections");
+  }
+
+  if (
+    path === "disbursements.senderTypes" ||
+    path === "disbursements.receiverTypes" ||
+    path === "disbursements.highRiskIndustries"
+  ) {
+    syncHighRiskIndustryStateForFlow("disbursements");
+  }
+}
+
+function syncHighRiskIndustryStateForFlow(flowKey) {
+  const flowState = state[flowKey];
+  const hasBusinessUsers =
+    flowState.senderTypes.includes("businesses") || flowState.receiverTypes.includes("businesses");
+
+  if (!hasBusinessUsers) {
+    flowState.highRiskIndustries = "";
+    flowState.highRiskIndustryDetails = "";
+    return;
+  }
+
+  if (flowState.highRiskIndustries !== "yes") {
+    flowState.highRiskIndustryDetails = "";
+  }
 }
 
 function labelForOption(options, value) {
