@@ -20,14 +20,15 @@ Use this document to collect feedback on the current intake experience. The goal
 ## Current Experience
 
 1. Contact Information
-2. Flow Selection
-3. Collection Information (only shown if `Collections` is selected)
-4. Disbursement Information (only shown if `Disbursements` is selected)
-5. Product Scope
-6. Financial Profile
-7. Business Profile
-8. Review
-9. Thank You / Available Documents
+2. Use Case Category
+3. Flow Selection
+4. Collection Information (only shown if `Collections` is selected)
+5. Disbursement Information (only shown if `Disbursements` is selected)
+6. Product Scope
+7. Financial Profile
+8. Business Profile
+9. Review
+10. Thank You / Available Documents
 
 ## 1. Contact Information
 
@@ -48,6 +49,12 @@ Section description:
 - Last name
 - Email
 - WhatsApp number
+- Are you the decision maker?
+  Control: checkbox
+- Decision maker name
+  Note: required when `Are you the decision maker?` is unchecked
+- Decision maker email
+  Note: optional; only shown when `Are you the decision maker?` is unchecked
 
 ### Company details
 
@@ -58,7 +65,31 @@ Section description:
 - Entity type
 - URL
 
-## 2. Flow Selection
+## 2. Use Case Category
+
+Page title: `Choose the dominant commercial framing.`
+
+Page description:
+`Select the primary business motion for this opportunity.`
+
+Page footer:
+`Fields marked with * are required.`
+
+### Use case category
+
+Section description:
+`Choose the dominant commercial framing for this opportunity.`
+
+- Use case category
+  Options: B2B Payments, Marketplace / Platform, Personal Remittance, Disbursements / Payroll, Embedded Finance, Other
+- Please specify use case category
+  Note: only shown when `Other` is selected above
+- Is this a new use case or corridor?
+  Options: Yes, No
+- How do you handle it today?
+  Note: only shown when `No` is selected above
+
+## 3. Flow Selection
 
 Page title: `Choose the solution areas you would like to discuss.`
 
@@ -74,11 +105,11 @@ Reviewer note:
 Descriptions should help users quickly understand the difference between Collections and Disbursements without needing additional explanation.
 
 - Collections
-  Description: Receive funds through Standard ACH, Same Day ACH, RTP, Swift Wire, Named Virtual Accounts, Card Acquiring, Foreign Exchange, and Stablecoin.
+  Description: Receive funds through Standard ACH, Same Day ACH, IBT, Swift Wire, Named Virtual Accounts, Pay Links, Card Acquiring, Foreign Exchange, Digital Wallet, and Stablecoin.
 - Disbursements
-  Description: Send or deliver funds through Standard ACH, Same Day ACH, RTP, Swift Wire, Foreign Exchange, Card Issuance, and Stablecoin.
+  Description: Send or deliver funds through Standard ACH, Same Day ACH, Swift Wire, Foreign Exchange, Card Issuance, and Stablecoin.
 
-## 3. Collection Information
+## 4. Collection Information
 
 Shown only when `Collections` is selected.
 
@@ -105,7 +136,7 @@ Section description:
 - To which countries will funds be delivered?
 - In which currencies will funds be delivered?
 
-## 4. Disbursement Information
+## 5. Disbursement Information
 
 Shown only when `Disbursements` is selected.
 
@@ -132,7 +163,7 @@ Page footer:
 - To countries
 - To currencies
 
-## 5. Product Scope
+## 6. Product Scope
 
 Page title: `Identify products and services.`
 
@@ -163,20 +194,28 @@ Both flows selected:
   Description: Veem's standard domestic U.S. bank transfer option for lower-cost transactions where moderate settlement speed is acceptable.
 - Same Day ACH
   Description: Domestic U.S. ACH with same-day settlement for faster bank movement when timing matters.
+- IBT (Instant Bank Transfer)
+  Description: Instant bank transfer collection option for account-to-account payments where users connect a bank account and move funds quickly.
+  Note: greyed out and unavailable when `Disbursements` is selected.
 - RTP
   Description: Real-Time Payments for instant U.S. bank transfers and immediate settlement in time-sensitive use cases.
+  Note: greyed out and unavailable when `Collections` is selected.
 - Swift Wire
   Description: Domestic or cross-border USD wire transfers through the SWIFT network for direct bank-to-bank settlement.
 - Named Virtual Accounts
   Description: Unique U.S.-based account and routing numbers that support incoming payments, reconciliation, and account-level tracking.
 - Foreign Exchange
   Description: Currency conversion supported by institutional liquidity providers for cross-border payments and treasury movement.
+- Pay Links
+  Description: Invoice, checkout, or link-based collection experience.
 - Card Acquiring
   Description: Card-funded payment acceptance for partners taking debit or credit card payments.
 - Card Issuance
   Description: Commercial prepaid card issuance, including virtual card experiences for wallets and ecommerce use cases.
 - Stablecoin
   Description: USDC and USDT on-ramp and off-ramp support across multiple blockchain networks with routed settlement options.
+- Digital Wallet
+  Description: Balance-supported collection flow that lets users receive funds into a stored balance, hold funds for later use, and route balances to payouts, cards, or external accounts.
 
 For each product:
 
@@ -201,7 +240,7 @@ For each additional service:
 - Current
 - Interested
 
-## 6. Financial Profile
+## 7. Financial Profile
 
 Page title: `Provide current scale and expected growth.`
 
@@ -222,7 +261,7 @@ Section description:
 - Average ticket size
 - Expected company growth (next 12 months)
 
-## 7. Business Profile
+## 8. Business Profile
 
 Page title: `Provide business profile and licensing information.`
 
@@ -237,8 +276,6 @@ Section description:
 Reviewer note:
 This page is intended to capture operating model and licensing context without asking for overly detailed implementation information too early.
 
-- Are you currently in the flow of funds business?
-  Options: Yes, No
 - Are you licensed in the countries in which you operate?
   Options: Yes, No
 - Do you hold any additional licenses?
@@ -247,8 +284,10 @@ This page is intended to capture operating model and licensing context without a
   Note: only shown when `Yes` is selected above
 - Which commercial model do you prefer?
   Options: Wholesale pricing, Revenue share
+- What is your timeline to implement the solution?
+  Options: Immediately / 0-3 months, 3-6 months, 6-12 months, 12+ months, Exploring / no fixed timeline
 
-## 8. Review
+## 9. Review
 
 Page title: `Review your responses and provide any additional context.`
 
@@ -267,6 +306,7 @@ Reviewer note:
 This summary should help the team quickly understand the submission at a glance. Flag anything that feels repetitive, unclear, or missing.
 
 - Selected flows
+- Use case category and new use case / corridor status
 - Markets and Currencies
   Example summary:
   `Collections: Countries: Canada | Currencies: USD`

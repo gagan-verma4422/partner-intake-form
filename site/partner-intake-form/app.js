@@ -3,13 +3,13 @@ const MODULES = [
     key: "collections",
     label: "Collections",
     description:
-      "Receive funds through Standard ACH, Same Day ACH, RTP, Swift Wire, Named Virtual Accounts, Card Acquiring, Foreign Exchange, and Stablecoin.",
+      "Receive funds through Standard ACH, Same Day ACH, IBT, Swift Wire, Named Virtual Accounts, Pay Links, Card Acquiring, Foreign Exchange, Digital Wallet, and Stablecoin.",
   },
   {
     key: "disbursements",
     label: "Disbursements",
     description:
-      "Send or deliver funds through Standard ACH, Same Day ACH, RTP, Swift Wire, Foreign Exchange, Card Issuance, and Stablecoin.",
+      "Send or deliver funds through Standard ACH, Same Day ACH, Swift Wire, Foreign Exchange, Card Issuance, and Stablecoin.",
   },
   {
     key: "accounts",
@@ -29,6 +29,11 @@ const PAYMENT_METHODS = [
     key: "sameDayAch",
     label: "Same Day ACH",
     description: "Domestic U.S. ACH with same-day settlement for faster bank movement when timing matters.",
+  },
+  {
+    key: "ibtInstantBankTransfer",
+    label: "IBT (Instant Bank Transfer)",
+    description: "Instant bank transfer collection option for account-to-account payments where users connect a bank account and move funds quickly.",
   },
   {
     key: "rtp",
@@ -51,6 +56,11 @@ const PAYMENT_METHODS = [
     description: "Currency conversion supported by institutional liquidity providers for cross-border payments and treasury movement.",
   },
   {
+    key: "payLinks",
+    label: "Pay Links",
+    description: "Invoice, checkout, or link-based collection experience.",
+  },
+  {
     key: "cardAcquiring",
     label: "Card Acquiring",
     description: "Card-funded payment acceptance for partners taking debit or credit card payments.",
@@ -64,6 +74,11 @@ const PAYMENT_METHODS = [
     key: "stablecoin",
     label: "Stablecoin",
     description: "USDC and USDT on-ramp and off-ramp support across multiple blockchain networks with routed settlement options.",
+  },
+  {
+    key: "digitalWallet",
+    label: "Digital Wallet",
+    description: "Balance-supported collection flow that lets users receive funds into a stored balance, hold funds for later use, and route balances to payouts, cards, or external accounts.",
   },
 ];
 
@@ -131,6 +146,14 @@ const USE_CASE_CATEGORIES = [
   { value: "disbursements-payroll", label: "Disbursements / Payroll", description: "Primary business motion for this opportunity." },
   { value: "embedded-finance", label: "Embedded Finance", description: "Primary business motion for this opportunity." },
   { value: "other", label: "Other", description: "Primary business motion for this opportunity." },
+];
+
+const IMPLEMENTATION_TIMELINE_OPTIONS = [
+  { value: "immediate", label: "Immediately / 0-3 months" },
+  { value: "3-6-months", label: "3-6 months" },
+  { value: "6-12-months", label: "6-12 months" },
+  { value: "12-plus-months", label: "12+ months" },
+  { value: "exploring", label: "Exploring / no fixed timeline" },
 ];
 
 const RANGE_OPTIONS = {
@@ -449,6 +472,16 @@ const COUNTRY_CURRENCY_MAP = {
 };
 
 const FLOW_MODULE_KEYS = ["collections", "disbursements"];
+const PRODUCT_AVAILABILITY_RULES = {
+  ibtInstantBankTransfer: {
+    disabledWhenModuleSelected: "disbursements",
+    status: "Unavailable for selected disbursement flow.",
+  },
+  rtp: {
+    disabledWhenModuleSelected: "collections",
+    status: "Unavailable for selected collection flow.",
+  },
+};
 
 const STEP_CONTENT = {
   intro: {
@@ -629,6 +662,9 @@ const state = {
     lastName: "",
     email: "",
     whatsapp: "",
+    isDecisionMaker: false,
+    decisionMakerName: "",
+    decisionMakerEmail: "",
   },
   company: {
     companyName: "",
@@ -639,13 +675,15 @@ const state = {
   useCase: {
     category: "",
     other: "",
+    isNewUseCaseOrCorridor: "",
+    currentHandling: "",
   },
   role: {
-    inFlow: "",
     licensed: "",
     additionalLicenses: "",
     additionalLicenseLocations: "",
     pricingModel: "",
+    implementationTimeline: "",
   },
   financials: {
     revenueRange: "",
@@ -930,6 +968,32 @@ function renderIntroStep() {
           ${renderTextField("Email *", "contact.email", state.contact.email, "email", "name@company.com", "is-half")}
           ${renderTextField("WhatsApp number", "contact.whatsapp", state.contact.whatsapp, "tel", "+1 555 000 0000", "is-half")}
         </div>
+
+        <div class="decision-maker-panel">
+          ${renderCheckboxField("Are you the decision maker?", "contact.isDecisionMaker", state.contact.isDecisionMaker)}
+          ${
+            !state.contact.isDecisionMaker
+              ? `<div class="decision-maker-panel__grid">
+                  ${renderTextField(
+                    "Decision maker name *",
+                    "contact.decisionMakerName",
+                    state.contact.decisionMakerName,
+                    "text",
+                    "Decision maker name",
+                    "is-half"
+                  )}
+                  ${renderTextField(
+                    "Decision maker email",
+                    "contact.decisionMakerEmail",
+                    state.contact.decisionMakerEmail,
+                    "email",
+                    "decision.maker@company.com",
+                    "is-half"
+                  )}
+                </div>`
+              : ""
+          }
+        </div>
       </section>
 
       <section class="section-card">
@@ -976,6 +1040,26 @@ function renderUseCaseStep() {
               )
             : ""
         }
+        <div class="field-grid">
+          <div class="field">
+            <label>${renderLabelText("Is this a new use case or corridor? *")}</label>
+            ${renderSegmentedButtons("useCase.isNewUseCaseOrCorridor", state.useCase.isNewUseCaseOrCorridor, [
+              { value: "yes", label: "Yes" },
+              { value: "no", label: "No" },
+            ])}
+          </div>
+
+          ${
+            state.useCase.isNewUseCaseOrCorridor === "no"
+              ? renderTextareaField(
+                  "How do you handle it today? *",
+                  "useCase.currentHandling",
+                  state.useCase.currentHandling,
+                  "Describe the current process, provider, workaround, or corridor setup."
+                )
+              : ""
+          }
+        </div>
       </section>
     </div>
   `;
@@ -990,14 +1074,6 @@ function renderRoleStep() {
         <h3>Business profile</h3>
         <p class="section-card__intro">Please provide information on your role in the flow of funds and your licensing status for ${escapeHtml(selectedFlowPhrase)}.</p>
         <div class="field-grid">
-          <div class="field">
-            <label>${renderLabelText("Are you currently in the flow of funds business? *")}</label>
-            ${renderSegmentedButtons("role.inFlow", state.role.inFlow, [
-              { value: "yes", label: "Yes" },
-              { value: "no", label: "No" },
-            ])}
-          </div>
-
           <div class="field is-half">
             <label>${renderLabelText("Are you licensed in the countries in which you operate? *")}</label>
             ${renderSegmentedButtons("role.licensed", state.role.licensed, [
@@ -1032,6 +1108,14 @@ function renderRoleStep() {
               { value: "revshare", label: "Revenue share" },
             ])}
           </div>
+
+          ${renderSelectField(
+            "What is your timeline to implement the solution? *",
+            "role.implementationTimeline",
+            state.role.implementationTimeline,
+            IMPLEMENTATION_TIMELINE_OPTIONS,
+            "Select a timeline"
+          )}
         </div>
       </section>
     </div>
@@ -1419,12 +1503,22 @@ function renderDisbursementsStep() {
 function renderReviewStep() {
   const selectedFlows = getSelectedFlowLabels();
   const useCaseCategoryLabel = getUseCaseCategoryLabel();
+  const useCaseSummary = [
+    useCaseCategoryLabel || "Not selected",
+    state.useCase.isNewUseCaseOrCorridor
+      ? `New use case/corridor: ${formatYesNo(state.useCase.isNewUseCaseOrCorridor)}`
+      : "",
+    state.useCase.isNewUseCaseOrCorridor === "no" && state.useCase.currentHandling.trim()
+      ? `Today: ${state.useCase.currentHandling.trim()}`
+      : "",
+  ].filter(Boolean).join(" | ");
   const pricingModelLabel =
     state.role.pricingModel === "revshare"
       ? "Revenue share"
       : state.role.pricingModel === "wholesale"
         ? "Wholesale pricing"
         : "Pricing model not selected";
+  const implementationTimelineLabel = getImplementationTimelineLabel();
   const collectionsLocationSummary = isModuleSelected("collections")
     ? `Collections: ${[
         state.collections.senderCountries.length
@@ -1479,7 +1573,7 @@ function renderReviewStep() {
           </div>
           <div class="summary-card">
             <strong>Use case category</strong>
-            <span>${escapeHtml(useCaseCategoryLabel || "Not selected")}</span>
+            <span>${escapeHtml(useCaseSummary || "Not selected")}</span>
           </div>
           <div class="summary-card">
             <strong>Markets and Currencies</strong>
@@ -1492,7 +1586,7 @@ function renderReviewStep() {
           </div>
           <div class="summary-card">
             <strong>Commercial model</strong>
-            <span>${escapeHtml(pricingModelLabel)} with ${escapeHtml(state.financials.revenueRange || "revenue range not provided")} revenue range.</span>
+            <span>${escapeHtml(pricingModelLabel)} with ${escapeHtml(state.financials.revenueRange || "revenue range not provided")} revenue range. Timeline: ${escapeHtml(implementationTimelineLabel || "not selected")}.</span>
           </div>
         </div>
       </section>
@@ -1581,6 +1675,22 @@ function renderTextField(label, name, value, type = "text", placeholder = "", cl
         aria-invalid="${inlineError ? "true" : "false"}"
       />
       ${inlineError ? `<span class="field-inline-error">${escapeHtml(inlineError)}</span>` : ""}
+    </div>
+  `;
+}
+
+function renderCheckboxField(label, name, checked, className = "") {
+  return `
+    <div class="field ${className}">
+      <label class="checkbox-field" for="${toId(name)}">
+        <input
+          id="${toId(name)}"
+          name="${name}"
+          type="checkbox"
+          ${checked ? "checked" : ""}
+        />
+        <span>${renderLabelText(label)}</span>
+      </label>
     </div>
   `;
 }
@@ -1876,34 +1986,40 @@ function renderInterestGrid(items, storeKey, withShare) {
       ${items
         .map((item) => {
           const entry = state[storeKey][item.key];
-          const selected = entry.current || entry.interested;
+          const disabled = isInterestItemDisabled(storeKey, item.key);
+          const current = !disabled && entry.current;
+          const interested = !disabled && entry.interested;
+          const selected = current || interested;
           const titleId = `${storeKey}-${item.key}-title`;
           const descriptionId = `${storeKey}-${item.key}-description`;
 
           return `
-            <article class="option-card ${selected ? "is-selected" : ""}" role="group" aria-labelledby="${titleId}" aria-describedby="${descriptionId}">
+            <article class="option-card ${selected ? "is-selected" : ""} ${disabled ? "is-disabled" : ""}" role="group" aria-labelledby="${titleId}" aria-describedby="${descriptionId}" ${disabled ? 'aria-disabled="true"' : ""}>
               <h4 id="${titleId}">${escapeHtml(item.label)}</h4>
               <p id="${descriptionId}">${escapeHtml(item.description)}</p>
+              ${disabled ? `<p class="option-card__status">${escapeHtml(getInterestItemDisabledStatus(storeKey, item.key))}</p>` : ""}
               <div class="toggle-pair">
                 <button
-                  class="pill-button ${entry.current ? "is-active" : ""}"
+                  class="pill-button ${current ? "is-active" : ""}"
                   type="button"
                   data-action="toggle-interest"
                   data-store="${storeKey}"
                   data-key="${item.key}"
                   data-field="current"
-                  aria-pressed="${entry.current ? "true" : "false"}"
+                  aria-pressed="${current ? "true" : "false"}"
+                  ${disabled ? "disabled" : ""}
                 >
                   Current use
                 </button>
                 <button
-                  class="pill-button ${entry.interested ? "is-active" : ""}"
+                  class="pill-button ${interested ? "is-active" : ""}"
                   type="button"
                   data-action="toggle-interest"
                   data-store="${storeKey}"
                   data-key="${item.key}"
                   data-field="interested"
-                  aria-pressed="${entry.interested ? "true" : "false"}"
+                  aria-pressed="${interested ? "true" : "false"}"
+                  ${disabled ? "disabled" : ""}
                 >
                   Interested in Veem
                 </button>
@@ -2038,7 +2154,11 @@ async function handleClick(event) {
 
   if (action === "toggle-interest") {
     const { store, key, field } = button.dataset;
+    if (isInterestItemDisabled(store, key)) {
+      return;
+    }
     state[store][key][field] = !state[store][key][field];
+    syncProductAvailabilityState();
     markSubmissionDirty();
     activeErrors = [];
     rerenderPreservingPosition();
@@ -2060,7 +2180,7 @@ function handleBlur(event) {
 
   let errorMsg = "";
 
-  if (target.name === "contact.email") {
+  if (target.name === "contact.email" || target.name === "contact.decisionMakerEmail") {
     const val = target.value.trim();
     if (val && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
       errorMsg = "Please enter a valid email address.";
@@ -2118,6 +2238,15 @@ function handleInput(event) {
     return;
   }
 
+  if (target instanceof HTMLInputElement && target.type === "checkbox") {
+    setValueByPath(state, target.name, target.checked);
+    syncContactState(target.name);
+    markSubmissionDirty();
+    activeErrors = [];
+    rerenderPreservingPosition();
+    return;
+  }
+
   let value = target.value;
   if (target.type === "range" || target.type === "number") {
     value = target.value === "" ? "" : Number(target.value);
@@ -2147,7 +2276,7 @@ function handleInput(event) {
   }
 
   // Clear inline validation for fields while the user is correcting them.
-  if (target.name === "contact.email" || target.name === "contact.whatsapp" || target.name === "company.url") {
+  if (target.name === "contact.email" || target.name === "contact.decisionMakerEmail" || target.name === "contact.whatsapp" || target.name === "company.url") {
     const existing = target.parentElement && target.parentElement.querySelector(".field-inline-error");
     if (existing) existing.remove();
     target.classList.remove("is-invalid");
@@ -2315,6 +2444,16 @@ function validateIntro() {
   if (state.contact.whatsapp.trim() && !/^\+?[\d\s\-().]{7,20}$/.test(state.contact.whatsapp.trim())) {
     errors.push("WhatsApp number — please enter a valid phone number (e.g. +1 555 000 0000)");
   }
+  if (!state.contact.isDecisionMaker && !state.contact.decisionMakerName.trim()) {
+    errors.push("Decision maker name");
+  }
+  if (
+    !state.contact.isDecisionMaker &&
+    state.contact.decisionMakerEmail.trim() &&
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(state.contact.decisionMakerEmail.trim())
+  ) {
+    errors.push("Decision maker email — please enter a valid email address");
+  }
   if (!state.company.companyName.trim()) {
     errors.push("Company name");
   }
@@ -2341,6 +2480,12 @@ function validateUseCase() {
   if (state.useCase.category === "other" && !state.useCase.other.trim()) {
     errors.push("Please specify use case category");
   }
+  if (!state.useCase.isNewUseCaseOrCorridor) {
+    errors.push("New use case or corridor status");
+  }
+  if (state.useCase.isNewUseCaseOrCorridor === "no" && !state.useCase.currentHandling.trim()) {
+    errors.push("How do you handle it today?");
+  }
 
   return errors;
 }
@@ -2348,9 +2493,6 @@ function validateUseCase() {
 function validateRole() {
   const errors = [];
 
-  if (!state.role.inFlow) {
-    errors.push("Flow of funds business status");
-  }
   if (!state.role.licensed) {
     errors.push("Licensing status");
   }
@@ -2362,6 +2504,9 @@ function validateRole() {
   }
   if (!state.role.pricingModel) {
     errors.push("Preferred pricing model");
+  }
+  if (!state.role.implementationTimeline) {
+    errors.push("Implementation timeline");
   }
 
   return errors;
@@ -2742,12 +2887,15 @@ async function submitCurrentResponse() {
     submissionState.submissionId = result?.submissionId || payload.submissionId;
 
     const _hsq = window._hsq = window._hsq || [];
-    _hsq.push(["identify", {
-      email: state.contact.email,
+    const identifyPayload = {
       firstname: state.contact.firstName,
       lastname: state.contact.lastName,
       company: state.company.companyName,
-    }]);
+    };
+    if (state.contact.email.trim()) {
+      identifyPayload.email = state.contact.email.trim();
+      _hsq.push(["identify", identifyPayload]);
+    }
     _hsq.push(["trackPageView"]);
 
     return "";
@@ -2791,11 +2939,11 @@ function buildSubmissionResponses() {
     company: state.company,
     useCase: state.useCase,
     role: {
-      inFlow: state.role.inFlow,
       licensed: state.role.licensed,
       additionalLicenses: state.role.additionalLicenses,
       additionalLicenseLocations: state.role.additionalLicenseLocations,
       pricingModel: state.role.pricingModel,
+      implementationTimeline: state.role.implementationTimeline,
     },
     financials: state.financials,
     modules: state.modules,
@@ -2825,8 +2973,8 @@ function buildZapierRawData(submittedAt) {
         ? "Wholesale pricing"
         : state.role.pricingModel;
   const selectedFlows = getSelectedFlowLabels();
-  const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods);
-  const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices);
+  const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
+  const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
 
   return {
     "Submission date": submittedAt || "",
@@ -2834,18 +2982,23 @@ function buildZapierRawData(submittedAt) {
     "Last name": state.contact.lastName || "",
     "Email": state.contact.email || "",
     "Whatsapp Number": state.contact.whatsapp || "",
+    "Primary contact is decision maker": state.contact.isDecisionMaker ? "Yes" : "No",
+    "Decision maker name": state.contact.isDecisionMaker ? "" : state.contact.decisionMakerName || "",
+    "Decision maker email": state.contact.isDecisionMaker ? "" : state.contact.decisionMakerEmail || "",
     "Company Name": state.company.companyName || "",
     "Entity Type": entityTypeLabel || "",
     "Entity Type detail": state.company.entityTypeOther || "",
     "Url": state.company.url || "",
     "Use case category": useCaseCategoryLabel || "",
     "Use case category detail": state.useCase.other || "",
+    "New use case or corridor": formatYesNo(state.useCase.isNewUseCaseOrCorridor),
+    "Current handling": state.useCase.currentHandling || "",
     "Selected flows": selectedFlows.length ? formatList(selectedFlows) : "",
-    "Flow of funds business": state.role.inFlow || "",
     "Licensed in operating countries": state.role.licensed || "",
     "Additional licenses": state.role.additionalLicenses || "",
     "Additional license locations": state.role.additionalLicenseLocations || "",
     "Pricing model": pricingModelLabel || "",
+    "Implementation timeline": getImplementationTimelineLabel() || "",
     "Annual Revenue range": state.financials.revenueRange || "",
     "Annual volume range": state.financials.annualVolumeRange || "",
     "Payment count range": state.financials.paymentCountRange || "",
@@ -2880,25 +3033,30 @@ function buildSummary() {
   const useCaseCategoryLabel = getUseCaseCategoryLabel();
   const pricingModelLabel = state.role.pricingModel === "revshare" ? "Revenue share" : state.role.pricingModel === "wholesale" ? "Wholesale pricing" : "N/A";
   const selectedFlows = getSelectedFlowLabels();
-  const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods);
-  const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices);
+  const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
+  const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
   const lines = [
     "New Partner Intake form submission",
     "",
     `Contact: ${state.contact.firstName} ${state.contact.lastName}`.trim(),
     `Email: ${state.contact.email || "N/A"}`,
     `WhatsApp: ${state.contact.whatsapp || "N/A"}`,
+    `Primary contact is decision maker: ${state.contact.isDecisionMaker ? "Yes" : "No"}`,
+    `Decision maker name: ${state.contact.isDecisionMaker ? "N/A" : state.contact.decisionMakerName || "N/A"}`,
+    `Decision maker email: ${state.contact.isDecisionMaker ? "N/A" : state.contact.decisionMakerEmail || "N/A"}`,
     `Company: ${state.company.companyName || "N/A"}`,
     `Entity type: ${entityTypeLabel || "N/A"}`,
     `URL: ${state.company.url || "N/A"}`,
     `Use case category: ${useCaseCategoryLabel || "N/A"}`,
+    `New use case or corridor: ${formatYesNo(state.useCase.isNewUseCaseOrCorridor) || "N/A"}`,
+    `Current handling: ${state.useCase.currentHandling || "N/A"}`,
     "",
     `Selected flows: ${selectedFlows.length ? formatList(selectedFlows) : "N/A"}`,
-    `Flow of funds business: ${state.role.inFlow || "N/A"}`,
     `Licensed in operating countries: ${state.role.licensed || "N/A"}`,
     `Additional licenses: ${state.role.additionalLicenses || "N/A"}`,
     `Additional license locations: ${state.role.additionalLicenseLocations || "N/A"}`,
     `Pricing model: ${pricingModelLabel}`,
+    `Implementation timeline: ${getImplementationTimelineLabel() || "N/A"}`,
     "",
     `Revenue range: ${state.financials.revenueRange || "N/A"}`,
     `Expected company growth (next 12 months): ${state.financials.companyGrowth}%`,
@@ -2956,9 +3114,9 @@ function buildSummary() {
   return lines.join("\n");
 }
 
-function summarizeInterestGroup(items, groupState) {
+function summarizeInterestGroup(items, groupState, storeKey = "") {
   return items
-    .filter((item) => groupState[item.key].current || groupState[item.key].interested)
+    .filter((item) => !isInterestItemDisabled(storeKey, item.key) && (groupState[item.key].current || groupState[item.key].interested))
     .map((item) => {
       const entry = groupState[item.key];
       const states = [
@@ -2994,9 +3152,67 @@ function getUseCaseCategoryLabel() {
   return useCaseCategoryLabel;
 }
 
+function isInterestItemDisabled(storeKey, itemKey) {
+  if (storeKey !== "paymentMethods") {
+    return false;
+  }
+
+  const rule = PRODUCT_AVAILABILITY_RULES[itemKey];
+  return Boolean(rule && isModuleSelected(rule.disabledWhenModuleSelected));
+}
+
+function getInterestItemDisabledStatus(storeKey, itemKey) {
+  if (storeKey !== "paymentMethods") {
+    return "";
+  }
+
+  return PRODUCT_AVAILABILITY_RULES[itemKey]?.status || "";
+}
+
+function syncProductAvailabilityState() {
+  Object.keys(PRODUCT_AVAILABILITY_RULES).forEach((key) => {
+    if (!isInterestItemDisabled("paymentMethods", key)) {
+      return;
+    }
+
+    const entry = state.paymentMethods[key];
+    if (!entry) {
+      return;
+    }
+
+    entry.current = false;
+    entry.interested = false;
+  });
+}
+
+function getImplementationTimelineLabel() {
+  return labelForOption(IMPLEMENTATION_TIMELINE_OPTIONS, state.role.implementationTimeline) || state.role.implementationTimeline;
+}
+
+function formatYesNo(value) {
+  if (value === "yes") {
+    return "Yes";
+  }
+  if (value === "no") {
+    return "No";
+  }
+
+  return "";
+}
+
+function syncContactState(path) {
+  if (path === "contact.isDecisionMaker" && state.contact.isDecisionMaker) {
+    state.contact.decisionMakerName = "";
+    state.contact.decisionMakerEmail = "";
+  }
+}
+
 function syncUseCaseState(path) {
   if (path === "useCase.category" && state.useCase.category !== "other") {
     state.useCase.other = "";
+  }
+  if (path === "useCase.isNewUseCaseOrCorridor" && state.useCase.isNewUseCaseOrCorridor !== "no") {
+    state.useCase.currentHandling = "";
   }
 }
 

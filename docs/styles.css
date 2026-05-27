@@ -707,6 +707,52 @@ button {
   line-height: 1.45;
 }
 
+.decision-maker-panel {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid rgba(20, 37, 50, 0.08);
+  border-radius: 18px;
+  background: rgba(248, 251, 252, 0.88);
+}
+
+.decision-maker-panel__grid {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.decision-maker-panel__grid .field {
+  margin: 0;
+}
+
+.field label.checkbox-field {
+  display: flex !important;
+  align-items: center;
+  gap: 14px;
+  min-height: 54px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 !important;
+  padding: 14px 16px;
+  border: 1px solid rgba(20, 37, 50, 0.1);
+  border-radius: 18px;
+  background: var(--mist-strong);
+  color: var(--ink-strong);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.field label.checkbox-field input {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  margin: 0;
+  accent-color: var(--teal-deep);
+}
+
 .text-input,
 .select-input,
 .textarea-input {
@@ -930,6 +976,24 @@ button {
   width: 100%;
 }
 
+.option-card.is-disabled {
+  background: #f3f5f7;
+  border-color: rgba(20, 37, 50, 0.08);
+  color: #8a98a6;
+  opacity: 0.72;
+}
+
+.option-card.is-disabled h4,
+.option-card.is-disabled p {
+  color: #8a98a6;
+}
+
+.option-card__status {
+  margin-top: 10px !important;
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
 .option-card__choice-row {
   display: flex;
   align-items: flex-start;
@@ -987,6 +1051,13 @@ button {
   color: #08363f;
   border-color: transparent;
   font-weight: 700;
+}
+
+.pill-button:disabled {
+  cursor: not-allowed;
+  background: #e5e9ed;
+  color: #8a98a6;
+  border-color: rgba(20, 37, 50, 0.06);
 }
 
 .subcard {

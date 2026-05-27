@@ -60,16 +60,17 @@ The form logic, rendering, conditional steps, validation, and review screen beha
 The current questionnaire order is:
 
 1. Contact Information
-2. Flow Selection
-3. Collection Information
+2. Use Case Category
+3. Flow Selection
+4. Collection Information
    Only shown if `Collections` is selected
-4. Disbursement Information
+5. Disbursement Information
    Only shown if `Disbursements` is selected
-5. Product Scope
-6. Financial Profile
-7. Business Profile
-8. Review
-9. Thank You / Available Documents
+6. Product Scope
+7. Financial Profile
+8. Business Profile
+9. Review
+10. Thank You / Available Documents
 
 The sidebar uses progressive locking:
 
@@ -91,8 +92,13 @@ The sidebar uses progressive locking:
 - Added `Sole proprietors` to relevant user-type questions
 - Removed numeric placeholders from payer / payee count fields
 - Made `Are these users actual or estimated?` required with no default selection
-- Replaced the old `Who is the end customer?` question with current flow-of-funds business status questions
+- Replaced the old `Who is the end customer?` question with current use case and licensing questions
 - Updated Review summary behavior and final page messaging
+- Added decision maker capture to Primary Contact
+- Added new use case / corridor status and current handling details
+- Added implementation timeline to Business Profile
+- RTP is greyed out in Product Scope when `Collections` is selected
+- IBT is greyed out in Product Scope when `Disbursements` is selected
 
 ## Current product scope
 
@@ -100,13 +106,16 @@ Products currently listed:
 
 - Standard ACH
 - Same Day ACH
+- IBT (Instant Bank Transfer)
 - RTP
 - Swift Wire
 - Named Virtual Accounts
 - Foreign Exchange
+- Pay Links
 - Card Acquiring
 - Card Issuance
 - Stablecoin
+- Digital Wallet
 
 Additional services currently listed:
 
