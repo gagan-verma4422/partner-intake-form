@@ -523,7 +523,7 @@ const STEP_CONTENT = {
     eyebrow: "Use Case Category",
     title: "Choose the dominant commercial framing.",
     description:
-      "Select the primary business motion for this opportunity.",
+      "Your selection will shape which Veem solutions and use-case details we explore together.",
     footer:
       "Fields marked with * are required.",
   },
@@ -539,7 +539,7 @@ const STEP_CONTENT = {
     eyebrow: "Flow Selection",
     title: "Choose the solution areas you would like to discuss.",
     description:
-      "Select collections, disbursements, or both.",
+      "The remaining questionnaire steps will adjust based on your selection.",
     footer:
       "Fields marked with * are required.",
   },
@@ -1064,7 +1064,7 @@ function renderUseCaseStep() {
     <div class="section-stack">
       <section class="section-card">
         <h3>Use case category <span class="required-star">*</span></h3>
-        <p class="section-card__intro">Choose the dominant commercial framing for this opportunity.</p>
+        <p class="section-card__intro">Choose the dominant commercial framing for this opportunity. Select "Other" if your use case is not listed.</p>
         ${renderChoiceCards("useCase.category", state.useCase.category, USE_CASE_CATEGORIES)}
         ${
           state.useCase.category === "other"
@@ -1218,7 +1218,7 @@ function renderSolutionsStep() {
     <div class="section-stack">
       <section class="section-card">
         <h3>Solutions of interest <span class="required-star">*</span></h3>
-        <p class="section-card__intro">Select the solution areas you would like to discuss. The remaining steps will adjust to your selection.</p>
+        <p class="section-card__intro">Select collections, disbursements, or both. The remaining steps will adjust to your selection.</p>
         <div class="option-grid grid auto-rows-fr md:grid-cols-2">
           ${flowModules
             .map((module) => {
@@ -1374,7 +1374,7 @@ function renderCollectionsStep() {
             showHighRiskQuestion
               ? `
                 <div class="field">
-                  <label>${renderLabelText("Do any of these businesses operate in high risk industries? *")}</label>
+                  <label>${renderLabelText("Do any of these businesses operate in high-risk industries? *")}</label>
                   ${renderSegmentedButtons("collections.highRiskIndustries", state.collections.highRiskIndustries, [
                     { value: "yes", label: "Yes" },
                     { value: "no", label: "No" },
@@ -1384,7 +1384,7 @@ function renderCollectionsStep() {
                 ${
                   state.collections.highRiskIndustries === "yes"
                     ? renderTextField(
-                        "Please specify high risk industries *",
+                        "Please specify high-risk industries *",
                         "collections.highRiskIndustryDetails",
                         state.collections.highRiskIndustryDetails,
                         "text",
@@ -1398,7 +1398,7 @@ function renderCollectionsStep() {
           }
 
           ${renderTextField(
-            "Number of users (payers) *",
+            "Number of payers *",
             "collections.payerCount",
             state.collections.payerCount,
             "number",
@@ -1514,7 +1514,7 @@ function renderDisbursementsStep() {
             showHighRiskQuestion
               ? `
                 <div class="field">
-                  <label>${renderLabelText("Do any of these businesses operate in high risk industries? *")}</label>
+                  <label>${renderLabelText("Do any of these businesses operate in high-risk industries? *")}</label>
                   ${renderSegmentedButtons("disbursements.highRiskIndustries", state.disbursements.highRiskIndustries, [
                     { value: "yes", label: "Yes" },
                     { value: "no", label: "No" },
@@ -1524,7 +1524,7 @@ function renderDisbursementsStep() {
                 ${
                   state.disbursements.highRiskIndustries === "yes"
                     ? renderTextField(
-                        "Please specify high risk industries *",
+                        "Please specify high-risk industries *",
                         "disbursements.highRiskIndustryDetails",
                         state.disbursements.highRiskIndustryDetails,
                         "text",
@@ -1538,7 +1538,7 @@ function renderDisbursementsStep() {
           }
 
           ${renderTextField(
-            "Number of users receiving funds *",
+            "Number of payees *",
             "disbursements.payeeCount",
             state.disbursements.payeeCount,
             "number",
@@ -2754,20 +2754,20 @@ function validateCollections() {
   const errors = [];
 
   if (!state.collections.senderTypes.length) {
-    errors.push("Originating user type");
+    errors.push("Collections — From user type");
   }
   if (!state.collections.receiverTypes.length) {
-    errors.push("Receiving user type");
+    errors.push("Collections — To user type");
   }
   if (
     (state.collections.senderTypes.includes("businesses") ||
       state.collections.receiverTypes.includes("businesses")) &&
     !state.collections.highRiskIndustries
   ) {
-    errors.push("High risk industry status");
+    errors.push("High-risk industry status");
   }
   if (state.collections.highRiskIndustries === "yes" && !state.collections.highRiskIndustryDetails.trim()) {
-    errors.push("Collections high risk industry details");
+    errors.push("Collections high-risk industry details");
   }
   if (!state.collections.payerCount) {
     errors.push("Number of payer users");
@@ -2807,20 +2807,20 @@ function validateDisbursements() {
   const errors = [];
 
   if (!state.disbursements.senderTypes.length) {
-    errors.push("Sending user type");
+    errors.push("Disbursements — From user type");
   }
   if (!state.disbursements.receiverTypes.length) {
-    errors.push("Receiving user type");
+    errors.push("Disbursements — To user type");
   }
   if (
     (state.disbursements.senderTypes.includes("businesses") ||
       state.disbursements.receiverTypes.includes("businesses")) &&
     !state.disbursements.highRiskIndustries
   ) {
-    errors.push("High risk industry status");
+    errors.push("High-risk industry status");
   }
   if (state.disbursements.highRiskIndustries === "yes" && !state.disbursements.highRiskIndustryDetails.trim()) {
-    errors.push("Disbursements high risk industry details");
+    errors.push("Disbursements high-risk industry details");
   }
   if (!state.disbursements.payeeCount) {
     errors.push("Number of payee users");
@@ -3361,8 +3361,8 @@ function buildZapierRawData(submittedAt) {
     "Collections to other countries": state.collections.receiverCountriesOther || "",
     "Collections to currencies": state.collections.receiverCurrencies.join(", "),
     "Collections payer count": state.collections.payerCount || "",
-    "Collections High risk industries": state.collections.highRiskIndustries || "",
-    "Collections High risk industry details": state.collections.highRiskIndustryDetails || "",
+    "Collections High-risk industries": state.collections.highRiskIndustries || "",
+    "Collections High-risk industry details": state.collections.highRiskIndustryDetails || "",
     "Disbursements sender types": state.disbursements.senderTypes.join(", "),
     "Disbursements from regions": formatRegionList(state.disbursements.senderRegion),
     "Disbursements from countries": formatCountryList(state.disbursements.senderCountries, state.disbursements.senderCountriesOther),
@@ -3374,8 +3374,8 @@ function buildZapierRawData(submittedAt) {
     "Disbursements to other countries": state.disbursements.receiverCountriesOther || "",
     "Disbursements to currencies": state.disbursements.receiverCurrencies.join(", "),
     "Disbursements payee count": state.disbursements.payeeCount || "",
-    "Disbursements High risk industries": state.disbursements.highRiskIndustries || "",
-    "Disbursements High risk industry details": state.disbursements.highRiskIndustryDetails || "",
+    "Disbursements High-risk industries": state.disbursements.highRiskIndustries || "",
+    "Disbursements High-risk industry details": state.disbursements.highRiskIndustryDetails || "",
     "Additional info": state.additionalInfo || "",
   };
 }
@@ -3426,8 +3426,8 @@ function buildSummary() {
       "",
       `Collections sender types: ${state.collections.senderTypes.join(", ") || "N/A"}`,
       `Collections receiver types: ${state.collections.receiverTypes.join(", ") || "N/A"}`,
-      `High risk industries: ${state.collections.highRiskIndustries || "N/A"}`,
-      `Collections high risk industry details: ${state.collections.highRiskIndustryDetails || "N/A"}`,
+      `High-risk industries: ${state.collections.highRiskIndustries || "N/A"}`,
+      `Collections high-risk industry details: ${state.collections.highRiskIndustryDetails || "N/A"}`,
       `Collections payer count: ${state.collections.payerCount || "N/A"} (${state.collections.payerCountBasis})`,
       `Collections from regions: ${formatRegionList(state.collections.senderRegion) || "N/A"}`,
       `Collections from countries: ${formatCountryList(state.collections.senderCountries, state.collections.senderCountriesOther) || "N/A"}`,
@@ -3443,8 +3443,8 @@ function buildSummary() {
       "",
       `Disbursements sender types: ${state.disbursements.senderTypes.join(", ") || "N/A"}`,
       `Disbursements receiver types: ${state.disbursements.receiverTypes.join(", ") || "N/A"}`,
-      `High risk industries: ${state.disbursements.highRiskIndustries || "N/A"}`,
-      `Disbursements high risk industry details: ${state.disbursements.highRiskIndustryDetails || "N/A"}`,
+      `High-risk industries: ${state.disbursements.highRiskIndustries || "N/A"}`,
+      `Disbursements high-risk industry details: ${state.disbursements.highRiskIndustryDetails || "N/A"}`,
       `Disbursements payee count: ${state.disbursements.payeeCount || "N/A"} (${state.disbursements.payeeCountBasis})`,
       `Disbursements from regions: ${formatRegionList(state.disbursements.senderRegion) || "N/A"}`,
       `Disbursements from countries: ${formatCountryList(state.disbursements.senderCountries, state.disbursements.senderCountriesOther) || "N/A"}`,
