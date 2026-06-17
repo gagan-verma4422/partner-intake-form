@@ -164,9 +164,9 @@ const USE_CASE_CATEGORIES = [
     description: "Outgoing payments to employees, contractors, vendors, creators, payees, or other recipients.",
   },
   {
-    value: "embedded-finance",
-    label: "Embedded Finance",
-    description: "Payments, accounts, wallets, cards, or financial services embedded directly inside your product experience.",
+    value: "ecommerce",
+    label: "Ecommerce",
+    description: "Online commerce, checkout, cart, or merchant payment experiences.",
   },
   {
     value: "other",
@@ -721,6 +721,8 @@ const state = {
     other: "",
     isNewUseCaseOrCorridor: "",
     currentHandling: "",
+    highRiskIndustries: "",
+    highRiskIndustryDetails: "",
   },
   role: {
     inFlowOfFundsBusiness: "",
@@ -1097,6 +1099,27 @@ function renderUseCaseStep() {
                 )
               : ""
           }
+
+          <div class="field is-half">
+            <label>${renderLabelText("Do any of the industries involved operate in high-risk industries? *")}</label>
+            ${renderSegmentedButtons("useCase.highRiskIndustries", state.useCase.highRiskIndustries, [
+              { value: "yes", label: "Yes" },
+              { value: "no", label: "No" },
+            ])}
+          </div>
+
+          ${
+            state.useCase.highRiskIndustries === "yes"
+              ? renderTextField(
+                  "Please specify high-risk industries *",
+                  "useCase.highRiskIndustryDetails",
+                  state.useCase.highRiskIndustryDetails,
+                  "text",
+                  "",
+                  "is-half"
+                )
+              : ""
+          }
         </div>
       </section>
     </div>
@@ -1212,6 +1235,7 @@ function renderFinancialsStep() {
 
 function renderSolutionsStep() {
   const flowModules = MODULES.filter((module) => FLOW_MODULE_KEYS.includes(module.key));
+  const storedValueModule = MODULES.find((module) => module.key === "accounts");
   const selectedCount = getSelectedFlowLabels().length;
 
   return `
@@ -1244,6 +1268,18 @@ function renderSolutionsStep() {
             })
             .join("")}
         </div>
+        ${
+          storedValueModule
+            ? `
+              <div class="flow-selection-note" role="note" aria-label="Stored value accounts">
+                <p>
+                  <strong>Stored value accounts:</strong>
+                  ${escapeHtml(storedValueModule.description)} You can select specific stored value account options in the Methods step.
+                </p>
+              </div>
+            `
+            : ""
+        }
       </section>
     </div>
   `;
@@ -1280,10 +1316,6 @@ function renderMarketsStep() {
 }
 
 function renderCollectionsStep() {
-  const showHighRiskQuestion =
-    state.collections.senderTypes.includes("businesses") ||
-    state.collections.receiverTypes.includes("businesses");
-
   return `
     <div class="section-stack">
       <div class="flow-split-grid">
@@ -1370,33 +1402,6 @@ function renderCollectionsStep() {
 
       <section class="section-card">
         <div class="field-grid">
-          ${
-            showHighRiskQuestion
-              ? `
-                <div class="field">
-                  <label>${renderLabelText("Do any of these businesses operate in high-risk industries? *")}</label>
-                  ${renderSegmentedButtons("collections.highRiskIndustries", state.collections.highRiskIndustries, [
-                    { value: "yes", label: "Yes" },
-                    { value: "no", label: "No" },
-                  ])}
-                </div>
-
-                ${
-                  state.collections.highRiskIndustries === "yes"
-                    ? renderTextField(
-                        "Please specify high-risk industries *",
-                        "collections.highRiskIndustryDetails",
-                        state.collections.highRiskIndustryDetails,
-                        "text",
-                        "",
-                        "is-half"
-                      )
-                    : ""
-                }
-              `
-              : ""
-          }
-
           ${renderTextField(
             "Number of payers *",
             "collections.payerCount",
@@ -1420,10 +1425,6 @@ function renderCollectionsStep() {
 }
 
 function renderDisbursementsStep() {
-  const showHighRiskQuestion =
-    state.disbursements.senderTypes.includes("businesses") ||
-    state.disbursements.receiverTypes.includes("businesses");
-
   return `
     <div class="section-stack">
       <div class="flow-split-grid">
@@ -1510,33 +1511,6 @@ function renderDisbursementsStep() {
 
       <section class="section-card">
         <div class="field-grid">
-          ${
-            showHighRiskQuestion
-              ? `
-                <div class="field">
-                  <label>${renderLabelText("Do any of these businesses operate in high-risk industries? *")}</label>
-                  ${renderSegmentedButtons("disbursements.highRiskIndustries", state.disbursements.highRiskIndustries, [
-                    { value: "yes", label: "Yes" },
-                    { value: "no", label: "No" },
-                  ])}
-                </div>
-
-                ${
-                  state.disbursements.highRiskIndustries === "yes"
-                    ? renderTextField(
-                        "Please specify high-risk industries *",
-                        "disbursements.highRiskIndustryDetails",
-                        state.disbursements.highRiskIndustryDetails,
-                        "text",
-                        "",
-                        "is-half"
-                      )
-                    : ""
-                }
-              `
-              : ""
-          }
-
           ${renderTextField(
             "Number of payees *",
             "disbursements.payeeCount",
@@ -1569,6 +1543,12 @@ function renderReviewStep() {
       : "",
     state.useCase.isNewUseCaseOrCorridor === "no" && state.useCase.currentHandling.trim()
       ? `Today: ${state.useCase.currentHandling.trim()}`
+      : "",
+    state.useCase.highRiskIndustries
+      ? `High-risk industries: ${formatYesNo(state.useCase.highRiskIndustries)}`
+      : "",
+    state.useCase.highRiskIndustries === "yes" && state.useCase.highRiskIndustryDetails.trim()
+      ? `High-risk details: ${state.useCase.highRiskIndustryDetails.trim()}`
       : "",
   ].filter(Boolean).join(" | ");
   const collectionsFromRegion = state.collections.senderRegion.length
@@ -2704,6 +2684,12 @@ function validateUseCase() {
   if (state.useCase.isNewUseCaseOrCorridor === "no" && !state.useCase.currentHandling.trim()) {
     errors.push("How do you handle it today?");
   }
+  if (!state.useCase.highRiskIndustries) {
+    errors.push("High-risk industry status");
+  }
+  if (state.useCase.highRiskIndustries === "yes" && !state.useCase.highRiskIndustryDetails.trim()) {
+    errors.push("High-risk industry details");
+  }
 
   return errors;
 }
@@ -2759,16 +2745,6 @@ function validateCollections() {
   if (!state.collections.receiverTypes.length) {
     errors.push("Collections — To user type");
   }
-  if (
-    (state.collections.senderTypes.includes("businesses") ||
-      state.collections.receiverTypes.includes("businesses")) &&
-    !state.collections.highRiskIndustries
-  ) {
-    errors.push("High-risk industry status");
-  }
-  if (state.collections.highRiskIndustries === "yes" && !state.collections.highRiskIndustryDetails.trim()) {
-    errors.push("Collections high-risk industry details");
-  }
   if (!state.collections.payerCount) {
     errors.push("Number of payer users");
   }
@@ -2811,16 +2787,6 @@ function validateDisbursements() {
   }
   if (!state.disbursements.receiverTypes.length) {
     errors.push("Disbursements — To user type");
-  }
-  if (
-    (state.disbursements.senderTypes.includes("businesses") ||
-      state.disbursements.receiverTypes.includes("businesses")) &&
-    !state.disbursements.highRiskIndustries
-  ) {
-    errors.push("High-risk industry status");
-  }
-  if (state.disbursements.highRiskIndustries === "yes" && !state.disbursements.highRiskIndustryDetails.trim()) {
-    errors.push("Disbursements high-risk industry details");
   }
   if (!state.disbursements.payeeCount) {
     errors.push("Number of payee users");
@@ -3296,11 +3262,21 @@ function buildSubmissionResponses() {
   };
 
   if (isModuleSelected("collections")) {
-    responses.collections = state.collections;
+    responses.collections = {
+      ...state.collections,
+      highRiskIndustries: state.useCase.highRiskIndustries,
+      highRiskIndustryDetails:
+        state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails : "",
+    };
   }
 
   if (isModuleSelected("disbursements")) {
-    responses.disbursements = state.disbursements;
+    responses.disbursements = {
+      ...state.disbursements,
+      highRiskIndustries: state.useCase.highRiskIndustries,
+      highRiskIndustryDetails:
+        state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails : "",
+    };
   }
 
   return cloneSubmissionState(responses);
@@ -3319,6 +3295,9 @@ function buildZapierRawData(submittedAt) {
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
   const storedValueSummary = summarizeInterestGroup(STORED_VALUE_ACCOUNTS, state.storedValueAccounts, "storedValueAccounts");
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
+  const highRiskIndustries = formatYesNo(state.useCase.highRiskIndustries);
+  const highRiskIndustryDetails =
+    state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails || "" : "";
 
   return {
     "Submission date": submittedAt || "",
@@ -3337,6 +3316,8 @@ function buildZapierRawData(submittedAt) {
     "Use case category detail": state.useCase.other || "",
     "New use case or corridor": formatYesNo(state.useCase.isNewUseCaseOrCorridor),
     "Current handling": state.useCase.currentHandling || "",
+    "High-risk industries": highRiskIndustries,
+    "High-risk industry details": highRiskIndustryDetails,
     "Selected flows": selectedFlows.length ? formatList(selectedFlows) : "",
     "Currently in flow of funds business": formatYesNo(state.role.inFlowOfFundsBusiness),
     "Licensed in operating countries": formatYesNo(state.role.licensed),
@@ -3361,8 +3342,8 @@ function buildZapierRawData(submittedAt) {
     "Collections to other countries": state.collections.receiverCountriesOther || "",
     "Collections to currencies": state.collections.receiverCurrencies.join(", "),
     "Collections payer count": state.collections.payerCount || "",
-    "Collections High-risk industries": state.collections.highRiskIndustries || "",
-    "Collections High-risk industry details": state.collections.highRiskIndustryDetails || "",
+    "Collections High-risk industries": isModuleSelected("collections") ? highRiskIndustries : "",
+    "Collections High-risk industry details": isModuleSelected("collections") ? highRiskIndustryDetails : "",
     "Disbursements sender types": state.disbursements.senderTypes.join(", "),
     "Disbursements from regions": formatRegionList(state.disbursements.senderRegion),
     "Disbursements from countries": formatCountryList(state.disbursements.senderCountries, state.disbursements.senderCountriesOther),
@@ -3374,8 +3355,8 @@ function buildZapierRawData(submittedAt) {
     "Disbursements to other countries": state.disbursements.receiverCountriesOther || "",
     "Disbursements to currencies": state.disbursements.receiverCurrencies.join(", "),
     "Disbursements payee count": state.disbursements.payeeCount || "",
-    "Disbursements High-risk industries": state.disbursements.highRiskIndustries || "",
-    "Disbursements High-risk industry details": state.disbursements.highRiskIndustryDetails || "",
+    "Disbursements High-risk industries": isModuleSelected("disbursements") ? highRiskIndustries : "",
+    "Disbursements High-risk industry details": isModuleSelected("disbursements") ? highRiskIndustryDetails : "",
     "Additional info": state.additionalInfo || "",
   };
 }
@@ -3403,6 +3384,8 @@ function buildSummary() {
     `Use case category: ${useCaseCategoryLabel || "N/A"}`,
     `New use case or corridor: ${formatYesNo(state.useCase.isNewUseCaseOrCorridor) || "N/A"}`,
     `Current handling: ${state.useCase.currentHandling || "N/A"}`,
+    `High-risk industries: ${formatYesNo(state.useCase.highRiskIndustries) || "N/A"}`,
+    `High-risk industry details: ${state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails || "N/A" : "N/A"}`,
     "",
     `Selected flows: ${selectedFlows.length ? formatList(selectedFlows) : "N/A"}`,
     `Currently in flow of funds business: ${formatYesNo(state.role.inFlowOfFundsBusiness) || "N/A"}`,
@@ -3426,8 +3409,6 @@ function buildSummary() {
       "",
       `Collections sender types: ${state.collections.senderTypes.join(", ") || "N/A"}`,
       `Collections receiver types: ${state.collections.receiverTypes.join(", ") || "N/A"}`,
-      `High-risk industries: ${state.collections.highRiskIndustries || "N/A"}`,
-      `Collections high-risk industry details: ${state.collections.highRiskIndustryDetails || "N/A"}`,
       `Collections payer count: ${state.collections.payerCount || "N/A"} (${state.collections.payerCountBasis})`,
       `Collections from regions: ${formatRegionList(state.collections.senderRegion) || "N/A"}`,
       `Collections from countries: ${formatCountryList(state.collections.senderCountries, state.collections.senderCountriesOther) || "N/A"}`,
@@ -3443,8 +3424,6 @@ function buildSummary() {
       "",
       `Disbursements sender types: ${state.disbursements.senderTypes.join(", ") || "N/A"}`,
       `Disbursements receiver types: ${state.disbursements.receiverTypes.join(", ") || "N/A"}`,
-      `High-risk industries: ${state.disbursements.highRiskIndustries || "N/A"}`,
-      `Disbursements high-risk industry details: ${state.disbursements.highRiskIndustryDetails || "N/A"}`,
       `Disbursements payee count: ${state.disbursements.payeeCount || "N/A"} (${state.disbursements.payeeCountBasis})`,
       `Disbursements from regions: ${formatRegionList(state.disbursements.senderRegion) || "N/A"}`,
       `Disbursements from countries: ${formatCountryList(state.disbursements.senderCountries, state.disbursements.senderCountriesOther) || "N/A"}`,
@@ -3567,6 +3546,9 @@ function syncUseCaseState(path) {
   }
   if (path === "useCase.isNewUseCaseOrCorridor" && state.useCase.isNewUseCaseOrCorridor !== "no") {
     state.useCase.currentHandling = "";
+  }
+  if (path === "useCase.highRiskIndustries" && state.useCase.highRiskIndustries !== "yes") {
+    state.useCase.highRiskIndustryDetails = "";
   }
 }
 

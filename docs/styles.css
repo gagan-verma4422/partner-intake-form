@@ -670,6 +670,24 @@ button {
   line-height: 1.6;
 }
 
+.flow-selection-note {
+  margin: 18px 0 0;
+  padding: 18px 20px;
+  border: 1px solid rgba(15, 121, 214, 0.18);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(240, 249, 252, 1), rgba(255, 255, 255, 1));
+  color: var(--ink-soft);
+  line-height: 1.6;
+}
+
+.flow-selection-note p {
+  margin: 0;
+}
+
+.flow-selection-note strong {
+  color: var(--ink-strong);
+}
+
 .field-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
