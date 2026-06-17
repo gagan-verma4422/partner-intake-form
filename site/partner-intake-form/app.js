@@ -13,18 +13,13 @@ const MODULES = [
   },
   {
     key: "accounts",
-    label: "Accounts",
+    label: "Stored Value Accounts",
     description:
       "Launch stored-balance experiences with multi-currency wallets, virtual bank accounts, stablecoin wallets, and virtual card issuance.",
   },
 ];
 
 const PAYMENT_METHODS = [
-  {
-    key: "payLinks",
-    label: "Paylinks",
-    description: "Payment links for invoice, checkout, or link-based collection experiences.",
-  },
   {
     key: "swiftWire",
     label: "Bank Transfers (Local)",
@@ -77,24 +72,24 @@ const ADDITIONAL_SERVICES = [
 
 const STORED_VALUE_ACCOUNTS = [
   {
-    key: "virtualBankAccounts",
-    label: "Virtual Bank Accounts",
-    description: "Dedicated account details that support stored-balance, reconciliation, and account-level payment flows.",
-  },
-  {
-    key: "virtualCards",
-    label: "Virtual Cards",
-    description: "Card issuance experiences for spend, wallet-linked purchasing, or controlled virtual card use cases.",
+    key: "multiCurrencyWallets",
+    label: "Multi-Currency Wallet",
+    description: "Stored balances across supported currencies for global treasury, payment, or wallet experiences.",
   },
   {
     key: "stablecoinWallets",
-    label: "Stablecoin",
-    description: "Wallet experiences for holding, receiving, or sending supported stablecoin balances.",
+    label: "Stablecoin Wallet (USDC / USDT)",
+    description: "Wallet experiences for holding, receiving, or sending supported USDC and USDT balances.",
   },
   {
-    key: "multiCurrencyWallets",
-    label: "Multi-Currency Wallets",
-    description: "Stored balances across multiple currencies for global treasury, payment, or wallet experiences.",
+    key: "virtualCards",
+    label: "Virtual Prepaid Debit Card (USD only)",
+    description: "USD-denominated virtual prepaid debit cards for online or card-not-present spend.",
+  },
+  {
+    key: "virtualBankAccounts",
+    label: "Virtual Bank Accounts",
+    description: "Dedicated virtual bank account details for supported currencies: USD, EUR, GBP, MXN, BRL, and CAD.",
   },
 ];
 
@@ -498,7 +493,8 @@ const COUNTRY_CURRENCY_MAP = {
   ZM: ["ZMW", "USD"],
 };
 
-const FLOW_MODULE_KEYS = ["collections", "disbursements"];
+const FLOW_MODULE_KEYS = ["collections", "disbursements", "accounts"];
+const PAYMENT_FLOW_MODULE_KEYS = ["collections", "disbursements"];
 const PRODUCT_AVAILABILITY_RULES = {
   ibtInstantBankTransfer: {
     availableForModules: ["collections"],
@@ -545,9 +541,17 @@ const STEP_CONTENT = {
   },
   markets: {
     eyebrow: "Methods",
-    title: "Select the payment methods and stored value services.",
+    title: "Select the payment methods and services.",
     description:
-      "Mark each method or service as current use, interested in Veem, or both.",
+      "Mark each payment method or service as current use, interested in Veem, or both.",
+    footer:
+      "Fields marked with * are required.",
+  },
+  accounts: {
+    eyebrow: "Stored Value Accounts",
+    title: "Provide account holder coverage and stored value needs.",
+    description:
+      "Please share where account holders are located and which stored value account capabilities are relevant.",
     footer:
       "Fields marked with * are required.",
   },
@@ -658,12 +662,19 @@ const SEARCH_SELECTOR_DEFINITIONS = {
     selectionLabel: "selected",
     emptySelectionLabel: "",
   },
+  "accounts.accountHolderCountries": {
+    options: COUNTRY_SEARCH_OPTIONS,
+    placeholder: "Search countries",
+    selectionLabel: "selected",
+    emptySelectionLabel: "",
+  },
 };
 const COUNTRY_SELECTOR_REGION_PATHS = {
   "collections.senderCountries": "collections.senderRegion",
   "collections.receiverCountries": "collections.receiverRegion",
   "disbursements.senderCountries": "disbursements.senderRegion",
   "disbursements.receiverCountries": "disbursements.receiverRegion",
+  "accounts.accountHolderCountries": "accounts.accountHolderRegion",
 };
 const REGION_SELECTOR_COUNTRY_PATHS = Object.fromEntries(
   Object.entries(COUNTRY_SELECTOR_REGION_PATHS).map(([countryPath, regionPath]) => [regionPath, countryPath])
@@ -674,12 +685,14 @@ const COUNTRY_OTHER_DETAIL_PATHS = {
   "collections.receiverCountries": "collections.receiverCountriesOther",
   "disbursements.senderCountries": "disbursements.senderCountriesOther",
   "disbursements.receiverCountries": "disbursements.receiverCountriesOther",
+  "accounts.accountHolderCountries": "accounts.accountHolderCountriesOther",
 };
 const COUNTRY_OTHER_LABELS = {
   "collections.senderCountries": "Specify other source countries *",
   "collections.receiverCountries": "Specify other destination countries *",
   "disbursements.senderCountries": "Specify other source countries *",
   "disbursements.receiverCountries": "Specify other destination countries *",
+  "accounts.accountHolderCountries": "Specify other account holder countries *",
 };
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
@@ -741,6 +754,11 @@ const state = {
   paymentMethods: buildInterestMap(PAYMENT_METHODS),
   storedValueAccounts: buildInterestMap(STORED_VALUE_ACCOUNTS),
   additionalServices: buildInterestMap(ADDITIONAL_SERVICES),
+  accounts: {
+    accountHolderRegion: [],
+    accountHolderCountries: [],
+    accountHolderCountriesOther: "",
+  },
   collections: {
     senderTypes: [],
     receiverTypes: [],
@@ -808,6 +826,7 @@ function shouldBypassRequiredFields() {
 function buildSteps() {
   const selectedFlowLabels = getSelectedFlowLabels();
   const shouldShowFullTestPath = shouldBypassRequiredFields() && !selectedFlowLabels.length;
+  const hasPaymentFlow = PAYMENT_FLOW_MODULE_KEYS.some((moduleKey) => isModuleSelected(moduleKey));
   const steps = [
     { id: "intro", validate: validateIntro },
     { id: "useCase", validate: validateUseCase },
@@ -829,7 +848,13 @@ function buildSteps() {
     steps.push({ id: "disbursements", validate: validateDisbursements });
   }
 
-  steps.push({ id: "markets", validate: validateMarkets });
+  if (isModuleSelected("accounts") || shouldShowFullTestPath) {
+    steps.push({ id: "accounts", validate: validateAccounts });
+  }
+
+  if (hasPaymentFlow || shouldShowFullTestPath) {
+    steps.push({ id: "markets", validate: validateMarkets });
+  }
   steps.push({ id: "financials", validate: validateFinancials });
   steps.push({ id: "review", validate: () => [] });
   steps.push({ id: "thankyou", validate: () => [] });
@@ -986,6 +1011,8 @@ function renderStepContent(stepId) {
       return renderSolutionsStep();
     case "markets":
       return renderMarketsStep();
+    case "accounts":
+      return renderAccountsStep();
     case "collections":
       return renderCollectionsStep();
     case "disbursements":
@@ -1076,12 +1103,12 @@ function renderUseCaseStep() {
                 state.useCase.other,
                 "text",
                 "",
-                "is-half"
+                "is-half use-case-category-followup"
               )
             : ""
         }
-        <div class="field-grid">
-          <div class="field">
+        <div class="use-case-detail-grid">
+          <div class="use-case-toggle-row">
             <label>${renderLabelText("Is this a new use case or corridor? *")}</label>
             ${renderSegmentedButtons("useCase.isNewUseCaseOrCorridor", state.useCase.isNewUseCaseOrCorridor, [
               { value: "yes", label: "Yes" },
@@ -1100,7 +1127,7 @@ function renderUseCaseStep() {
               : ""
           }
 
-          <div class="field is-half">
+          <div class="use-case-toggle-row">
             <label>${renderLabelText("Do any of the industries involved operate in high-risk industries? *")}</label>
             ${renderSegmentedButtons("useCase.highRiskIndustries", state.useCase.highRiskIndustries, [
               { value: "yes", label: "Yes" },
@@ -1116,7 +1143,7 @@ function renderUseCaseStep() {
                   state.useCase.highRiskIndustryDetails,
                   "text",
                   "",
-                  "is-half"
+                  "use-case-followup-field"
                 )
               : ""
           }
@@ -1235,15 +1262,13 @@ function renderFinancialsStep() {
 
 function renderSolutionsStep() {
   const flowModules = MODULES.filter((module) => FLOW_MODULE_KEYS.includes(module.key));
-  const storedValueModule = MODULES.find((module) => module.key === "accounts");
-  const selectedCount = getSelectedFlowLabels().length;
 
   return `
     <div class="section-stack">
       <section class="section-card">
         <h3>Solutions of interest <span class="required-star">*</span></h3>
-        <p class="section-card__intro">Select collections, disbursements, or both. The remaining steps will adjust to your selection.</p>
-        <div class="option-grid grid auto-rows-fr md:grid-cols-2">
+        <p class="section-card__intro">Select collections, disbursements, stored value accounts, or any combination. The remaining steps will adjust to your selection.</p>
+        <div class="flow-option-list">
           ${flowModules
             .map((module) => {
               const entry = state.modules[module.key];
@@ -1251,7 +1276,7 @@ function renderSolutionsStep() {
               const descriptionId = `module-${module.key}-description`;
               return `
                 <button
-                  class="option-card option-card--button ${entry.interested ? "is-selected" : ""}"
+                  class="flow-option-card ${entry.interested ? "is-selected" : ""}"
                   type="button"
                   data-action="toggle-interest"
                   data-store="modules"
@@ -1261,25 +1286,54 @@ function renderSolutionsStep() {
                   aria-labelledby="${titleId}"
                   aria-describedby="${descriptionId}"
                 >
-                  <span class="option-card__title" id="${titleId}">${escapeHtml(module.label)}</span>
-                  <span class="option-card__description" id="${descriptionId}">${escapeHtml(module.description)}</span>
+                  <span class="flow-option-card__check" aria-hidden="true"></span>
+                  <span class="flow-option-card__copy">
+                    <span class="flow-option-card__title" id="${titleId}">${escapeHtml(module.label)}</span>
+                    <span class="flow-option-card__description" id="${descriptionId}">${escapeHtml(module.description)}</span>
+                  </span>
                 </button>
               `;
             })
             .join("")}
         </div>
-        ${
-          storedValueModule
-            ? `
-              <div class="flow-selection-note" role="note" aria-label="Stored value accounts">
-                <p>
-                  <strong>Stored value accounts:</strong>
-                  ${escapeHtml(storedValueModule.description)} You can select specific stored value account options in the Methods step.
-                </p>
-              </div>
-            `
-            : ""
-        }
+      </section>
+    </div>
+  `;
+}
+
+function renderAccountsStep() {
+  return `
+    <div class="section-stack">
+      <section class="section-card">
+        <h3>Stored value accounts <span class="required-star">*</span></h3>
+        <p class="section-card__intro">Select the stored value account capabilities relevant to this opportunity.</p>
+        ${renderInterestGrid(STORED_VALUE_ACCOUNTS, "storedValueAccounts")}
+      </section>
+
+      <section class="section-card">
+        <h3>Account holder coverage <span class="required-star">*</span></h3>
+        <p class="section-card__intro">Select where account holders are legally established or reside.</p>
+        <div class="flow-split-grid">
+          <section class="flow-split-card">
+            <span class="flow-split-card__eyebrow">Region</span>
+            <p>Choose the regions where account holders are located.</p>
+            ${renderRegionMultiSelect(
+              "accounts.accountHolderRegion",
+              state.accounts.accountHolderRegion,
+              "Account holder regions *"
+            )}
+          </section>
+
+          <section class="flow-split-card">
+            <span class="flow-split-card__eyebrow">Country</span>
+            <p>Choose the specific account holder countries for stored value account coverage.</p>
+            ${renderCountryMultiSelect(
+              "accounts.accountHolderCountries",
+              state.accounts.accountHolderCountries,
+              "Account holder countries *"
+            )}
+          </section>
+        </div>
       </section>
     </div>
   `;
@@ -1298,12 +1352,6 @@ function renderMarketsStep() {
         <h3>Methods <span class="required-star">*</span></h3>
         <p class="section-card__intro">${escapeHtml(methodsIntro)}</p>
         ${renderInterestGrid(PAYMENT_METHODS, "paymentMethods")}
-      </section>
-
-      <section class="section-card">
-        <h3>Stored value accounts</h3>
-        <p class="section-card__intro">Select any stored-value account experiences relevant to this opportunity.</p>
-        ${renderInterestGrid(STORED_VALUE_ACCOUNTS, "storedValueAccounts")}
       </section>
 
       <section class="section-card">
@@ -1563,6 +1611,9 @@ function renderReviewStep() {
   const disbursementsToRegion = state.disbursements.receiverRegion.length
     ? `To regions: ${formatRegionList(state.disbursements.receiverRegion)}`
     : "";
+  const accountHolderRegion = state.accounts.accountHolderRegion.length
+    ? `Account holder regions: ${formatRegionList(state.accounts.accountHolderRegion)}`
+    : "";
   const pricingModelLabel =
     state.role.pricingModel === "revshare"
       ? "Revenue share"
@@ -1613,6 +1664,14 @@ function renderReviewStep() {
           : "",
       ].filter(Boolean).join(" | ")}`
     : "";
+  const accountsLocationSummary = isModuleSelected("accounts")
+    ? `Stored Value Accounts: ${[
+        accountHolderRegion,
+        state.accounts.accountHolderCountries.length
+          ? `Account holder countries: ${formatCountryList(state.accounts.accountHolderCountries, state.accounts.accountHolderCountriesOther)}`
+          : "",
+      ].filter(Boolean).join(" | ")}`
+    : "";
 
   return `
     <div class="section-stack">
@@ -1635,6 +1694,7 @@ function renderReviewStep() {
               [
                 collectionsLocationSummary,
                 disbursementsLocationSummary,
+                accountsLocationSummary,
               ].filter(Boolean).join(" | ") || "No countries or currencies indicated"
             )}</span>
           </div>
@@ -1643,7 +1703,7 @@ function renderReviewStep() {
             <span>${escapeHtml(
               [
                 paymentMethodSummary ? `Methods: ${paymentMethodSummary}` : "",
-                storedValueSummary ? `Stored value: ${storedValueSummary}` : "",
+                isModuleSelected("accounts") && storedValueSummary ? `Stored value: ${storedValueSummary}` : "",
                 servicesSummary ? `Additional services: ${servicesSummary}` : "",
               ].filter(Boolean).join(" | ") || "No method scope selections indicated"
             )}</span>
@@ -1916,7 +1976,8 @@ function renderChipSelector(path, selectedValues, options) {
 }
 
 function renderRegionMultiSelect(path, selectedValues, title = "") {
-  const allSelected = COUNTRY_REGION_OPTIONS.every((option) => selectedValues.includes(option.value));
+  const regionOptions = getRegionOptionsForPath(path);
+  const allSelected = regionOptions.every((option) => selectedValues.includes(option.value));
 
   return `
     <div class="country-select country-select--regions">
@@ -1934,7 +1995,7 @@ function renderRegionMultiSelect(path, selectedValues, title = "") {
         >
           All
         </button>
-        ${COUNTRY_REGION_OPTIONS
+        ${regionOptions
           .map(
             (option) => `
               <button
@@ -2726,7 +2787,7 @@ function validateSolutions() {
   const errors = [];
 
   if (!getSelectedFlowLabels().length) {
-    errors.push("Collections or disbursements interest");
+    errors.push("Solution area interest");
   }
 
   return errors;
@@ -2734,6 +2795,25 @@ function validateSolutions() {
 
 function validateMarkets() {
   return [];
+}
+
+function validateAccounts() {
+  const errors = [];
+
+  if (!state.accounts.accountHolderRegion.length) {
+    errors.push("Account holder regions");
+  }
+  if (!state.accounts.accountHolderCountries.length) {
+    errors.push("Account holder countries");
+  }
+  if (isOtherCountrySelected("accounts.accountHolderCountries") && !state.accounts.accountHolderCountriesOther.trim()) {
+    errors.push("Specify other account holder countries");
+  }
+  if (!hasInterestSelection(STORED_VALUE_ACCOUNTS, state.storedValueAccounts)) {
+    errors.push("Stored value account option");
+  }
+
+  return errors;
 }
 
 function validateCollections() {
@@ -2820,6 +2900,10 @@ function validateDisbursements() {
   }
 
   return errors;
+}
+
+function hasInterestSelection(items, groupState) {
+  return items.some((item) => groupState[item.key]?.current || groupState[item.key]?.interested);
 }
 
 function isModuleSelected(moduleKey) {
@@ -2912,7 +2996,7 @@ function setRegionSelection(path, shouldSelectAll) {
   list.length = 0;
 
   if (shouldSelectAll) {
-    COUNTRY_REGION_OPTIONS.forEach((option) => {
+    getRegionOptionsForPath(path).forEach((option) => {
       list.push(option.value);
     });
   }
@@ -3068,6 +3152,10 @@ function getSearchSelectorDefinition(path) {
     selectionLabel: "selected",
     emptySelectionLabel: "Selected items will appear here.",
   };
+}
+
+function getRegionOptionsForPath(path) {
+  return COUNTRY_REGION_OPTIONS;
 }
 
 function getRegionFilteredSearchSelectorDefinition(path, definition) {
@@ -3279,6 +3367,13 @@ function buildSubmissionResponses() {
     };
   }
 
+  if (isModuleSelected("accounts")) {
+    responses.accounts = {
+      ...state.accounts,
+      storedValueAccounts: state.storedValueAccounts,
+    };
+  }
+
   return cloneSubmissionState(responses);
 }
 
@@ -3295,9 +3390,19 @@ function buildZapierRawData(submittedAt) {
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
   const storedValueSummary = summarizeInterestGroup(STORED_VALUE_ACCOUNTS, state.storedValueAccounts, "storedValueAccounts");
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
+  const storedValueAccountSummary = isModuleSelected("accounts") ? storedValueSummary : "";
+  const productInterestSummary = summarizeProductInterest(
+    paymentMethodSummary,
+    storedValueAccountSummary,
+    servicesSummary
+  );
   const highRiskIndustries = formatYesNo(state.useCase.highRiskIndustries);
   const highRiskIndustryDetails =
     state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails || "" : "";
+  const productSummary = [
+    paymentMethodSummary,
+    storedValueAccountSummary,
+  ].filter(Boolean).join(", ");
 
   return {
     "Submission date": submittedAt || "",
@@ -3328,8 +3433,16 @@ function buildZapierRawData(submittedAt) {
     "Payment count range": state.financials.paymentCountRange || "",
     "Expected company growth (next 12 months)": String(state.financials.companyGrowth ?? ""),
     "Average ticket size": String(state.financials.averageTicket ?? ""),
+    "Product interest summary": productInterestSummary || "",
+    "Products": productSummary || "",
     "Methods": paymentMethodSummary || "",
-    "Stored value accounts": storedValueSummary || "",
+    "Stored value accounts": storedValueAccountSummary || "",
+    "Stored value account options": storedValueAccountSummary || "",
+    "Stored value account holder regions": isModuleSelected("accounts") ? formatRegionList(state.accounts.accountHolderRegion) : "",
+    "Stored value account holder countries": isModuleSelected("accounts")
+      ? formatCountryList(state.accounts.accountHolderCountries, state.accounts.accountHolderCountriesOther)
+      : "",
+    "Stored value account holder other countries": isModuleSelected("accounts") ? state.accounts.accountHolderCountriesOther || "" : "",
     "Additional services": servicesSummary || "",
     "Collections sender types": state.collections.senderTypes.join(", "),
     "Collections from regions": formatRegionList(state.collections.senderRegion),
@@ -3369,6 +3482,12 @@ function buildSummary() {
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
   const storedValueSummary = summarizeInterestGroup(STORED_VALUE_ACCOUNTS, state.storedValueAccounts, "storedValueAccounts");
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
+  const storedValueAccountSummary = isModuleSelected("accounts") ? storedValueSummary : "";
+  const productInterestSummary = summarizeProductInterest(
+    paymentMethodSummary,
+    storedValueAccountSummary,
+    servicesSummary
+  );
   const lines = [
     "New Partner Intake form submission",
     "",
@@ -3399,10 +3518,20 @@ function buildSummary() {
     `Payment count range: ${state.financials.paymentCountRange || "N/A"}`,
     `Average ticket size: ${currencyFormatter.format(Number(state.financials.averageTicket || 0))}`,
     "",
+    `Product interest summary: ${productInterestSummary || "N/A"}`,
     `Methods: ${paymentMethodSummary || "N/A"}`,
-    `Stored value accounts: ${storedValueSummary || "N/A"}`,
+    `Stored value accounts: ${storedValueAccountSummary || "N/A"}`,
     `Additional services: ${servicesSummary || "N/A"}`,
   ];
+
+  if (isModuleSelected("accounts")) {
+    lines.push(
+      "",
+      `Stored value account holder regions: ${formatRegionList(state.accounts.accountHolderRegion) || "N/A"}`,
+      `Stored value account holder countries: ${formatCountryList(state.accounts.accountHolderCountries, state.accounts.accountHolderCountriesOther) || "N/A"}`,
+      `Stored value account options: ${storedValueAccountSummary || "N/A"}`
+    );
+  }
 
   if (isModuleSelected("collections")) {
     lines.push(
@@ -3455,6 +3584,14 @@ function summarizeInterestGroup(items, groupState, storeKey = "") {
       return `${item.label} (${states.join(" + ")})`;
     })
     .join(", ");
+}
+
+function summarizeProductInterest(paymentMethodSummary, storedValueSummary, servicesSummary) {
+  return [
+    paymentMethodSummary ? `Methods: ${paymentMethodSummary}` : "",
+    storedValueSummary ? `Stored value accounts: ${storedValueSummary}` : "",
+    servicesSummary ? `Additional services: ${servicesSummary}` : "",
+  ].filter(Boolean).join(" | ");
 }
 
 function getCompanyEntityTypeLabel() {
