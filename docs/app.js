@@ -3,13 +3,13 @@ const MODULES = [
     key: "collections",
     label: "Collections",
     description:
-      "Receive funds through Paylinks, Bank Transfers (Local), ACH, Same Day ACH, IBT (Plaid & Balance), FX, and Cards (Local Card Acquiring).",
+      "Receive funds through supported payment methods such as local bank transfers, FX, card acceptance, wire transfers, and stablecoin-to-fiat conversion.",
   },
   {
     key: "disbursements",
     label: "Disbursements",
     description:
-      "Send or deliver funds through Paylinks, Bank Transfers (Local), ACH / Same Day ACH, IBT (Plaid & Balance), FX, Cards (Local Card Acquiring), and RTP.",
+      "Send or deliver funds through supported payout rails such as local bank transfers, FX, Same Day ACH, RTP, Fedwire, Swift, and fiat-to-stablecoin conversion.",
   },
   {
     key: "accounts",
@@ -22,51 +22,153 @@ const MODULES = [
 const PAYMENT_METHODS = [
   {
     key: "swiftWire",
-    label: "Bank Transfers (Local)",
-    description: "Local bank transfer rails for direct account-to-account payment movement.",
-  },
-  {
-    key: "standardAch",
-    label: "ACH",
-    description: "Domestic U.S. ACH bank transfer method for lower-cost transactions where moderate settlement speed is acceptable.",
+    label: "Local Bank Transfers",
+    description:
+      "Market-specific local bank transfer rails, including ACH debit or credit, SEPA, FPS, EFT, and similar account-to-account methods.",
   },
   {
     key: "sameDayAch",
-    label: "Same Day ACH",
-    description: "Domestic U.S. ACH with same-day settlement for faster bank movement when timing matters.",
+    label: "Same Day ACH (US only)",
+    description: "U.S. ACH rail with same-day settlement for faster domestic bank movement.",
   },
   {
     key: "ibtInstantBankTransfer",
-    label: "IBT (Plaid & Balance)",
-    description: "Instant bank transfer method using connected bank access and available balance checks.",
-  },
-  {
-    key: "foreignExchange",
-    label: "FX",
-    description: "Currency conversion for cross-border payments and treasury movement.",
-  },
-  {
-    key: "cardAcquiring",
-    label: "Cards (Local Card Acquiring)",
-    description: "Local debit or credit card acquiring for partners accepting card-funded payments.",
+    label: "IBT (Instant Bank Transfer)",
+    description:
+      "Instant bank transfer for U.S. ACH collection flows using Plaid bank connection and balance checks.",
   },
   {
     key: "rtp",
-    label: "RTP",
-    description: "Real-Time Payments for instant U.S. bank transfers and immediate settlement in time-sensitive use cases.",
+    label: "RTP (US only)",
+    description: "Real-Time Payments rail for instant U.S. disbursements and immediate settlement.",
+  },
+  {
+    key: "fedwire",
+    label: "Fedwire (US)",
+    description: "Domestic U.S. wire transfer rail for higher-value bank movement and faster settlement.",
+  },
+  {
+    key: "internationalSwift",
+    label: "International Swift",
+    description: "Cross-border wire transfers through the Swift network for international bank movement.",
+  },
+  {
+    key: "cardAcquiring",
+    label: "Card Acceptance (Debit & Credit)",
+    description: "Accept debit and credit card payments for collection flows where card-funded payments are required.",
+  },
+  {
+    key: "pushToCards",
+    label: "Push to Cards",
+    description: "Send funds to eligible debit or credit cards across supported card payout programs.",
+  },
+  {
+    key: "instantCardIssue",
+    label: "Instant Card Issuance",
+    description: "Issue cards instantly for supported card programs.",
+  },
+  {
+    key: "fxMajors",
+    label: "FX - Majors",
+    shortLabel: "Majors",
+    description: "Major FX currency bucket.",
+    details:
+      "AUD, CAD, CHF, CNY, DKK, EUR, GBP, HKD, JPY, NOK, NZD, PHP, SEK, SGD, USD.",
+  },
+  {
+    key: "fxMinors",
+    label: "FX - Minors",
+    shortLabel: "Minors",
+    description: "Minor FX currency bucket.",
+    details:
+      "AED, BBD, BDT, BGN, BHD, BMD, BND, BRL, BSD, BWP, BZD, CRC, CZK, DOP, DZD, EGP, ETB, FJD, GHS, GTQ, GYD, HTG, HUF, IDR, ILS, INR, ISK, JMD, JOD, KES, KWD, KYD, KZT, LBP, LKR, MAD, MOP, MUR, MWK, MXN, MZN, NGN, OMR, PEN, PGK, PKR, PLN, QAR, RON, RUB, RWF, SAR, SBD, THB, TND, TOP, TRY, TTD, TZS, UGX, UYU, VND, VUV, WST, XAF, XCD, XOF, ZAR, ZMW.",
+  },
+  {
+    key: "fxTertiary",
+    label: "FX - Tertiary",
+    shortLabel: "Tertiary",
+    description: "Tertiary FX currency bucket.",
+    details:
+      "ALL, AMD, ANG, AOA, ARS, AWG, AZN, BAM, BIF, BOB, BTN, BYN, CDF, CLP, COP, CVE, DJF, ERN, FKP, GEL, GIP, GMD, GNF, HNL, KGS, KHR, KMF, KRW, LAK, LRD, LSL, LYD, MDL, MGA, MKD, MMK, MNT, MRU, MVR, MYR, NAD, NIO, NPR, PAB, PYG, RSD, SCR, SHP, SLE, SRD, SSP, STN, SVC, SZL, TJS, TMT, TWD, UAH, UZS, VES, XPF, YER, ZWD.",
+  },
+  {
+    key: "stablecoinToFiat",
+    label: "USDC / USDT ↔ Fiat",
+    description: "Convert supported USDC or USDT balances into fiat currency for settlement or local payout flows.",
+  },
+  {
+    key: "fiatToStablecoin",
+    label: "Fiat ↔ USDC / USDT",
+    description: "Convert fiat balances into supported USDC or USDT for digital currency payout or wallet flows.",
   },
 ];
 
+const PAYMENT_METHOD_GROUPS = [
+  {
+    key: "bankTransfers",
+    label: "Bank transfers",
+    description: "Account-to-account payment rails for local collection and disbursement flows.",
+    itemKeys: ["swiftWire", "sameDayAch", "ibtInstantBankTransfer", "rtp"],
+  },
+  {
+    key: "bankWires",
+    label: "Bank wires",
+    description: "Wire transfer rails for U.S. domestic and international bank movement.",
+    itemKeys: ["fedwire", "internationalSwift"],
+  },
+  {
+    key: "cards",
+    label: "Cards",
+    description: "Card-funded collection and card payout methods.",
+    itemKeys: ["cardAcquiring", "pushToCards", "instantCardIssue"],
+  },
+];
+
+const FIAT_DIGITAL_CURRENCY_CONVERSIONS = {
+  key: "fiatDigitalCurrencyConversions",
+  label: "Fiat and Digital Currency Conversions",
+  description: "Select relevant FX currency buckets and stablecoin conversion directions.",
+  groups: [
+    {
+      key: "fx",
+      label: "FX",
+      description: "Majors, Minors, and Tertiary currency buckets.",
+      itemKeys: ["fxMajors", "fxMinors", "fxTertiary"],
+    },
+    {
+      key: "stablecoins",
+      label: "Stablecoins",
+      description: "USDC and USDT conversion directions.",
+      itemKeys: ["stablecoinToFiat", "fiatToStablecoin"],
+    },
+  ],
+};
+
 const ADDITIONAL_SERVICES = [
+  {
+    key: "payerPluginPaylinks",
+    label: "Payer Plugin / Paylinks",
+    category: "Plugins",
+    description: "Collection-only payer experience for payment links or embedded payer checkout flows.",
+  },
+  {
+    key: "payeePlugin",
+    label: "Payee Plugin",
+    category: "Plugins",
+    description: "Disbursement-only payee experience for collecting recipient details and supporting payout onboarding.",
+  },
   {
     key: "plaidBankAccountVerification",
     label: "Plaid Bank Account Verification",
-    description: "Secure bank account verification services that support account ownership, identity, and bank connection validation.",
+    category: "Verification",
+    description:
+      "Verify bank accounts and support account ownership, identity, and connected-bank validation before payment movement.",
   },
   {
     key: "riskServices",
     label: "Risk Services",
-    description: "Additional risk controls and related support services for managing payment and compliance exposure.",
+    category: "Risk",
+    description: "Additional risk controls and support services for managing payment, fraud, compliance, and operational exposure.",
   },
 ];
 
@@ -74,7 +176,7 @@ const STORED_VALUE_ACCOUNTS = [
   {
     key: "multiCurrencyWallets",
     label: "Multi-Currency Wallet",
-    description: "Stored balances across supported currencies for global treasury, payment, or wallet experiences.",
+    description: "Stored balances across supported fiat currencies for treasury, payment, or wallet experiences.",
   },
   {
     key: "stablecoinWallets",
@@ -83,8 +185,8 @@ const STORED_VALUE_ACCOUNTS = [
   },
   {
     key: "virtualCards",
-    label: "Virtual Prepaid Debit Card (USD only)",
-    description: "USD-denominated virtual prepaid debit cards for online or card-not-present spend.",
+    label: "Virtual Card (USD)",
+    description: "USD-denominated virtual cards with instant card issuance for online or card-not-present spend.",
   },
   {
     key: "virtualBankAccounts",
@@ -504,6 +606,36 @@ const PRODUCT_AVAILABILITY_RULES = {
     availableForModules: ["disbursements"],
     status: "Available for disbursement flows.",
   },
+  cardAcquiring: {
+    availableForModules: ["collections"],
+    status: "Available for collections flows.",
+  },
+  pushToCards: {
+    availableForModules: ["disbursements"],
+    status: "Available for disbursement flows.",
+  },
+  instantCardIssue: {
+    availableForModules: ["disbursements"],
+    status: "Available for disbursement flows.",
+  },
+  stablecoinToFiat: {
+    availableForModules: ["collections"],
+    status: "Available for collections flows.",
+  },
+  fiatToStablecoin: {
+    availableForModules: ["disbursements"],
+    status: "Available for disbursement flows.",
+  },
+};
+const ADDITIONAL_SERVICE_AVAILABILITY_RULES = {
+  payerPluginPaylinks: {
+    availableForModules: ["collections"],
+    status: "Available for collections flows.",
+  },
+  payeePlugin: {
+    availableForModules: ["disbursements"],
+    status: "Available for disbursement flows.",
+  },
 };
 
 const STEP_CONTENT = {
@@ -540,10 +672,18 @@ const STEP_CONTENT = {
       "Fields marked with * are required.",
   },
   markets: {
-    eyebrow: "Methods",
-    title: "Select the payment methods and services.",
+    eyebrow: "Payment Methods",
+    title: "Select the payment methods.",
     description:
-      "Mark each payment method or service as current use, interested in Veem, or both.",
+      "Mark each payment rail as current use, interested in Veem, or both.",
+    footer:
+      "Fields marked with * are required.",
+  },
+  additionalServices: {
+    eyebrow: "Additional Services",
+    title: "Select any add-on services.",
+    description:
+      "Choose verification, risk, or plugin services that should be included with the selected flow.",
     footer:
       "Fields marked with * are required.",
   },
@@ -808,6 +948,7 @@ if (app instanceof HTMLElement) {
   app.addEventListener("change", handleInput);
   app.addEventListener("keydown", handleKeyDown);
   app.addEventListener("focusout", handleBlur);
+  document.addEventListener("click", handleDocumentClick);
   document.addEventListener("keydown", handleGlobalKeyDown);
   applyInitialTestingMode();
   render();
@@ -854,6 +995,7 @@ function buildSteps() {
 
   if (hasPaymentFlow || shouldShowFullTestPath) {
     steps.push({ id: "markets", validate: validateMarkets });
+    steps.push({ id: "additionalServices", validate: validateAdditionalServices });
   }
   steps.push({ id: "financials", validate: validateFinancials });
   steps.push({ id: "review", validate: () => [] });
@@ -1011,6 +1153,8 @@ function renderStepContent(stepId) {
       return renderSolutionsStep();
     case "markets":
       return renderMarketsStep();
+    case "additionalServices":
+      return renderAdditionalServicesStep();
     case "accounts":
       return renderAccountsStep();
     case "collections":
@@ -1341,22 +1485,117 @@ function renderAccountsStep() {
 
 function renderMarketsStep() {
   const methodsIntro = isModuleSelected("collections") && !isModuleSelected("disbursements")
-    ? "Please indicate the supported methods relevant to your incoming collection flows."
+    ? "Select the payment methods relevant to incoming collection flows. Payer plugins and Paylinks are handled on the next page."
     : isModuleSelected("disbursements") && !isModuleSelected("collections")
-      ? "Please indicate the supported methods relevant to your outgoing disbursement flows."
-      : "Please indicate the supported methods relevant to your selected flows.";
+      ? "Select the payment methods relevant to outgoing disbursement flows. Payee plugins are handled on the next page."
+      : "Select the payment methods relevant to your selected collection and disbursement flows. Plugins and Paylinks are handled on the next page.";
 
   return `
     <div class="section-stack">
       <section class="section-card">
-        <h3>Methods <span class="required-star">*</span></h3>
+        <h3>Payment methods <span class="required-star">*</span></h3>
         <p class="section-card__intro">${escapeHtml(methodsIntro)}</p>
-        ${renderInterestGrid(PAYMENT_METHODS, "paymentMethods")}
+        ${renderPaymentMethodGroups()}
       </section>
 
       <section class="section-card">
+        <h3>${escapeHtml(FIAT_DIGITAL_CURRENCY_CONVERSIONS.label)}</h3>
+        <p class="section-card__intro">${escapeHtml(FIAT_DIGITAL_CURRENCY_CONVERSIONS.description)}</p>
+        ${renderFiatDigitalCurrencyConversionGroups()}
+      </section>
+    </div>
+  `;
+}
+
+function renderPaymentMethodGroups() {
+  return `
+    <div class="method-group-stack">
+      ${PAYMENT_METHOD_GROUPS
+        .map((group) => {
+          const items = getPaymentMethodItems(group.itemKeys);
+          return `
+            <section class="method-group" aria-labelledby="method-group-${group.key}">
+              <div class="method-group__header">
+                <h4 id="method-group-${group.key}">${escapeHtml(group.label)}</h4>
+                <p>${escapeHtml(group.description)}</p>
+              </div>
+              ${renderInterestGrid(items, "paymentMethods", { compact: true, showCategory: false })}
+            </section>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function renderFiatDigitalCurrencyConversionGroups() {
+  return `
+    <div class="method-group-stack">
+      ${FIAT_DIGITAL_CURRENCY_CONVERSIONS.groups
+        .map((group) => {
+          const items = getPaymentMethodItems(group.itemKeys);
+          return `
+            <section class="method-group" aria-labelledby="conversion-group-${group.key}">
+              <div class="method-group__header">
+                <h4 id="conversion-group-${group.key}">${escapeHtml(group.label)}</h4>
+                <p>${escapeHtml(group.description)}</p>
+              </div>
+              ${renderInterestGrid(items, "paymentMethods", { compact: true, showCategory: false })}
+              ${renderConversionGroupDetails(group, items)}
+            </section>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function renderConversionGroupDetails(group, items) {
+  const detailItems = items.filter((item) => item.details);
+  if (group.key !== "fx" || !detailItems.length) {
+    return "";
+  }
+
+  return `
+    <details class="method-group__details">
+      <summary>
+        <span class="method-group__info-dot" aria-hidden="true">i</span>
+        <span>View currency bucket details</span>
+      </summary>
+      <div class="method-group__details-grid">
+        ${detailItems
+          .map(
+            (item) => `
+              <section class="method-group__detail-item">
+                <h5>${escapeHtml(item.label)}</h5>
+                <p>${escapeHtml(item.details)}</p>
+              </section>
+            `
+          )
+          .join("")}
+      </div>
+    </details>
+  `;
+}
+
+function getPaymentMethodItems(itemKeys) {
+  return itemKeys
+    .map((key) => PAYMENT_METHODS.find((item) => item.key === key))
+    .filter(Boolean);
+}
+
+function renderAdditionalServicesStep() {
+  const servicesIntro = isModuleSelected("collections") && !isModuleSelected("disbursements")
+    ? "Select optional verification, risk, and payer-facing services for the collection flow."
+    : isModuleSelected("disbursements") && !isModuleSelected("collections")
+      ? "Select optional verification, risk, and payee-facing services for the disbursement flow."
+      : "Select optional verification, risk, payer-facing, and payee-facing services for the selected flows.";
+
+  return `
+    <div class="section-stack">
+      <section class="section-card">
         <h3>Additional services</h3>
-        <p class="section-card__intro">Please select any additional services relevant to this opportunity.</p>
+        <p class="section-card__intro">${escapeHtml(servicesIntro)}</p>
         ${renderInterestGrid(ADDITIONAL_SERVICES, "additionalServices")}
       </section>
     </div>
@@ -1699,13 +1938,13 @@ function renderReviewStep() {
             )}</span>
           </div>
           <div class="summary-card">
-            <strong>Method scope</strong>
+            <strong>Payment scope</strong>
             <span>${escapeHtml(
               [
-                paymentMethodSummary ? `Methods: ${paymentMethodSummary}` : "",
+                paymentMethodSummary ? `Payment methods: ${paymentMethodSummary}` : "",
                 isModuleSelected("accounts") && storedValueSummary ? `Stored value: ${storedValueSummary}` : "",
                 servicesSummary ? `Additional services: ${servicesSummary}` : "",
-              ].filter(Boolean).join(" | ") || "No method scope selections indicated"
+              ].filter(Boolean).join(" | ") || "No payment scope selections indicated"
             )}</span>
           </div>
           <div class="summary-card">
@@ -1952,27 +2191,11 @@ function renderSegmentedButtons(path, selected, options) {
 }
 
 function renderChipSelector(path, selectedValues, options) {
-  return `
-    <div class="compact-option-grid">
-      ${options
-        .map(
-          (option) => `
-            <button
-              class="country-option ${selectedValues.includes(option.value) ? "is-active" : ""}"
-              type="button"
-              data-action="toggle-array"
-              data-path="${path}"
-              data-value="${option.value}"
-              aria-pressed="${selectedValues.includes(option.value) ? "true" : "false"}"
-            >
-              <span class="country-option__box" aria-hidden="true"></span>
-              <span>${escapeHtml(option.label)}</span>
-            </button>
-          `
-        )
-        .join("")}
-    </div>
-  `;
+  return renderOptionMultiSelectDropdown(path, selectedValues, options, {
+    emptyLabel: "Select user types",
+    allLabel: "All user types selected",
+    countLabel: "types",
+  });
 }
 
 function renderRegionMultiSelect(path, selectedValues, title = "") {
@@ -1984,45 +2207,107 @@ function renderRegionMultiSelect(path, selectedValues, title = "") {
       <div class="country-select__header">
         <label class="country-select__label">${renderLabelText(title)}</label>
       </div>
-      <div class="chip-cloud country-select__chips" role="group" aria-label="${escapeHtml(title)}">
-        <button
-          class="country-option country-option--all ${allSelected ? "is-active" : ""}"
-          type="button"
-          data-action="set-region-selection"
-          data-path="${path}"
-          data-mode="${allSelected ? "clear" : "all"}"
-          aria-pressed="${allSelected ? "true" : "false"}"
-        >
-          All
-        </button>
-        ${regionOptions
-          .map(
-            (option) => `
-              <button
-                class="country-option ${selectedValues.includes(option.value) ? "is-active" : ""}"
-                type="button"
-                data-action="toggle-array"
-                data-path="${path}"
-                data-value="${option.value}"
-                aria-pressed="${selectedValues.includes(option.value) ? "true" : "false"}"
-              >
-                <span class="country-option__box" aria-hidden="true"></span>
-                <span>${escapeHtml(option.label)}</span>
-              </button>
-            `
-          )
-          .join("")}
-      </div>
+      ${renderOptionMultiSelectDropdown(path, selectedValues, regionOptions, {
+        emptyLabel: "Select regions",
+        allLabel: "All regions selected",
+        countLabel: "regions",
+        leadingAction: {
+          label: "All regions",
+          action: "set-region-selection",
+          mode: allSelected ? "clear" : "all",
+          selected: allSelected,
+        },
+      })}
     </div>
   `;
+}
+
+function renderOptionMultiSelectDropdown(path, selectedValues, options, config = {}) {
+  const summaryLabel = getOptionMultiSelectSummary(
+    options,
+    selectedValues,
+    config.emptyLabel || "Select options",
+    config.allLabel || "All selected"
+  );
+
+  return `
+    <details class="country-dropdown country-dropdown--simple" data-selection-dropdown="${escapeHtml(path)}">
+      <summary class="country-dropdown__summary">
+        <span class="country-dropdown__summary-text">${escapeHtml(summaryLabel)}</span>
+        <span class="country-dropdown__caret" aria-hidden="true"></span>
+      </summary>
+      <div class="country-dropdown__panel">
+        <div class="country-dropdown__options" aria-label="${escapeHtml(config.emptyLabel || "Options")}">
+          ${
+            config.leadingAction
+              ? `
+                <button
+                  class="country-dropdown__option ${config.leadingAction.selected ? "is-active" : ""}"
+                  type="button"
+                  data-action="${escapeHtml(config.leadingAction.action)}"
+                  data-path="${escapeHtml(path)}"
+                  data-mode="${escapeHtml(config.leadingAction.mode)}"
+                  aria-pressed="${config.leadingAction.selected ? "true" : "false"}"
+                >
+                  <span class="country-option__box" aria-hidden="true"></span>
+                  <span>${escapeHtml(config.leadingAction.label)}</span>
+                </button>
+              `
+              : ""
+          }
+          ${options
+            .map((option) => {
+              const isSelected = selectedValues.includes(option.value);
+              return `
+                <button
+                  class="country-dropdown__option ${isSelected ? "is-active" : ""}"
+                  type="button"
+                  data-action="toggle-array"
+                  data-path="${escapeHtml(path)}"
+                  data-value="${escapeHtml(option.value)}"
+                  aria-pressed="${isSelected ? "true" : "false"}"
+                >
+                  <span class="country-option__box" aria-hidden="true"></span>
+                  <span>${escapeHtml(option.label)}</span>
+                </button>
+              `;
+            })
+            .join("")}
+        </div>
+      </div>
+    </details>
+  `;
+}
+
+function getOptionMultiSelectSummary(options, selectedValues, emptyLabel, allLabel) {
+  if (!selectedValues.length) {
+    return emptyLabel;
+  }
+
+  if (options.length && options.every((option) => selectedValues.includes(option.value))) {
+    return allLabel;
+  }
+
+  const labels = selectedValues
+    .map((value) => options.find((option) => option.value === value)?.label || value)
+    .filter(Boolean);
+  const visibleLabels = labels.slice(0, 2);
+  const extraCount = labels.length - visibleLabels.length;
+
+  return extraCount > 0 ? `${visibleLabels.join(", ")} + ${extraCount} more` : visibleLabels.join(", ");
 }
 
 function renderCountryMultiSelect(path, selectedValues, title = "") {
   const definition = getSearchSelectorDefinition(path);
   const options = definition.options;
-  const allSelected = Boolean(options.length) && options.every((option) => selectedValues.includes(option.value));
-  const isOtherSelected = selectedValues.includes(OTHER_COUNTRY_VALUE);
-  const otherDetailPath = COUNTRY_OTHER_DETAIL_PATHS[path];
+  const selectedCountryValues = selectedValues.filter((value) => value !== OTHER_COUNTRY_VALUE);
+  const selectedTotal = selectedCountryValues.length;
+  const summaryLabel = getCountrySelectionSummary(path, selectedCountryValues, options.length);
+  const countLabel = selectedTotal
+    ? `${selectedTotal} selected`
+    : options.length
+      ? `${options.length} available`
+      : "No countries";
 
   return `
     <div class="country-select country-select--countries">
@@ -2034,60 +2319,122 @@ function renderCountryMultiSelect(path, selectedValues, title = "") {
         definition.disabled
           ? `<p class="country-select__placeholder">${escapeHtml(definition.emptySelectionLabel)}</p>`
           : `
-            <div class="chip-cloud country-select__chips" role="group" aria-label="${escapeHtml(title)}">
-              <button
-                class="country-option country-option--all ${allSelected ? "is-active" : ""}"
-                type="button"
-                data-action="set-region-countries"
-                data-path="${path}"
-                data-mode="${allSelected ? "clear" : "all"}"
-                aria-pressed="${allSelected ? "true" : "false"}"
-              >
-                All
-              </button>
-              ${options
-                .map(
-                  (option) => `
-                    <button
-                      class="country-option ${selectedValues.includes(option.value) ? "is-active" : ""}"
-                      type="button"
-                      data-action="toggle-array"
-                      data-path="${path}"
-                      data-value="${option.value}"
-                      aria-pressed="${selectedValues.includes(option.value) ? "true" : "false"}"
-                    >
-                      <span class="country-option__box" aria-hidden="true"></span>
-                      <span>${escapeHtml(option.label)}</span>
-                    </button>
-                  `
-                )
-                .join("")}
-              <button
-                class="country-option ${isOtherSelected ? "is-active" : ""}"
-                type="button"
-                data-action="toggle-array"
-                data-path="${path}"
-                data-value="${OTHER_COUNTRY_VALUE}"
-                aria-pressed="${isOtherSelected ? "true" : "false"}"
-              >
-                <span class="country-option__box" aria-hidden="true"></span>
-                <span>Other</span>
-              </button>
-            </div>
-            ${
-              isOtherSelected && otherDetailPath
-                ? renderCountryOtherInput(
-                    COUNTRY_OTHER_LABELS[path] || "Specify other countries *",
-                    otherDetailPath,
-                    getValueByPath(state, otherDetailPath),
-                    "List countries separated by commas"
-                  )
-                : ""
-            }
+            <details class="country-dropdown" data-country-dropdown="${escapeHtml(path)}">
+              <summary class="country-dropdown__summary">
+                <span class="country-dropdown__summary-text">${escapeHtml(summaryLabel)}</span>
+                <span class="country-dropdown__summary-count">${escapeHtml(countLabel)}</span>
+                <span class="country-dropdown__caret" aria-hidden="true"></span>
+              </summary>
+              <div class="country-dropdown__panel">
+                <input
+                  class="text-input country-dropdown__search"
+                  id="${selectorInputId(path)}"
+                  type="text"
+                  name="selector-search:${path}"
+                  data-selector-search="${path}"
+                  value="${escapeHtml(getSelectorQuery(path))}"
+                  placeholder="Search countries"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                ${renderCountryDropdownOptions(path, options, selectedCountryValues)}
+              </div>
+            </details>
           `
       }
     </div>
   `;
+}
+
+function getCountrySelectionSummary(path, selectedValues, availableCount) {
+  if (!selectedValues.length) {
+    return "No countries selected";
+  }
+
+  if (availableCount && selectedValues.length === availableCount) {
+    return `All ${availableCount} countries selected`;
+  }
+
+  const selectedLabels = selectedValues.slice(0, 2).map((value) => labelForSearchValue(path, value));
+  const extraCount = selectedValues.length - selectedLabels.length;
+  const label = selectedLabels.join(", ");
+
+  return extraCount > 0 ? `${label} + ${extraCount} more` : label;
+}
+
+function renderCountryDropdownOptions(path, options, selectedValues) {
+  const query = getSelectorQuery(path).trim().toLowerCase();
+  const visibleOptions = getVisibleCountryOptions(options, query);
+  const groups = COUNTRY_REGION_OPTIONS.map((region) => ({
+    ...region,
+    options: visibleOptions.filter((option) => countryLookup.get(option.value)?.region === region.value),
+  })).filter((group) => group.options.length);
+  const allAvailableSelected = Boolean(options.length) && options.every((option) => selectedValues.includes(option.value));
+
+  return `
+    <div class="country-dropdown__options" data-country-scroll="${escapeHtml(path)}" aria-label="Country options">
+      ${
+        groups.length
+          ? `
+              <button
+                class="country-dropdown__option country-dropdown__option--all ${allAvailableSelected ? "is-active" : ""}"
+                type="button"
+                data-action="set-country-selection"
+                data-path="${escapeHtml(path)}"
+                data-mode="${allAvailableSelected ? "clear" : "all"}"
+                aria-pressed="${allAvailableSelected ? "true" : "false"}"
+              >
+                <span class="country-option__box" aria-hidden="true"></span>
+                <span>All countries</span>
+                <span class="country-dropdown__meta">${options.length}</span>
+              </button>
+              ${groups
+              .map(
+                (group) => `
+                  <div class="country-dropdown__group">
+                    <div class="country-dropdown__group-title">
+                      <span>${escapeHtml(group.label)}</span>
+                      <span>${group.options.length}</span>
+                    </div>
+                    ${group.options
+                      .map((option) => {
+                        const isSelected = selectedValues.includes(option.value);
+                        return `
+                          <button
+                            class="country-dropdown__option ${isSelected ? "is-active" : ""}"
+                            type="button"
+                            data-action="toggle-array"
+                            data-path="${path}"
+                            data-value="${option.value}"
+                            aria-pressed="${isSelected ? "true" : "false"}"
+                          >
+                            <span class="country-option__box" aria-hidden="true"></span>
+                            <span>${escapeHtml(option.label)}</span>
+                            ${option.meta ? `<span class="country-dropdown__meta">${escapeHtml(option.meta)}</span>` : ""}
+                          </button>
+                        `;
+                      })
+                      .join("")}
+                  </div>
+                `
+              )
+              .join("")}
+            `
+          : `<div class="country-dropdown__empty">No matches found.</div>`
+      }
+    </div>
+  `;
+}
+
+function getVisibleCountryOptions(options, query) {
+  return options.filter((option) => {
+    if (!query) {
+      return true;
+    }
+
+    const haystack = String(option.keywords || option.label || option.value).toLowerCase();
+    return haystack.includes(query);
+  });
 }
 
 function renderCountryOtherInput(label, name, value, placeholder = "") {
@@ -2174,34 +2521,38 @@ function renderSearchMultiSelect(path, selectedValues, title = "", intro = "", p
         }
       </div>
 
-      <div class="search-select__tags">
-        ${
-          selectedValues.length
-            ? selectedValues
-                .map((value) => {
-                  const label = labelForSearchValue(path, value);
-                  return `
-                    <button
-                      class="search-tag"
-                      type="button"
-                      data-action="remove-selector-option"
-                      data-path="${path}"
-                      data-value="${value}"
-                      aria-label="Remove ${escapeHtml(label)}"
-                    >
-                      <span>${escapeHtml(label)}</span>
-                      <span class="search-tag__remove" aria-hidden="true">x</span>
-                    </button>
-                  `;
-                })
-                .join("")
-            : definition.emptySelectionLabel
-              ? `<span class="search-select__placeholder">${escapeHtml(definition.emptySelectionLabel)}</span>`
-              : ""
-        }
-      </div>
+      ${renderSearchSelectedValues(path, selectedValues, definition)}
     </div>
   `;
+}
+
+function renderSearchSelectedValues(path, selectedValues, definition) {
+  if (!selectedValues.length) {
+    return definition.emptySelectionLabel
+      ? `<div class="search-select__tags"><span class="search-select__placeholder">${escapeHtml(definition.emptySelectionLabel)}</span></div>`
+      : "";
+  }
+
+  const tagsMarkup = selectedValues
+    .map((value) => {
+      const label = labelForSearchValue(path, value);
+      return `
+        <button
+          class="search-tag"
+          type="button"
+          data-action="remove-selector-option"
+          data-path="${path}"
+          data-value="${value}"
+          aria-label="Remove ${escapeHtml(label)}"
+        >
+          <span>${escapeHtml(label)}</span>
+          <span class="search-tag__remove" aria-hidden="true">x</span>
+        </button>
+      `;
+    })
+    .join("");
+
+  return `<div class="search-select__tags">${tagsMarkup}</div>`;
 }
 
 function renderLabelText(label) {
@@ -2240,9 +2591,14 @@ function renderRangeCard(label, name, value, min, max, step, format, help = "") 
   `;
 }
 
-function renderInterestGrid(items, storeKey) {
+function renderInterestGrid(items, storeKey, options = {}) {
+  const gridClassName = options.compact
+    ? "option-grid option-grid--compact"
+    : "option-grid grid auto-rows-fr md:grid-cols-2";
+  const showCategory = options.showCategory !== false;
+
   return `
-    <div class="option-grid grid auto-rows-fr md:grid-cols-2">
+    <div class="${gridClassName}">
       ${items
         .map((item) => {
           const entry = state[storeKey][item.key];
@@ -2254,8 +2610,9 @@ function renderInterestGrid(items, storeKey) {
           const descriptionId = `${storeKey}-${item.key}-description`;
 
           return `
-            <article class="option-card ${selected ? "is-selected" : ""} ${disabled ? "is-disabled" : ""}" role="group" aria-labelledby="${titleId}" aria-describedby="${descriptionId}" ${disabled ? 'aria-disabled="true"' : ""}>
-              <h4 id="${titleId}">${escapeHtml(item.label)}</h4>
+            <article class="option-card ${options.compact ? "option-card--compact" : ""} ${selected ? "is-selected" : ""} ${disabled ? "is-disabled" : ""}" role="group" aria-labelledby="${titleId}" aria-describedby="${descriptionId}" ${disabled ? 'aria-disabled="true"' : ""}>
+              ${showCategory && item.category ? `<span class="option-card__category">${escapeHtml(item.category)}</span>` : ""}
+              <h4 id="${titleId}">${escapeHtml(item.shortLabel || item.label)}</h4>
               <p id="${descriptionId}">${escapeHtml(item.description)}</p>
               ${disabled ? `<p class="option-card__status">${escapeHtml(getInterestItemDisabledStatus(storeKey, item.key))}</p>` : ""}
               <div class="toggle-pair">
@@ -2379,8 +2736,8 @@ async function handleClick(event) {
     return;
   }
 
-  if (action === "set-region-countries") {
-    setRegionCountrySelection(button.dataset.path, button.dataset.mode === "all");
+  if (action === "set-country-selection") {
+    setCountrySelection(button.dataset.path, button.dataset.mode === "all");
     markSubmissionDirty();
     activeErrors = [];
     rerenderPreservingPosition();
@@ -2596,6 +2953,34 @@ function handleGlobalKeyDown(event) {
   toggleLastPageTesting();
 }
 
+function handleDocumentClick(event) {
+  const target = event.target;
+  if (!(target instanceof Element)) {
+    return;
+  }
+
+  const activeDropdown = target.closest("[data-country-dropdown]");
+  const activeDropdownPath = activeDropdown?.getAttribute("data-country-dropdown") || "";
+  const activeSelectionDropdown = target.closest("[data-selection-dropdown]");
+  const activeSelectionDropdownPath = activeSelectionDropdown?.getAttribute("data-selection-dropdown") || "";
+  document.querySelectorAll("[data-country-dropdown][open]").forEach((dropdown) => {
+    if (
+      dropdown instanceof HTMLDetailsElement &&
+      dropdown.dataset.countryDropdown !== activeDropdownPath
+    ) {
+      dropdown.open = false;
+    }
+  });
+  document.querySelectorAll("[data-selection-dropdown][open]").forEach((dropdown) => {
+    if (
+      dropdown instanceof HTMLDetailsElement &&
+      dropdown.dataset.selectionDropdown !== activeSelectionDropdownPath
+    ) {
+      dropdown.open = false;
+    }
+  });
+}
+
 function applyInitialTestingMode() {
   if (!isLastPageTestingRequested()) {
     return;
@@ -2794,6 +3179,16 @@ function validateSolutions() {
 }
 
 function validateMarkets() {
+  const errors = [];
+
+  if (!hasInterestSelection(PAYMENT_METHODS, state.paymentMethods)) {
+    errors.push("Payment method interest");
+  }
+
+  return errors;
+}
+
+function validateAdditionalServices() {
   return [];
 }
 
@@ -3004,18 +3399,18 @@ function setRegionSelection(path, shouldSelectAll) {
   syncRegionCountryState(path);
 }
 
-function setRegionCountrySelection(path, shouldSelectAll) {
+function setCountrySelection(path, shouldSelectAll) {
   const list = getValueByPath(state, path);
-  const regionCountryValues = getSearchSelectorDefinition(path).options.map((option) => option.value);
+  const availableCountryValues = getSearchSelectorDefinition(path).options.map((option) => option.value);
 
   for (let index = list.length - 1; index >= 0; index -= 1) {
-    if (regionCountryValues.includes(list[index])) {
+    if (availableCountryValues.includes(list[index])) {
       list.splice(index, 1);
     }
   }
 
   if (shouldSelectAll) {
-    regionCountryValues.forEach((value) => {
+    availableCountryValues.forEach((value) => {
       if (!list.includes(value)) {
         list.push(value);
       }
@@ -3213,7 +3608,7 @@ function focusSelectorInput(path) {
     const selector = `[data-selector-search="${escapeSelectorValue(path)}"]`;
     const input = document.querySelector(selector);
     if (input) {
-      input.focus();
+      input.focus({ preventScroll: true });
     }
   });
 }
@@ -3435,6 +3830,7 @@ function buildZapierRawData(submittedAt) {
     "Average ticket size": String(state.financials.averageTicket ?? ""),
     "Product interest summary": productInterestSummary || "",
     "Products": productSummary || "",
+    "Payment methods": paymentMethodSummary || "",
     "Methods": paymentMethodSummary || "",
     "Stored value accounts": storedValueAccountSummary || "",
     "Stored value account options": storedValueAccountSummary || "",
@@ -3519,7 +3915,7 @@ function buildSummary() {
     `Average ticket size: ${currencyFormatter.format(Number(state.financials.averageTicket || 0))}`,
     "",
     `Product interest summary: ${productInterestSummary || "N/A"}`,
-    `Methods: ${paymentMethodSummary || "N/A"}`,
+    `Payment methods: ${paymentMethodSummary || "N/A"}`,
     `Stored value accounts: ${storedValueAccountSummary || "N/A"}`,
     `Additional services: ${servicesSummary || "N/A"}`,
   ];
@@ -3588,7 +3984,7 @@ function summarizeInterestGroup(items, groupState, storeKey = "") {
 
 function summarizeProductInterest(paymentMethodSummary, storedValueSummary, servicesSummary) {
   return [
-    paymentMethodSummary ? `Methods: ${paymentMethodSummary}` : "",
+    paymentMethodSummary ? `Payment methods: ${paymentMethodSummary}` : "",
     storedValueSummary ? `Stored value accounts: ${storedValueSummary}` : "",
     servicesSummary ? `Additional services: ${servicesSummary}` : "",
   ].filter(Boolean).join(" | ");
@@ -3614,11 +4010,7 @@ function getUseCaseCategoryLabel() {
 }
 
 function isInterestItemDisabled(storeKey, itemKey) {
-  if (storeKey !== "paymentMethods") {
-    return false;
-  }
-
-  const rule = PRODUCT_AVAILABILITY_RULES[itemKey];
+  const rule = getInterestAvailabilityRule(storeKey, itemKey);
   if (!rule) {
     return false;
   }
@@ -3632,26 +4024,39 @@ function isInterestItemDisabled(storeKey, itemKey) {
 }
 
 function getInterestItemDisabledStatus(storeKey, itemKey) {
-  if (storeKey !== "paymentMethods") {
-    return "";
+  return getInterestAvailabilityRule(storeKey, itemKey)?.status || "";
+}
+
+function getInterestAvailabilityRule(storeKey, itemKey) {
+  if (storeKey === "paymentMethods") {
+    return PRODUCT_AVAILABILITY_RULES[itemKey];
   }
 
-  return PRODUCT_AVAILABILITY_RULES[itemKey]?.status || "";
+  if (storeKey === "additionalServices") {
+    return ADDITIONAL_SERVICE_AVAILABILITY_RULES[itemKey];
+  }
+
+  return null;
 }
 
 function syncProductAvailabilityState() {
-  Object.keys(PRODUCT_AVAILABILITY_RULES).forEach((key) => {
-    if (!isInterestItemDisabled("paymentMethods", key)) {
-      return;
-    }
+  [
+    ["paymentMethods", PRODUCT_AVAILABILITY_RULES],
+    ["additionalServices", ADDITIONAL_SERVICE_AVAILABILITY_RULES],
+  ].forEach(([storeKey, rules]) => {
+    Object.keys(rules).forEach((key) => {
+      if (!isInterestItemDisabled(storeKey, key)) {
+        return;
+      }
 
-    const entry = state.paymentMethods[key];
-    if (!entry) {
-      return;
-    }
+      const entry = state[storeKey][key];
+      if (!entry) {
+        return;
+      }
 
-    entry.current = false;
-    entry.interested = false;
+      entry.current = false;
+      entry.interested = false;
+    });
   });
 }
 
@@ -3795,6 +4200,12 @@ function captureUiState() {
       key: element.dataset.countryScroll,
       top: element.scrollTop,
     })),
+    openCountryDropdowns: Array.from(document.querySelectorAll("[data-country-dropdown][open]")).map(
+      (element) => element.dataset.countryDropdown
+    ),
+    openSelectionDropdowns: Array.from(document.querySelectorAll("[data-selection-dropdown][open]")).map(
+      (element) => element.dataset.selectionDropdown
+    ),
     activeSelector:
       activeElement instanceof HTMLInputElement && activeElement.dataset.selectorSearch
         ? {
@@ -3811,6 +4222,22 @@ function restoreUiState(snapshot) {
     return;
   }
 
+  (snapshot.openCountryDropdowns || []).forEach((path) => {
+    const selector = `[data-country-dropdown="${escapeSelectorValue(path)}"]`;
+    const element = document.querySelector(selector);
+    if (element instanceof HTMLDetailsElement) {
+      element.open = true;
+    }
+  });
+
+  (snapshot.openSelectionDropdowns || []).forEach((path) => {
+    const selector = `[data-selection-dropdown="${escapeSelectorValue(path)}"]`;
+    const element = document.querySelector(selector);
+    if (element instanceof HTMLDetailsElement) {
+      element.open = true;
+    }
+  });
+
   snapshot.countryScrolls.forEach(({ key, top }) => {
     const selector = `[data-country-scroll="${escapeSelectorValue(key)}"]`;
     const element = document.querySelector(selector);
@@ -3819,16 +4246,32 @@ function restoreUiState(snapshot) {
     }
   });
 
-  window.scrollTo({ top: snapshot.windowScrollY });
-
   if (snapshot.activeSelector) {
     const selector = `[data-selector-search="${escapeSelectorValue(snapshot.activeSelector.path)}"]`;
     const input = document.querySelector(selector);
     if (input instanceof HTMLInputElement) {
-      input.focus();
+      input.focus({ preventScroll: true });
       input.setSelectionRange(snapshot.activeSelector.start, snapshot.activeSelector.end);
     }
   }
+
+  restoreWindowScroll(snapshot.windowScrollY);
+}
+
+function restoreWindowScroll(top) {
+  window.scrollTo({ top, left: 0 });
+  window.requestAnimationFrame(() => {
+    window.scrollTo({ top, left: 0 });
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top, left: 0 });
+    });
+  });
+  window.setTimeout(() => {
+    window.scrollTo({ top, left: 0 });
+  }, 80);
+  window.setTimeout(() => {
+    window.scrollTo({ top, left: 0 });
+  }, 180);
 }
 
 function toId(value) {
