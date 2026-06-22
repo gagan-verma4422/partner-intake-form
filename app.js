@@ -266,6 +266,11 @@ const USE_CASE_CATEGORIES = [
     description: "Consumer money movement, including people sending funds to family, friends, or their own accounts.",
   },
   {
+    value: "me-to-me-collections",
+    label: "Me-to-Me Collections",
+    description: "Customer wallet funding where a customer moves money from their own bank account or card into their own wallet.",
+  },
+  {
     value: "disbursements-payroll",
     label: "Disbursements / Payroll",
     description: "Outgoing payments to employees, contractors, vendors, creators, payees, or other recipients.",
