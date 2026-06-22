@@ -92,14 +92,24 @@ const PAYMENT_METHODS = [
       "ALL, AMD, ANG, AOA, ARS, AWG, AZN, BAM, BIF, BOB, BTN, BYN, CDF, CLP, COP, CVE, DJF, ERN, FKP, GEL, GIP, GMD, GNF, HNL, KGS, KHR, KMF, KRW, LAK, LRD, LSL, LYD, MDL, MGA, MKD, MMK, MNT, MRU, MVR, MYR, NAD, NIO, NPR, PAB, PYG, RSD, SCR, SHP, SLE, SRD, SSP, STN, SVC, SZL, TJS, TMT, TWD, UAH, UZS, VES, XPF, YER, ZWD.",
   },
   {
-    key: "stablecoinToFiat",
-    label: "USDC / USDT ↔ Fiat",
-    description: "Convert supported USDC or USDT balances into fiat currency for settlement or local payout flows.",
+    key: "usdcToFiat",
+    label: "USDC → Fiat",
+    description: "Convert supported USDC balances into fiat currency for settlement or local payout flows.",
   },
   {
-    key: "fiatToStablecoin",
-    label: "Fiat ↔ USDC / USDT",
-    description: "Convert fiat balances into supported USDC or USDT for digital currency payout or wallet flows.",
+    key: "fiatToUsdc",
+    label: "Fiat → USDC",
+    description: "Convert fiat balances into supported USDC for digital currency payout or wallet flows.",
+  },
+  {
+    key: "usdtToFiat",
+    label: "USDT → Fiat",
+    description: "Convert supported USDT balances into fiat currency for settlement or local payout flows.",
+  },
+  {
+    key: "fiatToUsdt",
+    label: "Fiat → USDT",
+    description: "Convert fiat balances into supported USDT for digital currency payout or wallet flows.",
   },
 ];
 
@@ -139,7 +149,7 @@ const FIAT_DIGITAL_CURRENCY_CONVERSIONS = {
       key: "stablecoins",
       label: "Stablecoins",
       description: "USDC and USDT conversion directions.",
-      itemKeys: ["stablecoinToFiat", "fiatToStablecoin"],
+      itemKeys: ["usdcToFiat", "fiatToUsdc", "usdtToFiat", "fiatToUsdt"],
     },
   ],
 };
@@ -618,11 +628,19 @@ const PRODUCT_AVAILABILITY_RULES = {
     availableForModules: ["disbursements"],
     status: "Available for disbursement flows.",
   },
-  stablecoinToFiat: {
+  usdcToFiat: {
     availableForModules: ["collections"],
     status: "Available for collections flows.",
   },
-  fiatToStablecoin: {
+  fiatToUsdc: {
+    availableForModules: ["disbursements"],
+    status: "Available for disbursement flows.",
+  },
+  usdtToFiat: {
+    availableForModules: ["collections"],
+    status: "Available for collections flows.",
+  },
+  fiatToUsdt: {
     availableForModules: ["disbursements"],
     status: "Available for disbursement flows.",
   },
