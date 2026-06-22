@@ -1545,8 +1545,8 @@ function renderFiatDigitalCurrencyConversionGroups() {
                 <h4 id="conversion-group-${group.key}">${escapeHtml(group.label)}</h4>
                 <p>${escapeHtml(group.description)}</p>
               </div>
-              ${renderInterestGrid(items, "paymentMethods", { compact: true, showCategory: false })}
               ${renderConversionGroupDetails(group, items)}
+              ${renderInterestGrid(items, "paymentMethods", { compact: true, showCategory: false })}
             </section>
           `;
         })
@@ -1562,10 +1562,10 @@ function renderConversionGroupDetails(group, items) {
   }
 
   return `
-    <details class="method-group__details">
+    <details class="method-group__details method-group__details--top">
       <summary>
         <span class="method-group__info-dot" aria-hidden="true">i</span>
-        <span>View currency bucket details</span>
+        <span>Currency bucket details</span>
       </summary>
       <div class="method-group__details-grid">
         ${detailItems

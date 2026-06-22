@@ -1020,6 +1020,10 @@ button {
   margin-top: 2px;
 }
 
+.method-group__details--top {
+  margin: 2px 0 12px;
+}
+
 .method-group__details summary {
   display: inline-flex;
   align-items: center;
