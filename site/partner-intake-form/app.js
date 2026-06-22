@@ -93,23 +93,13 @@ const PAYMENT_METHODS = [
   },
   {
     key: "usdcToFiat",
-    label: "USDC → Fiat",
-    description: "Convert supported USDC balances into fiat currency for settlement or local payout flows.",
+    label: "USDC ↔ Fiat",
+    description: "Convert between supported USDC balances and fiat currency for collection, settlement, payout, or wallet flows.",
   },
   {
     key: "usdtToFiat",
-    label: "USDT → Fiat",
-    description: "Convert supported USDT balances into fiat currency for settlement or local payout flows.",
-  },
-  {
-    key: "fiatToUsdc",
-    label: "Fiat → USDC",
-    description: "Convert fiat balances into supported USDC for digital currency payout or wallet flows.",
-  },
-  {
-    key: "fiatToUsdt",
-    label: "Fiat → USDT",
-    description: "Convert fiat balances into supported USDT for digital currency payout or wallet flows.",
+    label: "USDT ↔ Fiat",
+    description: "Convert between supported USDT balances and fiat currency for collection, settlement, payout, or wallet flows.",
   },
 ];
 
@@ -148,8 +138,8 @@ const FIAT_DIGITAL_CURRENCY_CONVERSIONS = {
     {
       key: "stablecoins",
       label: "Stablecoins",
-      description: "USDC and USDT conversion directions.",
-      itemKeys: ["usdcToFiat", "usdtToFiat", "fiatToUsdc", "fiatToUsdt"],
+      description: "USDC and USDT fiat conversion options.",
+      itemKeys: ["usdcToFiat", "usdtToFiat"],
     },
   ],
 };
@@ -634,20 +624,12 @@ const PRODUCT_AVAILABILITY_RULES = {
     status: "Available for disbursement flows.",
   },
   usdcToFiat: {
-    availableForModules: ["collections"],
-    status: "Available for collections flows.",
-  },
-  fiatToUsdc: {
-    availableForModules: ["disbursements"],
-    status: "Available for disbursement flows.",
+    availableForModules: ["collections", "disbursements"],
+    status: "Available for collection and disbursement flows.",
   },
   usdtToFiat: {
-    availableForModules: ["collections"],
-    status: "Available for collections flows.",
-  },
-  fiatToUsdt: {
-    availableForModules: ["disbursements"],
-    status: "Available for disbursement flows.",
+    availableForModules: ["collections", "disbursements"],
+    status: "Available for collection and disbursement flows.",
   },
 };
 const ADDITIONAL_SERVICE_AVAILABILITY_RULES = {
