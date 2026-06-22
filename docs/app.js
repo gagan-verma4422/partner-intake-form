@@ -97,14 +97,14 @@ const PAYMENT_METHODS = [
     description: "Convert supported USDC balances into fiat currency for settlement or local payout flows.",
   },
   {
-    key: "fiatToUsdc",
-    label: "Fiat → USDC",
-    description: "Convert fiat balances into supported USDC for digital currency payout or wallet flows.",
-  },
-  {
     key: "usdtToFiat",
     label: "USDT → Fiat",
     description: "Convert supported USDT balances into fiat currency for settlement or local payout flows.",
+  },
+  {
+    key: "fiatToUsdc",
+    label: "Fiat → USDC",
+    description: "Convert fiat balances into supported USDC for digital currency payout or wallet flows.",
   },
   {
     key: "fiatToUsdt",
@@ -149,7 +149,7 @@ const FIAT_DIGITAL_CURRENCY_CONVERSIONS = {
       key: "stablecoins",
       label: "Stablecoins",
       description: "USDC and USDT conversion directions.",
-      itemKeys: ["usdcToFiat", "fiatToUsdc", "usdtToFiat", "fiatToUsdt"],
+      itemKeys: ["usdcToFiat", "usdtToFiat", "fiatToUsdc", "fiatToUsdt"],
     },
   ],
 };
