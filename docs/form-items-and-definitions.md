@@ -26,12 +26,12 @@ This document summarizes the selectable items currently used in the partner inta
 | --- | --- | --- |
 | Local Bank Transfers | Market-specific local bank transfer rails, including ACH debit (pull) or credit (push), SEPA, FPS, EFT, and similar local transfer methods. | Not restricted by form flow selection. |
 | Same Day ACH (US only) | U.S. ACH rail with same-day settlement for faster domestic bank movement. | Not restricted by form flow selection. |
-| IBT (Instant Bank Transfer) | Instant bank transfer for U.S. ACH collection flows using Plaid bank connection and balance checks. | Collections only. |
+| IBT (Instant Bank Transfer) | U.S. Instant collections using ACH with Plaid bank validation and balance checks. | Collections only. |
 | RTP (US only) | Real-Time Payments rail for instant U.S. disbursements and immediate settlement. | Disbursements only. |
 | Fedwire (US) | Domestic U.S. wire transfer rail for higher-value bank movement and faster settlement. | Not restricted by form flow selection. |
 | International Swift | Cross-border wire transfers through the Swift network for international bank movement. | Not restricted by form flow selection. |
 | Card Acceptance (Debit & Credit) | Accept debit and credit card payments for collection flows where card-funded payments are required. | Collections only. |
-| Push to Cards | Send payments to eligible Visa and Mastercard debit cards across supported card payout programs. | Disbursements only. |
+| Push to Cards | Send payments to Visa and Mastercard debit cards globally. | Disbursements only. |
 | Instant Card Issuance | Issue USD virtual cards instantly for supported card programs. | Disbursements only. |
 
 ## Fiat and Digital Currency Conversions

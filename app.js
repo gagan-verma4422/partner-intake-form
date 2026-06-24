@@ -35,7 +35,7 @@ const PAYMENT_METHODS = [
     key: "ibtInstantBankTransfer",
     label: "IBT (Instant Bank Transfer)",
     description:
-      "Instant bank transfer for U.S. ACH collection flows using Plaid bank connection and balance checks.",
+      "U.S. Instant collections using ACH with Plaid bank validation and balance checks.",
   },
   {
     key: "rtp",
@@ -60,7 +60,7 @@ const PAYMENT_METHODS = [
   {
     key: "pushToCards",
     label: "Push to Cards",
-    description: "Send payments to eligible Visa and Mastercard debit cards across supported card payout programs.",
+    description: "Send payments to Visa and Mastercard debit cards globally.",
   },
   {
     key: "instantCardIssue",
