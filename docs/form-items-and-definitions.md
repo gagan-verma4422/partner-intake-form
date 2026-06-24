@@ -1,6 +1,6 @@
 # Partner Intake Form Items and Definitions
 
-Last updated: June 22, 2026
+Last updated: June 24, 2026
 
 This document summarizes the selectable items currently used in the partner intake form. It is intended as a shared reference for product, sales, partnerships, operations, and implementation teams.
 
@@ -8,7 +8,7 @@ This document summarizes the selectable items currently used in the partner inta
 
 | Item | Definition |
 | --- | --- |
-| Collections | Receive funds through supported payment methods such as local bank transfers, FX, card acceptance, wire transfers, and stablecoin-to-fiat conversion. |
+| Collections | Collect funds through supported payment methods such as local bank transfers (push and pull), FX, card acceptance, wire transfers, and stablecoin-to-fiat conversion. |
 | Disbursements | Send or deliver funds through supported payout rails such as local bank transfers, FX, Same Day ACH, RTP, Fedwire, Swift, and fiat-to-stablecoin conversion. |
 | Stored Value Accounts | Launch stored-balance experiences with multi-currency wallets, virtual bank accounts, stablecoin wallets, and virtual card issuance. |
 
@@ -16,53 +16,53 @@ This document summarizes the selectable items currently used in the partner inta
 
 | Category | Definition | Included items |
 | --- | --- | --- |
-| Bank transfers | Account-to-account payment rails for local collection and disbursement flows. | Local Bank Transfers, Same Day ACH, IBT, RTP |
+| Bank transfers | Account-to-account payment rails for local collection and disbursement flows. | Local Bank Transfers, Same Day ACH (US only), IBT (Instant Bank Transfer), RTP (US only) |
 | Bank wires | Wire transfer rails for U.S. domestic and international bank movement. | Fedwire, International Swift |
-| Cards | Card-funded collection and card payout methods. | Card Acceptance, Push to Cards, Instant Card Issuance |
+| Cards | Card-funded collection and card payout methods. | Card Acceptance (Debit & Credit), Push to Cards, Instant Card Issuance |
 
 ## Payment Methods
 
 | Item | Definition | Form availability note |
 | --- | --- | --- |
-| Local Bank Transfers | Market-specific local bank transfer rails, including ACH debit or credit, SEPA, FPS, EFT, and similar account-to-account methods. | Not restricted by form flow selection. |
+| Local Bank Transfers | Market-specific local bank transfer rails, including ACH debit (pull) or credit (push), SEPA, FPS, EFT, and similar local transfer methods. | Not restricted by form flow selection. |
 | Same Day ACH (US only) | U.S. ACH rail with same-day settlement for faster domestic bank movement. | Not restricted by form flow selection. |
 | IBT (Instant Bank Transfer) | Instant bank transfer for U.S. ACH collection flows using Plaid bank connection and balance checks. | Collections only. |
 | RTP (US only) | Real-Time Payments rail for instant U.S. disbursements and immediate settlement. | Disbursements only. |
 | Fedwire (US) | Domestic U.S. wire transfer rail for higher-value bank movement and faster settlement. | Not restricted by form flow selection. |
 | International Swift | Cross-border wire transfers through the Swift network for international bank movement. | Not restricted by form flow selection. |
 | Card Acceptance (Debit & Credit) | Accept debit and credit card payments for collection flows where card-funded payments are required. | Collections only. |
-| Push to Cards | Send funds to eligible debit or credit cards across supported card payout programs. | Disbursements only. |
-| Instant Card Issuance | Issue cards instantly for supported card programs. | Disbursements only. |
+| Push to Cards | Send payments to eligible Visa and Mastercard debit cards across supported card payout programs. | Disbursements only. |
+| Instant Card Issuance | Issue USD virtual cards instantly for supported card programs. | Disbursements only. |
 
 ## Fiat and Digital Currency Conversions
 
 | Group | Definition | Included items |
 | --- | --- | --- |
-| FX | Majors, Minors, and Tertiary currency buckets. | FX - Majors, FX - Minors, FX - Tertiary |
-| Stablecoins | USDC and USDT fiat conversion options. | USDC <-> Fiat, USDT <-> Fiat |
+| FX | Currency conversions for Majors, Minors, and Tertiary currency tiers. | FX - Majors, FX - Minors, FX - Tertiary |
+| Stablecoins | USDC and USDT fiat conversion options. | USDC ↔ Fiat, USDT ↔ Fiat |
 
 ### FX Buckets
 
 | Item | Definition | Included currencies |
 | --- | --- | --- |
-| FX - Majors | Major FX currency bucket. | AUD, CAD, CHF, CNY, DKK, EUR, GBP, HKD, JPY, NOK, NZD, PHP, SEK, SGD, USD |
-| FX - Minors | Minor FX currency bucket. | AED, BBD, BDT, BGN, BHD, BMD, BND, BRL, BSD, BWP, BZD, CRC, CZK, DOP, DZD, EGP, ETB, FJD, GHS, GTQ, GYD, HTG, HUF, IDR, ILS, INR, ISK, JMD, JOD, KES, KWD, KYD, KZT, LBP, LKR, MAD, MOP, MUR, MWK, MXN, MZN, NGN, OMR, PEN, PGK, PKR, PLN, QAR, RON, RUB, RWF, SAR, SBD, THB, TND, TOP, TRY, TTD, TZS, UGX, UYU, VND, VUV, WST, XAF, XCD, XOF, ZAR, ZMW |
-| FX - Tertiary | Tertiary FX currency bucket. | ALL, AMD, ANG, AOA, ARS, AWG, AZN, BAM, BIF, BOB, BTN, BYN, CDF, CLP, COP, CVE, DJF, ERN, FKP, GEL, GIP, GMD, GNF, HNL, KGS, KHR, KMF, KRW, LAK, LRD, LSL, LYD, MDL, MGA, MKD, MMK, MNT, MRU, MVR, MYR, NAD, NIO, NPR, PAB, PYG, RSD, SCR, SHP, SLE, SRD, SSP, STN, SVC, SZL, TJS, TMT, TWD, UAH, UZS, VES, XPF, YER, ZWD |
+| FX - Majors | Major FX currencies. | AUD, CAD, CHF, CNY, DKK, EUR, GBP, HKD, JPY, NOK, NZD, PHP, SEK, SGD, USD |
+| FX - Minors | Minor FX currencies. | AED, BBD, BDT, BGN, BHD, BMD, BND, BRL, BSD, BWP, BZD, CRC, CZK, DOP, DZD, EGP, ETB, FJD, GHS, GTQ, GYD, HTG, HUF, IDR, ILS, INR, ISK, JMD, JOD, KES, KWD, KYD, KZT, LBP, LKR, MAD, MOP, MUR, MWK, MXN, MZN, NGN, OMR, PEN, PGK, PKR, PLN, QAR, RON, RUB, RWF, SAR, SBD, THB, TND, TOP, TRY, TTD, TZS, UGX, UYU, VND, VUV, WST, XAF, XCD, XOF, ZAR, ZMW |
+| FX - Tertiary | Tertiary FX currencies. | ALL, AMD, ANG, AOA, ARS, AWG, AZN, BAM, BIF, BOB, BTN, BYN, CDF, CLP, COP, CVE, DJF, ERN, FKP, GEL, GIP, GMD, GNF, HNL, KGS, KHR, KMF, KRW, LAK, LRD, LSL, LYD, MDL, MGA, MKD, MMK, MNT, MRU, MVR, MYR, NAD, NIO, NPR, PAB, PYG, RSD, SCR, SHP, SLE, SRD, SSP, STN, SVC, SZL, TJS, TMT, TWD, UAH, UZS, VES, XPF, YER, ZWD |
 
 ### Stablecoin Conversion Options
 
 | Item | Definition | Form availability note |
 | --- | --- | --- |
-| USDC <-> Fiat | Convert between supported USDC balances and fiat currency for collection, settlement, payout, or wallet flows. | Collections and disbursements. |
-| USDT <-> Fiat | Convert between supported USDT balances and fiat currency for collection, settlement, payout, or wallet flows. | Collections and disbursements. |
+| USDC ↔ Fiat | Convert between supported USDC balances and fiat currency for collection, settlement, payout, or wallet flows. | Collections and disbursements. |
+| USDT ↔ Fiat | Convert between supported USDT balances and fiat currency for collection, settlement, payout, or wallet flows. | Collections and disbursements. |
 
 ## Additional Services
 
 | Item | Category | Definition | Form availability note |
 | --- | --- | --- | --- |
-| Payer Plugin / Paylinks | Plugins | Collection-only payer experience for payment links or embedded payer checkout flows. | Collections only. |
-| Payee Plugin | Plugins | Disbursement-only payee experience for collecting recipient details and supporting payout onboarding. | Disbursements only. |
-| Plaid Bank Account Verification | Verification | Verify bank accounts and support account ownership, identity, and connected-bank validation before payment movement. | Not restricted by form flow selection. |
+| Payer Plugin / Paylinks | Plugins | Pre-built collection payer experience for payment links or embedded checkout flows. | Collections only. |
+| Payee Plugin | Plugins | Pre-built disbursement payee experience for collecting recipient details and payment preferences. | Disbursements only. |
+| Plaid Bank Account Verification | Verification | Verify bank accounts, account ownership, identity, and balances before payment movement. | Not restricted by form flow selection. |
 | Risk Services | Risk | Additional risk controls and support services for managing payment, fraud, compliance, and operational exposure. | Not restricted by form flow selection. |
 
 ## Stored Value Accounts
@@ -70,7 +70,7 @@ This document summarizes the selectable items currently used in the partner inta
 | Item | Definition |
 | --- | --- |
 | Multi-Currency Wallet | Stored balances across supported fiat currencies for treasury, payment, or wallet experiences. |
-| Stablecoin Wallet (USDC / USDT) | Wallet experiences for holding, receiving, or sending supported USDC and USDT balances. |
+| Stablecoin Wallet (USDC / USDT) | Wallet experiences for receiving, holding, sending, and converting supported USDC and USDT balances. |
 | Virtual Card (USD) | USD-denominated virtual cards with instant card issuance for online or card-not-present spend. |
 | Virtual Bank Accounts | Dedicated virtual bank account details for supported currencies: USD, EUR, GBP, MXN, BRL, and CAD. |
 
@@ -80,11 +80,11 @@ This document summarizes the selectable items currently used in the partner inta
 | --- | --- |
 | B2B Payments | Business-to-business payments such as invoices, vendor payments, supplier payments, or account-to-account transfers. |
 | Marketplace / Platform | Multi-party payment flows where a platform collects from buyers and pays sellers, merchants, or service providers. |
-| Personal Remittance | Consumer money movement, including people sending funds to family, friends, or their own accounts. |
+| Personal Remittance | Consumer money movement, including individuals sending funds to family, friends, or their own accounts. |
 | Me-to-Me Collections | Customer wallet funding where a customer moves money from their own bank account or card into their own wallet. |
-| Disbursements / Payroll | Outgoing payments to employees, contractors, vendors, creators, payees, or other recipients. |
+| Disbursements / Payroll | Sending payments to employees, contractors, vendors, creators, payees, or other recipients. |
 | Ecommerce | Online commerce, checkout, cart, or merchant payment experiences. |
-| Other | Select this if the use case is not listed above. |
+| Other | Select this if you cannot find your use case above. |
 
 ## Company Entity Types
 

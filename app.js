@@ -3,7 +3,7 @@ const MODULES = [
     key: "collections",
     label: "Collections",
     description:
-      "Receive funds through supported payment methods such as local bank transfers, FX, card acceptance, wire transfers, and stablecoin-to-fiat conversion.",
+      "Collect funds through supported payment methods such as local bank transfers (push and pull), FX, card acceptance, wire transfers, and stablecoin-to-fiat conversion.",
   },
   {
     key: "disbursements",
@@ -24,7 +24,7 @@ const PAYMENT_METHODS = [
     key: "swiftWire",
     label: "Local Bank Transfers",
     description:
-      "Market-specific local bank transfer rails, including ACH debit or credit, SEPA, FPS, EFT, and similar account-to-account methods.",
+      "Market-specific local bank transfer rails, including ACH debit (pull) or credit (push), SEPA, FPS, EFT, and similar local transfer methods.",
   },
   {
     key: "sameDayAch",
@@ -60,18 +60,18 @@ const PAYMENT_METHODS = [
   {
     key: "pushToCards",
     label: "Push to Cards",
-    description: "Send funds to eligible debit or credit cards across supported card payout programs.",
+    description: "Send payments to eligible Visa and Mastercard debit cards across supported card payout programs.",
   },
   {
     key: "instantCardIssue",
     label: "Instant Card Issuance",
-    description: "Issue cards instantly for supported card programs.",
+    description: "Issue USD virtual cards instantly for supported card programs.",
   },
   {
     key: "fxMajors",
     label: "FX - Majors",
     shortLabel: "Majors",
-    description: "Major FX currency bucket.",
+    description: "Major FX currencies.",
     details:
       "AUD, CAD, CHF, CNY, DKK, EUR, GBP, HKD, JPY, NOK, NZD, PHP, SEK, SGD, USD.",
   },
@@ -79,7 +79,7 @@ const PAYMENT_METHODS = [
     key: "fxMinors",
     label: "FX - Minors",
     shortLabel: "Minors",
-    description: "Minor FX currency bucket.",
+    description: "Minor FX currencies.",
     details:
       "AED, BBD, BDT, BGN, BHD, BMD, BND, BRL, BSD, BWP, BZD, CRC, CZK, DOP, DZD, EGP, ETB, FJD, GHS, GTQ, GYD, HTG, HUF, IDR, ILS, INR, ISK, JMD, JOD, KES, KWD, KYD, KZT, LBP, LKR, MAD, MOP, MUR, MWK, MXN, MZN, NGN, OMR, PEN, PGK, PKR, PLN, QAR, RON, RUB, RWF, SAR, SBD, THB, TND, TOP, TRY, TTD, TZS, UGX, UYU, VND, VUV, WST, XAF, XCD, XOF, ZAR, ZMW.",
   },
@@ -87,7 +87,7 @@ const PAYMENT_METHODS = [
     key: "fxTertiary",
     label: "FX - Tertiary",
     shortLabel: "Tertiary",
-    description: "Tertiary FX currency bucket.",
+    description: "Tertiary FX currencies.",
     details:
       "ALL, AMD, ANG, AOA, ARS, AWG, AZN, BAM, BIF, BOB, BTN, BYN, CDF, CLP, COP, CVE, DJF, ERN, FKP, GEL, GIP, GMD, GNF, HNL, KGS, KHR, KMF, KRW, LAK, LRD, LSL, LYD, MDL, MGA, MKD, MMK, MNT, MRU, MVR, MYR, NAD, NIO, NPR, PAB, PYG, RSD, SCR, SHP, SLE, SRD, SSP, STN, SVC, SZL, TJS, TMT, TWD, UAH, UZS, VES, XPF, YER, ZWD.",
   },
@@ -127,12 +127,12 @@ const PAYMENT_METHOD_GROUPS = [
 const FIAT_DIGITAL_CURRENCY_CONVERSIONS = {
   key: "fiatDigitalCurrencyConversions",
   label: "Fiat and Digital Currency Conversions",
-  description: "Select relevant FX currency buckets and stablecoin conversion directions.",
+  description: "Select relevant FX currency tiers and stablecoin conversion directions.",
   groups: [
     {
       key: "fx",
       label: "FX",
-      description: "Majors, Minors, and Tertiary currency buckets.",
+      description: "Currency conversions for Majors, Minors, and Tertiary currency tiers.",
       itemKeys: ["fxMajors", "fxMinors", "fxTertiary"],
     },
     {
@@ -149,20 +149,20 @@ const ADDITIONAL_SERVICES = [
     key: "payerPluginPaylinks",
     label: "Payer Plugin / Paylinks",
     category: "Plugins",
-    description: "Collection-only payer experience for payment links or embedded payer checkout flows.",
+    description: "Pre-built collection payer experience for payment links or embedded checkout flows.",
   },
   {
     key: "payeePlugin",
     label: "Payee Plugin",
     category: "Plugins",
-    description: "Disbursement-only payee experience for collecting recipient details and supporting payout onboarding.",
+    description: "Pre-built disbursement payee experience for collecting recipient details and payment preferences.",
   },
   {
     key: "plaidBankAccountVerification",
     label: "Plaid Bank Account Verification",
     category: "Verification",
     description:
-      "Verify bank accounts and support account ownership, identity, and connected-bank validation before payment movement.",
+      "Verify bank accounts, account ownership, identity, and balances before payment movement.",
   },
   {
     key: "riskServices",
@@ -181,7 +181,7 @@ const STORED_VALUE_ACCOUNTS = [
   {
     key: "stablecoinWallets",
     label: "Stablecoin Wallet (USDC / USDT)",
-    description: "Wallet experiences for holding, receiving, or sending supported USDC and USDT balances.",
+    description: "Wallet experiences for receiving, holding, sending, and converting supported USDC and USDT balances.",
   },
   {
     key: "virtualCards",
@@ -253,7 +253,7 @@ const USE_CASE_CATEGORIES = [
   {
     value: "personal-remittance",
     label: "Personal Remittance",
-    description: "Consumer money movement, including people sending funds to family, friends, or their own accounts.",
+    description: "Consumer money movement, including individuals sending funds to family, friends, or their own accounts.",
   },
   {
     value: "me-to-me-collections",
@@ -263,7 +263,7 @@ const USE_CASE_CATEGORIES = [
   {
     value: "disbursements-payroll",
     label: "Disbursements / Payroll",
-    description: "Outgoing payments to employees, contractors, vendors, creators, payees, or other recipients.",
+    description: "Sending payments to employees, contractors, vendors, creators, payees, or other recipients.",
   },
   {
     value: "ecommerce",
@@ -273,7 +273,7 @@ const USE_CASE_CATEGORIES = [
   {
     value: "other",
     label: "Other",
-    description: "Select this if your use case is not listed above.",
+    description: "Select this if you cannot find your use case above.",
   },
 ];
 
@@ -1242,7 +1242,7 @@ function renderUseCaseStep() {
     <div class="section-stack">
       <section class="section-card">
         <h3>Use case category <span class="required-star">*</span></h3>
-        <p class="section-card__intro">Choose the dominant commercial framing for this opportunity. Select "Other" if your use case is not listed.</p>
+        <p class="section-card__intro">Choose the dominant commercial framing for this opportunity. Select "Other" if you cannot find your use case above.</p>
         ${renderChoiceCards("useCase.category", state.useCase.category, USE_CASE_CATEGORIES)}
         ${
           state.useCase.category === "other"

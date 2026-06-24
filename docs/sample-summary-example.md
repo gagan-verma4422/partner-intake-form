@@ -1,6 +1,6 @@
 # Sample Partner Intake Summary
 
-Last updated: June 23, 2026
+Last updated: June 24, 2026
 
 This is example-only sample data showing how a completed partner intake form can summarize on the review screen and in the submitted/internal summary. The company, contact, website, counts, and volumes below are fictional.
 
@@ -34,7 +34,7 @@ This is example-only sample data showing how a completed partner intake form can
 
 | Area | Sample selected items |
 | --- | --- |
-| Payment methods | IBT (Instant Bank Transfer) - interested; Card Acceptance (Debit & Credit) - current + interested; Fedwire (US) - current; RTP (US only) - interested; FX - Majors - interested; USDC <-> Fiat - interested |
+| Payment methods | IBT (Instant Bank Transfer) - interested; Card Acceptance (Debit & Credit) - current + interested; Fedwire (US) - current; RTP (US only) - interested; FX - Majors - interested; USDC ↔ Fiat - interested |
 | Stored value accounts | Multi-Currency Wallet - interested; Virtual Bank Accounts - current + interested; Stablecoin Wallet (USDC / USDT) - interested |
 | Additional services | Payer Plugin / Paylinks - interested; Payee Plugin - interested; Plaid Bank Account Verification - current; Risk Services - interested |
 
@@ -80,7 +80,7 @@ Markets and Currencies
 Collections: From regions: North America | From countries: United States | From currencies: USD | To regions: North America | To countries: United States | To currencies: USDC | Disbursements: From regions: North America | From countries: United States | From currencies: USD, USDC | To regions: Europe | To countries: France, Germany | To currencies: EUR | Stored Value Accounts: Account holder regions: North America, Europe | Account holder countries: Canada, United States, France, Germany
 
 Payment scope
-Payment methods: IBT (Instant Bank Transfer) (interested), Card Acceptance (Debit & Credit) (current + interested), Fedwire (US) (current), RTP (US only) (interested), FX - Majors (interested), USDC <-> Fiat (interested) | Stored value: Multi-Currency Wallet (interested), Stablecoin Wallet (USDC / USDT) (interested), Virtual Bank Accounts (current + interested) | Additional services: Payer Plugin / Paylinks (interested), Payee Plugin (interested), Plaid Bank Account Verification (current), Risk Services (interested)
+Payment methods: IBT (Instant Bank Transfer) (interested), Card Acceptance (Debit & Credit) (current + interested), Fedwire (US) (current), RTP (US only) (interested), FX - Majors (interested), USDC ↔ Fiat (interested) | Stored value: Multi-Currency Wallet (interested), Stablecoin Wallet (USDC / USDT) (interested), Virtual Bank Accounts (current + interested) | Additional services: Payer Plugin / Paylinks (interested), Payee Plugin (interested), Plaid Bank Account Verification (current), Risk Services (interested)
 
 Commercial model
 Flow of funds business: Yes | Licensed: Yes | Revenue share with $1M - $5M revenue range | Timeline: 3-6 months
@@ -120,8 +120,8 @@ Annual volume range: $25M - $100M
 Payment count range: 100K - 500K
 Average ticket size: $250.00
 
-Product interest summary: Payment methods: IBT (Instant Bank Transfer) (interested), Card Acceptance (Debit & Credit) (current + interested), Fedwire (US) (current), RTP (US only) (interested), FX - Majors (interested), USDC <-> Fiat (interested) | Stored value accounts: Multi-Currency Wallet (interested), Stablecoin Wallet (USDC / USDT) (interested), Virtual Bank Accounts (current + interested) | Additional services: Payer Plugin / Paylinks (interested), Payee Plugin (interested), Plaid Bank Account Verification (current), Risk Services (interested)
-Payment methods: IBT (Instant Bank Transfer) (interested), Card Acceptance (Debit & Credit) (current + interested), Fedwire (US) (current), RTP (US only) (interested), FX - Majors (interested), USDC <-> Fiat (interested)
+Product interest summary: Payment methods: IBT (Instant Bank Transfer) (interested), Card Acceptance (Debit & Credit) (current + interested), Fedwire (US) (current), RTP (US only) (interested), FX - Majors (interested), USDC ↔ Fiat (interested) | Stored value accounts: Multi-Currency Wallet (interested), Stablecoin Wallet (USDC / USDT) (interested), Virtual Bank Accounts (current + interested) | Additional services: Payer Plugin / Paylinks (interested), Payee Plugin (interested), Plaid Bank Account Verification (current), Risk Services (interested)
+Payment methods: IBT (Instant Bank Transfer) (interested), Card Acceptance (Debit & Credit) (current + interested), Fedwire (US) (current), RTP (US only) (interested), FX - Majors (interested), USDC ↔ Fiat (interested)
 Stored value accounts: Multi-Currency Wallet (interested), Stablecoin Wallet (USDC / USDT) (interested), Virtual Bank Accounts (current + interested)
 Additional services: Payer Plugin / Paylinks (interested), Payee Plugin (interested), Plaid Bank Account Verification (current), Risk Services (interested)
 
@@ -180,7 +180,7 @@ This is a simplified key-value version of the payload style sent downstream.
 | Payment count range | 100K - 500K |
 | Expected company growth (next 12 months) | 35 |
 | Average ticket size | 250 |
-| Payment methods | IBT (Instant Bank Transfer) (interested), Card Acceptance (Debit & Credit) (current + interested), Fedwire (US) (current), RTP (US only) (interested), FX - Majors (interested), USDC <-> Fiat (interested) |
+| Payment methods | IBT (Instant Bank Transfer) (interested), Card Acceptance (Debit & Credit) (current + interested), Fedwire (US) (current), RTP (US only) (interested), FX - Majors (interested), USDC ↔ Fiat (interested) |
 | Stored value accounts | Multi-Currency Wallet (interested), Stablecoin Wallet (USDC / USDT) (interested), Virtual Bank Accounts (current + interested) |
 | Additional services | Payer Plugin / Paylinks (interested), Payee Plugin (interested), Plaid Bank Account Verification (current), Risk Services (interested) |
 | Collections sender types | consumers |
