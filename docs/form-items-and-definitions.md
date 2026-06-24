@@ -8,8 +8,8 @@ This document summarizes the selectable items currently used in the partner inta
 
 | Item | Definition |
 | --- | --- |
-| Collections | Collect funds through supported payment methods such as local bank transfers (push and pull), FX, card acceptance, wire transfers, and stablecoin-to-fiat conversion. |
-| Disbursements | Send or deliver funds through supported payout rails such as local bank transfers, FX, Same Day ACH, RTP, Fedwire, Swift, and fiat-to-stablecoin conversion. |
+| Collections | Collect funds through supported payment methods such as local bank transfers (push and pull), card acceptance, wire transfers, and stablecoins. |
+| Disbursements | Send or deliver funds through supported payout rails such as local bank transfers, local FX, Same Day ACH, RTP, Fedwire, Swift, and stablecoins. |
 | Stored Value Accounts | Launch stored-balance experiences with multi-currency wallets, virtual bank accounts, stablecoin wallets, and virtual card issuance. |
 
 ## Payment Method Categories
@@ -32,7 +32,7 @@ This document summarizes the selectable items currently used in the partner inta
 | International Swift | Cross-border wire transfers through the Swift network for international bank movement. | Not restricted by form flow selection. |
 | Card Acceptance (Debit & Credit) | Accept debit and credit card payments for collection flows where card-funded payments are required. | Collections only. |
 | Push to Cards | Send payments to Visa and Mastercard debit cards globally. | Disbursements only. |
-| Instant Card Issuance | Issue USD virtual cards instantly for supported card programs. | Disbursements only. |
+| Instant Card Issuance | Issue USD virtual cards instantly for 30+ countries. | Disbursements only. |
 
 ## Fiat and Digital Currency Conversions
 
@@ -61,17 +61,17 @@ This document summarizes the selectable items currently used in the partner inta
 | Item | Category | Definition | Form availability note |
 | --- | --- | --- | --- |
 | Payer Plugin / Paylinks | Plugins | Pre-built collection payer experience for payment links or embedded checkout flows. | Collections only. |
-| Payee Plugin | Plugins | Pre-built disbursement payee experience for collecting recipient details and payment preferences. | Disbursements only. |
-| Plaid Bank Account Verification | Verification | Verify bank accounts, account ownership, identity, and balances before payment movement. | Not restricted by form flow selection. |
-| Risk Services | Risk | Additional risk controls and support services for managing payment, fraud, compliance, and operational exposure. | Not restricted by form flow selection. |
+| Payee Plugin | Plugins | Disbursement-only pre-built payee experiences for collecting recipient details and their payment preferences. | Disbursements only. |
+| Plaid Bank Account Verification | Verification | Verify bank accounts, account ownership, identity, and check balances before executing the payment. | Not restricted by form flow selection. |
+| Risk Services | Risk | Additional risk signals for assessing and managing fraud risk. | Not restricted by form flow selection. |
 
 ## Stored Value Accounts
 
 | Item | Definition |
 | --- | --- |
-| Multi-Currency Wallet | Stored balances across supported fiat currencies for treasury, payment, or wallet experiences. |
-| Stablecoin Wallet (USDC / USDT) | Wallet experiences for receiving, holding, sending, and converting supported USDC and USDT balances. |
-| Virtual Card (USD) | USD-denominated virtual cards with instant card issuance for online or card-not-present spend. |
+| Multi-Currency Wallet | Stored balances across 16 supported fiat currencies for treasury, payment, or wallet experiences. |
+| Stablecoin Wallet (USDC / USDT) | Receive, hold and send USDC and USDT balances as well as convert USDC/USDT to Fiats. |
+| Virtual Card (USD) | USD-denominated virtual cards in 30+ countries with issued for online or card-not-present spend. |
 | Virtual Bank Accounts | Dedicated virtual bank account details for supported currencies: USD, EUR, GBP, MXN, BRL, and CAD. |
 
 ## Use Case Categories

@@ -3,13 +3,13 @@ const MODULES = [
     key: "collections",
     label: "Collections",
     description:
-      "Collect funds through supported payment methods such as local bank transfers (push and pull), FX, card acceptance, wire transfers, and stablecoin-to-fiat conversion.",
+      "Collect funds through supported payment methods such as local bank transfers (push and pull), card acceptance, wire transfers, and stablecoins.",
   },
   {
     key: "disbursements",
     label: "Disbursements",
     description:
-      "Send or deliver funds through supported payout rails such as local bank transfers, FX, Same Day ACH, RTP, Fedwire, Swift, and fiat-to-stablecoin conversion.",
+      "Send or deliver funds through supported payout rails such as local bank transfers, local FX, Same Day ACH, RTP, Fedwire, Swift, and stablecoins.",
   },
   {
     key: "accounts",
@@ -65,7 +65,7 @@ const PAYMENT_METHODS = [
   {
     key: "instantCardIssue",
     label: "Instant Card Issuance",
-    description: "Issue USD virtual cards instantly for supported card programs.",
+    description: "Issue USD virtual cards instantly for 30+ countries.",
   },
   {
     key: "fxMajors",
@@ -155,20 +155,20 @@ const ADDITIONAL_SERVICES = [
     key: "payeePlugin",
     label: "Payee Plugin",
     category: "Plugins",
-    description: "Pre-built disbursement payee experience for collecting recipient details and payment preferences.",
+    description: "Disbursement-only pre-built payee experiences for collecting recipient details and their payment preferences.",
   },
   {
     key: "plaidBankAccountVerification",
     label: "Plaid Bank Account Verification",
     category: "Verification",
     description:
-      "Verify bank accounts, account ownership, identity, and balances before payment movement.",
+      "Verify bank accounts, account ownership, identity, and check balances before executing the payment.",
   },
   {
     key: "riskServices",
     label: "Risk Services",
     category: "Risk",
-    description: "Additional risk controls and support services for managing payment, fraud, compliance, and operational exposure.",
+    description: "Additional risk signals for assessing and managing fraud risk.",
   },
 ];
 
@@ -176,17 +176,17 @@ const STORED_VALUE_ACCOUNTS = [
   {
     key: "multiCurrencyWallets",
     label: "Multi-Currency Wallet",
-    description: "Stored balances across supported fiat currencies for treasury, payment, or wallet experiences.",
+    description: "Stored balances across 16 supported fiat currencies for treasury, payment, or wallet experiences.",
   },
   {
     key: "stablecoinWallets",
     label: "Stablecoin Wallet (USDC / USDT)",
-    description: "Wallet experiences for receiving, holding, sending, and converting supported USDC and USDT balances.",
+    description: "Receive, hold and send USDC and USDT balances as well as convert USDC/USDT to Fiats.",
   },
   {
     key: "virtualCards",
     label: "Virtual Card (USD)",
-    description: "USD-denominated virtual cards with instant card issuance for online or card-not-present spend.",
+    description: "USD-denominated virtual cards in 30+ countries with issued for online or card-not-present spend.",
   },
   {
     key: "virtualBankAccounts",
