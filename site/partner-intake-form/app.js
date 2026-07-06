@@ -1958,21 +1958,6 @@ function renderAdditionalServicesStep() {
 function renderReviewStep() {
   const selectedUseCases = getSelectedUseCaseLabels();
   const useCaseCategoryLabel = getUseCaseCategoryLabel();
-  const useCaseSummary = [
-    useCaseCategoryLabel || "Not selected",
-    state.useCase.isNewUseCaseOrCorridor
-      ? `New use case/corridor: ${formatYesNo(state.useCase.isNewUseCaseOrCorridor)}`
-      : "",
-    state.useCase.isNewUseCaseOrCorridor === "no" && state.useCase.currentHandling.trim()
-      ? `Today: ${state.useCase.currentHandling.trim()}`
-      : "",
-    state.useCase.highRiskIndustries
-      ? `High-risk industries: ${formatYesNo(state.useCase.highRiskIndustries)}`
-      : "",
-    state.useCase.highRiskIndustries === "yes" && state.useCase.highRiskIndustryDetails.trim()
-      ? `High-risk details: ${state.useCase.highRiskIndustryDetails.trim()}`
-      : "",
-  ].filter(Boolean).join(" | ");
   const pricingModelLabel =
     state.role.pricingModel === "revshare"
       ? "Revenue share"
@@ -1980,15 +1965,21 @@ function renderReviewStep() {
         ? "Wholesale pricing"
         : "Pricing model not selected";
   const implementationTimelineLabel = getImplementationTimelineLabel();
-  const businessProfileSummary = [
-    state.role.inFlowOfFundsBusiness ? `Flow of funds business: ${formatYesNo(state.role.inFlowOfFundsBusiness)}` : "",
-    state.role.licensed ? `Licensed: ${formatYesNo(state.role.licensed)}` : "",
-  ].filter(Boolean).join(" | ");
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
+  const storedValueSummary = getUseCaseStoredValueSummary();
   const paymentFlowSummaryMarkup = hasPaymentFlowInterest()
     ? renderReviewPaymentFlowSummary(getSelectedUseCaseEntries())
     : `<span>No countries or currencies indicated</span>`;
+  const overviewSummaryMarkup = renderReviewOverviewSummary({
+    selectedUseCases,
+    useCaseCategoryLabel,
+    paymentMethodSummary,
+    servicesSummary,
+    storedValueSummary,
+    pricingModelLabel,
+    implementationTimelineLabel,
+  });
 
   return `
     <div class="section-stack">
@@ -1996,39 +1987,12 @@ function renderReviewStep() {
         <h3>Summary</h3>
         <p class="section-card__intro">Please review the information provided below.</p>
 
-        <div class="summary-grid">
-          <div class="summary-card">
-            <strong>Use cases</strong>
-            <span>${escapeHtml(selectedUseCases.length ? formatList(selectedUseCases) : "None indicated")}</span>
-          </div>
-          <div class="summary-card">
-            <strong>Use case details</strong>
-            <span>${escapeHtml(useCaseSummary || "Not selected")}</span>
-          </div>
-          <div class="summary-card summary-card--wide summary-card--flow">
-            <strong>Markets and currencies</strong>
+        <div class="review-table-stack">
+          ${overviewSummaryMarkup}
+          <section class="review-table-section">
+            <h4>Markets and currencies</h4>
             ${paymentFlowSummaryMarkup}
-          </div>
-          <div class="summary-card">
-            <strong>Payment scope</strong>
-            <span>${escapeHtml(
-              [
-                paymentMethodSummary ? `Payment methods: ${paymentMethodSummary}` : "",
-                getUseCaseStoredValueSummary() ? `Stored value by use case: ${getUseCaseStoredValueSummary()}` : "",
-                servicesSummary ? `Additional services: ${servicesSummary}` : "",
-              ].filter(Boolean).join(" | ") || "No payment scope selections indicated"
-            )}</span>
-          </div>
-          <div class="summary-card">
-            <strong>Commercial model</strong>
-            <span>${escapeHtml(
-              [
-                businessProfileSummary,
-                `${pricingModelLabel} with ${state.financials.revenueRange || "revenue range not provided"} revenue range`,
-                `Timeline: ${implementationTimelineLabel || "not selected"}`,
-              ].filter(Boolean).join(" | ")
-            )}</span>
-          </div>
+          </section>
         </div>
       </section>
 
@@ -2044,6 +2008,96 @@ function renderReviewStep() {
       </section>
     </div>
   `;
+}
+
+function renderReviewOverviewSummary({
+  selectedUseCases,
+  useCaseCategoryLabel,
+  paymentMethodSummary,
+  servicesSummary,
+  storedValueSummary,
+  pricingModelLabel,
+  implementationTimelineLabel,
+}) {
+  return `
+    <div class="review-summary-table-wrap">
+      <table class="review-summary-table">
+        <thead>
+          <tr>
+            <th scope="col">Use cases</th>
+            <th scope="col">Use case details</th>
+            <th scope="col">Payment scope</th>
+            <th scope="col">Commercial model</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              ${renderReviewSummaryCell([
+                ["Selected", formatReviewCompactList(selectedUseCases, (value) => value, 4) || "None indicated"],
+              ])}
+            </td>
+            <td>
+              ${renderReviewSummaryCell([
+                ["Framing", useCaseCategoryLabel || "Not selected"],
+                [
+                  "New use case/corridor",
+                  state.useCase.isNewUseCaseOrCorridor ? formatYesNo(state.useCase.isNewUseCaseOrCorridor) : "",
+                ],
+                [
+                  "Current handling",
+                  state.useCase.isNewUseCaseOrCorridor === "no" ? state.useCase.currentHandling.trim() : "",
+                ],
+                [
+                  "High-risk industries",
+                  state.useCase.highRiskIndustries ? formatYesNo(state.useCase.highRiskIndustries) : "",
+                ],
+                [
+                  "High-risk details",
+                  state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails.trim() : "",
+                ],
+              ])}
+            </td>
+            <td>
+              ${renderReviewSummaryCell([
+                ["Payment methods", formatReviewDelimitedSummary(paymentMethodSummary, ", ", 3)],
+                ["Stored value", formatReviewDelimitedSummary(storedValueSummary, " | ", 2)],
+                ["Additional services", formatReviewDelimitedSummary(servicesSummary, ", ", 3)],
+              ], "No payment scope selections indicated")}
+            </td>
+            <td>
+              ${renderReviewSummaryCell([
+                [
+                  "Flow of funds business",
+                  state.role.inFlowOfFundsBusiness ? formatYesNo(state.role.inFlowOfFundsBusiness) : "",
+                ],
+                ["Licensed", state.role.licensed ? formatYesNo(state.role.licensed) : ""],
+                ["Pricing model", pricingModelLabel],
+                ["Revenue range", state.financials.revenueRange || "Not provided"],
+                ["Timeline", implementationTimelineLabel || "Not selected"],
+              ])}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderReviewSummaryCell(items, emptyLabel = "Not provided") {
+  const rows = items
+    .filter(([, value]) => Boolean(value))
+    .map(
+      ([label, value]) => `
+        <div>
+          <dt>${escapeHtml(label)}</dt>
+          <dd>${escapeHtml(value)}</dd>
+        </div>
+      `
+    )
+    .join("");
+
+  return rows ? `<dl class="review-summary-cell-list">${rows}</dl>` : `<span class="review-flow-empty">${escapeHtml(emptyLabel)}</span>`;
 }
 
 function renderReviewPaymentFlowSummary(entries) {
@@ -2161,6 +2215,20 @@ function formatReviewCompactList(values, formatter = (value) => value, maxVisibl
   }
 
   return visibleSummary;
+}
+
+function formatReviewDelimitedSummary(summary, separator = ", ", maxVisible = 3) {
+  if (!summary) {
+    return "";
+  }
+
+  const items = summary.split(separator).map((item) => item.trim()).filter(Boolean);
+
+  if (items.length <= maxVisible) {
+    return summary;
+  }
+
+  return `${items.length} selected: ${items.slice(0, maxVisible).join(separator)} + ${items.length - maxVisible} more`;
 }
 
 function renderThankYouStep() {
