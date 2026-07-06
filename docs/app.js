@@ -1743,7 +1743,7 @@ function renderUseCasePaymentFlow(entry, options = {}) {
     <section class="section-card flow-preferences-section">
       <div class="flow-preferences-section__copy">
         <h3>Use case setup</h3>
-        <p>Share who your users are and which stored value account capabilities Veem should offer for this use case.</p>
+        <p>Select any stored value capabilities that may support this use case, such as wallets, virtual accounts, stablecoin wallets, or virtual cards.</p>
       </div>
       <div class="flow-preferences-fields">
         <div class="field flow-role-field">
