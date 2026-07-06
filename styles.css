@@ -611,6 +611,13 @@ button {
   line-height: 1.4;
 }
 
+.flow-preferences-field-help {
+  margin: 0 0 12px;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
 .flow-preferences-section .flow-role-field,
 .flow-preferences-section .stored-value-flow-field {
   grid-column: auto;

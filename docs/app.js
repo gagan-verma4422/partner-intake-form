@@ -1743,24 +1743,25 @@ function renderUseCasePaymentFlow(entry, options = {}) {
     <section class="section-card flow-preferences-section">
       <div class="flow-preferences-section__copy">
         <h3>Use case setup</h3>
-        <p>Select any stored value capabilities that may support this use case, such as wallets, virtual accounts, stablecoin wallets, or virtual cards.</p>
+        <p>Confirm the user role and account preferences for this use case.</p>
       </div>
       <div class="flow-preferences-fields">
         <div class="field flow-role-field">
-        <label>${renderLabelText("Who is your user or customer in this use case? *")}</label>
-        ${renderOptionMultiSelectDropdown(`${basePath}.customerSides`, flow.customerSides, CUSTOMER_ROLE_OPTIONS, {
-          emptyLabel: "Select payer or payee",
-          allLabel: "Payer and payee selected",
-          countLabel: "sides",
-        })}
+          <label>${renderLabelText("Who is your user or customer in this use case? *")}</label>
+          ${renderOptionMultiSelectDropdown(`${basePath}.customerSides`, flow.customerSides, CUSTOMER_ROLE_OPTIONS, {
+            emptyLabel: "Select payer or payee",
+            allLabel: "Payer and payee selected",
+            countLabel: "sides",
+          })}
         </div>
         <div class="field stored-value-flow-field">
-        <label>${renderLabelText("Stored Value Account")}</label>
-        ${renderOptionMultiSelectDropdown(`${basePath}.storedValueAccountTypes`, flow.storedValueAccountTypes, STORED_VALUE_ACCOUNT_TYPE_OPTIONS, {
-          emptyLabel: "No stored value capabilities selected",
-          allLabel: "All stored value capabilities selected",
-          countLabel: "capabilities",
-        })}
+          <label>${renderLabelText("Stored Value Account")}</label>
+          <p class="flow-preferences-field-help">Select any stored value capabilities that may support this use case, such as wallets, virtual accounts, stablecoin wallets, or virtual cards.</p>
+          ${renderOptionMultiSelectDropdown(`${basePath}.storedValueAccountTypes`, flow.storedValueAccountTypes, STORED_VALUE_ACCOUNT_TYPE_OPTIONS, {
+            emptyLabel: "No stored value capabilities selected",
+            allLabel: "All stored value capabilities selected",
+            countLabel: "capabilities",
+          })}
         </div>
       </div>
     </section>
