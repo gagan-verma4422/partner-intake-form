@@ -2469,11 +2469,8 @@ function renderCountryMultiSelect(path, selectedValues, title = "") {
   const selectedCountryValues = selectedValues.filter((value) => value !== OTHER_COUNTRY_VALUE);
   const selectedTotal = selectedCountryValues.length;
   const summaryLabel = getCountrySelectionSummary(path, selectedCountryValues, options.length);
-  const countLabel = selectedTotal
-    ? `${selectedTotal} selected`
-    : options.length
-      ? `${options.length} available`
-      : "No countries";
+  const countLabel = selectedTotal ? `${selectedTotal} selected` : "";
+  const summaryTextClassName = `country-dropdown__summary-text ${selectedTotal ? "" : "is-placeholder"}`.trim();
 
   return `
     <div class="country-select country-select--countries">
@@ -2487,8 +2484,8 @@ function renderCountryMultiSelect(path, selectedValues, title = "") {
           : `
             <details class="country-dropdown" data-country-dropdown="${escapeHtml(path)}">
               <summary class="country-dropdown__summary">
-                <span class="country-dropdown__summary-text">${escapeHtml(summaryLabel)}</span>
-                <span class="country-dropdown__summary-count">${escapeHtml(countLabel)}</span>
+                <span class="${summaryTextClassName}">${escapeHtml(summaryLabel)}</span>
+                ${countLabel ? `<span class="country-dropdown__summary-count">${escapeHtml(countLabel)}</span>` : ""}
                 <span class="country-dropdown__caret" aria-hidden="true"></span>
               </summary>
               <div class="country-dropdown__panel">
@@ -2514,7 +2511,7 @@ function renderCountryMultiSelect(path, selectedValues, title = "") {
 
 function getCountrySelectionSummary(path, selectedValues, availableCount) {
   if (!selectedValues.length) {
-    return "No countries selected";
+    return "Select countries";
   }
 
   if (availableCount && selectedValues.length === availableCount) {
