@@ -1986,9 +1986,9 @@ function renderReviewStep() {
   ].filter(Boolean).join(" | ");
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
-  const paymentFlowLocationSummary = hasPaymentFlowInterest()
-    ? getSelectedUseCaseEntries().map((entry) => formatUseCaseFlowSummary(entry)).join(" | ")
-    : "";
+  const paymentFlowSummaryMarkup = hasPaymentFlowInterest()
+    ? renderReviewPaymentFlowSummary(getSelectedUseCaseEntries())
+    : `<span>No countries or currencies indicated</span>`;
 
   return `
     <div class="section-stack">
@@ -2005,11 +2005,9 @@ function renderReviewStep() {
             <strong>Use case details</strong>
             <span>${escapeHtml(useCaseSummary || "Not selected")}</span>
           </div>
-          <div class="summary-card">
-            <strong>Markets and Currencies</strong>
-            <span>${escapeHtml(
-              paymentFlowLocationSummary || "No countries or currencies indicated"
-            )}</span>
+          <div class="summary-card summary-card--wide summary-card--flow">
+            <strong>Markets and currencies</strong>
+            ${paymentFlowSummaryMarkup}
           </div>
           <div class="summary-card">
             <strong>Payment scope</strong>
@@ -2046,6 +2044,95 @@ function renderReviewStep() {
       </section>
     </div>
   `;
+}
+
+function renderReviewPaymentFlowSummary(entries) {
+  const cards = entries
+    .map(({ label, flow }) => {
+      const rows = [
+        renderReviewFlowRow("User/customer", formatCustomerSides(flow.customerSides)),
+        renderReviewFlowRow(
+          "Payers",
+          formatReviewCompactList(flow.senderTypes, (value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value), 3)
+        ),
+        renderReviewFlowRow("Payer count", formatReviewCount(flow.payerCount, flow.payerCountBasis)),
+        renderReviewFlowRow("Payer regions", formatReviewCompactList(flow.senderRegion, (value) => value, 5)),
+        renderReviewFlowRow("Payer countries", formatReviewCountryList(flow.senderCountries, flow.senderCountriesOther)),
+        renderReviewFlowRow("Payer currencies", formatReviewCompactList(flow.senderCurrencies, (value) => value, 8)),
+        renderReviewFlowRow(
+          "Payees",
+          formatReviewCompactList(flow.receiverTypes, (value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value), 3)
+        ),
+        renderReviewFlowRow("Payee count", formatReviewCount(flow.payeeCount, flow.payeeCountBasis)),
+        renderReviewFlowRow("Payee regions", formatReviewCompactList(flow.receiverRegion, (value) => value, 5)),
+        renderReviewFlowRow("Payee countries", formatReviewCountryList(flow.receiverCountries, flow.receiverCountriesOther)),
+        renderReviewFlowRow("Payee currencies", formatReviewCompactList(flow.receiverCurrencies, (value) => value, 8)),
+        renderReviewFlowRow("Stored value", formatStoredValueAccountTypes(flow.storedValueAccountTypes)),
+      ].filter(Boolean);
+
+      return `
+        <section class="review-flow-card">
+          <h4>${escapeHtml(label)}</h4>
+          ${
+            rows.length
+              ? `<dl class="review-flow-rows">${rows.join("")}</dl>`
+              : `<p>No flow details indicated</p>`
+          }
+        </section>
+      `;
+    })
+    .join("");
+
+  return `<div class="review-flow-list">${cards || "<span>No countries or currencies indicated</span>"}</div>`;
+}
+
+function renderReviewFlowRow(label, value) {
+  if (!value) {
+    return "";
+  }
+
+  return `
+    <div class="review-flow-row">
+      <dt>${escapeHtml(label)}</dt>
+      <dd>${escapeHtml(value)}</dd>
+    </div>
+  `;
+}
+
+function formatReviewCount(value, basis) {
+  return value ? `${value} (${basis || "basis not selected"})` : "";
+}
+
+function formatReviewCountryList(codes, otherDetail = "") {
+  return formatReviewCompactList(
+    codes,
+    (code) => {
+      if (code === OTHER_COUNTRY_VALUE) {
+        return otherDetail.trim() ? `Other: ${otherDetail.trim()}` : "Other";
+      }
+
+      return countryLookup.get(code)?.name || code;
+    },
+    5
+  );
+}
+
+function formatReviewCompactList(values, formatter = (value) => value, maxVisible = 6) {
+  const labels = values.map(formatter).filter(Boolean);
+
+  if (!labels.length) {
+    return "";
+  }
+
+  const visibleLabels = labels.slice(0, maxVisible);
+  const remainingCount = labels.length - visibleLabels.length;
+  const visibleSummary = visibleLabels.join(", ");
+
+  if (remainingCount > 0) {
+    return `${labels.length} selected: ${visibleSummary} + ${remainingCount} more`;
+  }
+
+  return visibleSummary;
 }
 
 function renderThankYouStep() {
