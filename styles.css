@@ -618,6 +618,14 @@ button {
   line-height: 1.5;
 }
 
+.flow-role-bubbles {
+  margin-top: 0;
+}
+
+.flow-role-bubbles .segment {
+  min-width: 150px;
+}
+
 .stored-value-choice-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

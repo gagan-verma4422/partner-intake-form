@@ -1744,11 +1744,7 @@ function renderUseCasePaymentFlow(entry, options = {}) {
       <div class="flow-preferences-fields">
         <div class="field flow-role-field">
           <label>${renderLabelText("Who is your user or customer in this use case? *")}</label>
-          ${renderOptionMultiSelectDropdown(`${basePath}.customerSides`, flow.customerSides, CUSTOMER_ROLE_OPTIONS, {
-            emptyLabel: "Select payer or payee",
-            allLabel: "Payer and payee selected",
-            countLabel: "sides",
-          })}
+          ${renderCustomerRoleSelector(`${basePath}.customerSides`, flow.customerSides)}
         </div>
         <div class="field stored-value-flow-field">
           <label>${renderLabelText("Stored Value Account")}</label>
@@ -1757,6 +1753,28 @@ function renderUseCasePaymentFlow(entry, options = {}) {
         </div>
       </div>
     </section>
+  `;
+}
+
+function renderCustomerRoleSelector(path, selectedValues) {
+  return `
+    <div class="flow-role-bubbles segmented segmented--multi" role="group" aria-label="Customer role">
+      ${CUSTOMER_ROLE_OPTIONS.map((option) => {
+        const isSelected = selectedValues.includes(option.value);
+        return `
+          <button
+            class="segment ${isSelected ? "is-active" : ""}"
+            type="button"
+            data-action="toggle-array"
+            data-path="${escapeHtml(path)}"
+            data-value="${escapeHtml(option.value)}"
+            aria-pressed="${isSelected ? "true" : "false"}"
+          >
+            ${escapeHtml(option.label)}
+          </button>
+        `;
+      }).join("")}
+    </div>
   `;
 }
 
