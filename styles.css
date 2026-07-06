@@ -908,6 +908,13 @@ button {
   min-height: 28px;
 }
 
+.flow-field-box .search-select__tags--selected {
+  max-height: 172px;
+  overflow-y: auto;
+  padding-right: 4px;
+  align-content: flex-start;
+}
+
 .flow-field-box .search-select__placeholder,
 .flow-field-box .country-select__placeholder {
   font-size: 0.92rem;

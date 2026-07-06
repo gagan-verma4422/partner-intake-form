@@ -2715,7 +2715,7 @@ function renderSearchSelectedValues(path, selectedValues, definition) {
     })
     .join("");
 
-  return `<div class="search-select__tags">${tagsMarkup}</div>`;
+  return `<div class="search-select__tags search-select__tags--selected">${tagsMarkup}</div>`;
 }
 
 function renderLabelText(label) {
