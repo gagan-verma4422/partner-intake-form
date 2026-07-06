@@ -749,10 +749,6 @@ const CUSTOMER_ROLE_OPTIONS = [
     description: "Your customer receives the funds.",
   },
 ];
-const STORED_VALUE_ACCOUNT_TYPE_OPTIONS = STORED_VALUE_ACCOUNTS.map((item) => ({
-  value: item.key,
-  label: item.label,
-}));
 const SEARCH_SELECTOR_DEFINITIONS = {
   "collections.senderCountries": {
     options: COUNTRY_SEARCH_OPTIONS,
@@ -1757,30 +1753,38 @@ function renderUseCasePaymentFlow(entry, options = {}) {
         <div class="field stored-value-flow-field">
           <label>${renderLabelText("Stored Value Account")}</label>
           <p class="flow-preferences-field-help">Select any stored value capabilities that may support this use case, such as wallets, virtual accounts, stablecoin wallets, or virtual cards.</p>
-          ${renderOptionMultiSelectDropdown(`${basePath}.storedValueAccountTypes`, flow.storedValueAccountTypes, STORED_VALUE_ACCOUNT_TYPE_OPTIONS, {
-            emptyLabel: "No stored value capabilities selected",
-            allLabel: "All stored value capabilities selected",
-            countLabel: "capabilities",
-          })}
-          ${renderStoredValueAccountDefinitions()}
+          ${renderStoredValueAccountSelector(`${basePath}.storedValueAccountTypes`, flow.storedValueAccountTypes)}
         </div>
       </div>
     </section>
   `;
 }
 
-function renderStoredValueAccountDefinitions() {
+function renderStoredValueAccountSelector(path, selectedValues) {
   return `
-    <dl class="stored-value-explainer" aria-label="Stored value account definitions">
+    <div class="stored-value-choice-grid" role="group" aria-label="Stored value account capabilities">
       ${STORED_VALUE_ACCOUNTS.map(
-        (account) => `
-          <div class="stored-value-explainer__item">
-            <dt>${escapeHtml(account.label)}</dt>
-            <dd>${escapeHtml(account.description)}</dd>
-          </div>
-        `
+        (account) => {
+          const isSelected = selectedValues.includes(account.key);
+          return `
+            <button
+              class="stored-value-choice ${isSelected ? "is-active" : ""}"
+              type="button"
+              data-action="toggle-array"
+              data-path="${escapeHtml(path)}"
+              data-value="${escapeHtml(account.key)}"
+              aria-pressed="${isSelected ? "true" : "false"}"
+            >
+              <span class="stored-value-choice__indicator" aria-hidden="true"></span>
+              <span class="stored-value-choice__copy">
+                <span class="stored-value-choice__title">${escapeHtml(account.label)}</span>
+                <span class="stored-value-choice__description">${escapeHtml(account.description)}</span>
+              </span>
+            </button>
+          `;
+        }
       ).join("")}
-    </dl>
+    </div>
   `;
 }
 
