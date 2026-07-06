@@ -1957,7 +1957,6 @@ function renderAdditionalServicesStep() {
 
 function renderReviewStep() {
   const selectedUseCases = getSelectedUseCaseLabels();
-  const useCaseCategoryLabel = getUseCaseCategoryLabel();
   const pricingModelLabel =
     state.role.pricingModel === "revshare"
       ? "Revenue share"
@@ -1968,12 +1967,8 @@ function renderReviewStep() {
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
   const storedValueSummary = getUseCaseStoredValueSummary();
-  const paymentFlowSummaryMarkup = hasPaymentFlowInterest()
-    ? renderReviewPaymentFlowSummary(getSelectedUseCaseEntries())
-    : `<span>No countries or currencies indicated</span>`;
-  const overviewSummaryMarkup = renderReviewOverviewSummary({
+  const reviewSummaryMarkup = renderReviewQuestionAnswerSummary({
     selectedUseCases,
-    useCaseCategoryLabel,
     paymentMethodSummary,
     servicesSummary,
     storedValueSummary,
@@ -1987,13 +1982,7 @@ function renderReviewStep() {
         <h3>Summary</h3>
         <p class="section-card__intro">Please review the information provided below.</p>
 
-        <div class="review-table-stack">
-          ${overviewSummaryMarkup}
-          <section class="review-table-section">
-            <h4>Markets and currencies</h4>
-            ${paymentFlowSummaryMarkup}
-          </section>
-        </div>
+        ${reviewSummaryMarkup}
       </section>
 
       <section class="section-card">
@@ -2010,175 +1999,121 @@ function renderReviewStep() {
   `;
 }
 
-function renderReviewOverviewSummary({
+function renderReviewQuestionAnswerSummary({
   selectedUseCases,
-  useCaseCategoryLabel,
   paymentMethodSummary,
   servicesSummary,
   storedValueSummary,
   pricingModelLabel,
   implementationTimelineLabel,
 }) {
+  const rows = [];
+  const addRow = (section, question, answer, options = {}) => {
+    const value = String(answer || "").trim();
+    const fallback = options.fallback || "Not provided";
+
+    if (!value && !options.showEmpty) {
+      return;
+    }
+
+    rows.push({
+      section,
+      question,
+      answer: value || fallback,
+    });
+  };
+
+  addRow(
+    "Use case setup",
+    "Selected use cases",
+    formatReviewCompactList(selectedUseCases, (value) => value, 4),
+    { showEmpty: true, fallback: "None indicated" }
+  );
+  addRow(
+    "Use case setup",
+    "New use case or corridor?",
+    state.useCase.isNewUseCaseOrCorridor ? formatYesNo(state.useCase.isNewUseCaseOrCorridor) : ""
+  );
+  addRow(
+    "Use case setup",
+    "How is this handled today?",
+    state.useCase.isNewUseCaseOrCorridor === "no" ? state.useCase.currentHandling.trim() : ""
+  );
+  addRow(
+    "Use case setup",
+    "High-risk industries?",
+    state.useCase.highRiskIndustries ? formatYesNo(state.useCase.highRiskIndustries) : ""
+  );
+  addRow(
+    "Use case setup",
+    "High-risk details",
+    state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails.trim() : ""
+  );
+  addRow("Payment scope", "Payment methods", formatReviewDelimitedSummary(paymentMethodSummary, ", ", 3));
+  addRow("Payment scope", "Additional services", formatReviewDelimitedSummary(servicesSummary, ", ", 3));
+  addRow("Payment scope", "Stored Value Account", formatReviewDelimitedSummary(storedValueSummary, " | ", 2));
+  addRow(
+    "Commercial profile",
+    "Flow of funds business?",
+    state.role.inFlowOfFundsBusiness ? formatYesNo(state.role.inFlowOfFundsBusiness) : ""
+  );
+  addRow("Commercial profile", "Licensed in operating countries?", state.role.licensed ? formatYesNo(state.role.licensed) : "");
+  addRow("Commercial profile", "Preferred commercial model", pricingModelLabel);
+  addRow("Commercial profile", "Annual revenue", state.financials.revenueRange);
+  addRow("Commercial profile", "Implementation timeline", implementationTimelineLabel);
+
+  getSelectedUseCaseEntries().forEach(({ label, flow }) => {
+    const rowCountBeforeFlow = rows.length;
+    addRow(label, "User/customer side", formatCustomerSides(flow.customerSides));
+    addRow(
+      label,
+      "Payer user type",
+      formatReviewCompactList(flow.senderTypes, (value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value), 3)
+    );
+    addRow(label, "Number of payers", formatReviewCount(flow.payerCount, flow.payerCountBasis));
+    addRow(label, "Payer regions", formatReviewCompactList(flow.senderRegion, (value) => value, 5));
+    addRow(label, "Payer countries", formatReviewCountryList(flow.senderCountries, flow.senderCountriesOther));
+    addRow(label, "Payer currencies", formatReviewCompactList(flow.senderCurrencies, (value) => value, 8));
+    addRow(
+      label,
+      "Payee user type",
+      formatReviewCompactList(flow.receiverTypes, (value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value), 3)
+    );
+    addRow(label, "Number of payees", formatReviewCount(flow.payeeCount, flow.payeeCountBasis));
+    addRow(label, "Payee regions", formatReviewCompactList(flow.receiverRegion, (value) => value, 5));
+    addRow(label, "Payee countries", formatReviewCountryList(flow.receiverCountries, flow.receiverCountriesOther));
+    addRow(label, "Payee currencies", formatReviewCompactList(flow.receiverCurrencies, (value) => value, 8));
+    addRow(label, "Stored Value Account", formatStoredValueAccountTypes(flow.storedValueAccountTypes));
+
+    if (rows.length === rowCountBeforeFlow) {
+      addRow(label, "Payment flow", "No flow details indicated", { showEmpty: true });
+    }
+  });
+
+  const tableRows = rows
+    .map(({ section, question, answer }) => `
+      <tr>
+        <th scope="row" class="review-qa-table__section">${escapeHtml(section)}</th>
+        <td class="review-qa-table__question">${escapeHtml(question)}</td>
+        <td class="review-qa-table__answer">${escapeHtml(answer)}</td>
+      </tr>
+    `)
+    .join("");
+
   return `
-    <div class="review-summary-table-wrap">
-      <table class="review-summary-table">
+    <div class="review-qa-table-wrap">
+      <table class="review-qa-table">
         <thead>
           <tr>
-            <th scope="col">Use cases</th>
-            <th scope="col">Use case details</th>
-            <th scope="col">Payment scope</th>
-            <th scope="col">Commercial model</th>
+            <th scope="col">Section</th>
+            <th scope="col">Question</th>
+            <th scope="col">Answer</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td>
-              ${renderReviewSummaryCell([
-                ["Selected", formatReviewCompactList(selectedUseCases, (value) => value, 4) || "None indicated"],
-              ])}
-            </td>
-            <td>
-              ${renderReviewSummaryCell([
-                ["Framing", useCaseCategoryLabel || "Not selected"],
-                [
-                  "New use case/corridor",
-                  state.useCase.isNewUseCaseOrCorridor ? formatYesNo(state.useCase.isNewUseCaseOrCorridor) : "",
-                ],
-                [
-                  "Current handling",
-                  state.useCase.isNewUseCaseOrCorridor === "no" ? state.useCase.currentHandling.trim() : "",
-                ],
-                [
-                  "High-risk industries",
-                  state.useCase.highRiskIndustries ? formatYesNo(state.useCase.highRiskIndustries) : "",
-                ],
-                [
-                  "High-risk details",
-                  state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails.trim() : "",
-                ],
-              ])}
-            </td>
-            <td>
-              ${renderReviewSummaryCell([
-                ["Payment methods", formatReviewDelimitedSummary(paymentMethodSummary, ", ", 3)],
-                ["Stored value", formatReviewDelimitedSummary(storedValueSummary, " | ", 2)],
-                ["Additional services", formatReviewDelimitedSummary(servicesSummary, ", ", 3)],
-              ], "No payment scope selections indicated")}
-            </td>
-            <td>
-              ${renderReviewSummaryCell([
-                [
-                  "Flow of funds business",
-                  state.role.inFlowOfFundsBusiness ? formatYesNo(state.role.inFlowOfFundsBusiness) : "",
-                ],
-                ["Licensed", state.role.licensed ? formatYesNo(state.role.licensed) : ""],
-                ["Pricing model", pricingModelLabel],
-                ["Revenue range", state.financials.revenueRange || "Not provided"],
-                ["Timeline", implementationTimelineLabel || "Not selected"],
-              ])}
-            </td>
-          </tr>
-        </tbody>
+        <tbody>${tableRows}</tbody>
       </table>
     </div>
   `;
-}
-
-function renderReviewSummaryCell(items, emptyLabel = "Not provided") {
-  const rows = items
-    .filter(([, value]) => Boolean(value))
-    .map(
-      ([label, value]) => `
-        <div>
-          <dt>${escapeHtml(label)}</dt>
-          <dd>${escapeHtml(value)}</dd>
-        </div>
-      `
-    )
-    .join("");
-
-  return rows ? `<dl class="review-summary-cell-list">${rows}</dl>` : `<span class="review-flow-empty">${escapeHtml(emptyLabel)}</span>`;
-}
-
-function renderReviewPaymentFlowSummary(entries) {
-  const rows = entries
-    .map(({ label, flow }) => {
-      return `
-        <tr>
-          <th scope="row">${escapeHtml(label)}</th>
-          <td>
-            ${renderReviewFlowTableCell([
-              ["User/customer", formatCustomerSides(flow.customerSides)],
-            ])}
-          </td>
-          <td>
-            ${renderReviewFlowTableCell([
-              [
-                "Payers",
-                formatReviewCompactList(flow.senderTypes, (value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value), 3),
-              ],
-              ["Count", formatReviewCount(flow.payerCount, flow.payerCountBasis)],
-              ["Regions", formatReviewCompactList(flow.senderRegion, (value) => value, 5)],
-              ["Countries", formatReviewCountryList(flow.senderCountries, flow.senderCountriesOther)],
-              ["Currencies", formatReviewCompactList(flow.senderCurrencies, (value) => value, 8)],
-            ])}
-          </td>
-          <td>
-            ${renderReviewFlowTableCell([
-              [
-                "Payees",
-                formatReviewCompactList(flow.receiverTypes, (value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value), 3),
-              ],
-              ["Count", formatReviewCount(flow.payeeCount, flow.payeeCountBasis)],
-              ["Regions", formatReviewCompactList(flow.receiverRegion, (value) => value, 5)],
-              ["Countries", formatReviewCountryList(flow.receiverCountries, flow.receiverCountriesOther)],
-              ["Currencies", formatReviewCompactList(flow.receiverCurrencies, (value) => value, 8)],
-            ])}
-          </td>
-          <td>
-            ${renderReviewFlowTableCell([
-              ["Capabilities", formatStoredValueAccountTypes(flow.storedValueAccountTypes)],
-            ])}
-          </td>
-        </tr>
-      `;
-    })
-    .join("");
-
-  return rows
-    ? `
-      <div class="review-flow-table-wrap">
-        <table class="review-flow-table">
-          <thead>
-            <tr>
-              <th scope="col">Use case</th>
-              <th scope="col">Customer</th>
-              <th scope="col">From / Payer</th>
-              <th scope="col">To / Payee</th>
-              <th scope="col">Stored Value Account</th>
-            </tr>
-          </thead>
-          <tbody>${rows}</tbody>
-        </table>
-      </div>
-    `
-    : "<span>No countries or currencies indicated</span>";
-}
-
-function renderReviewFlowTableCell(items) {
-  const rows = items
-    .filter(([, value]) => Boolean(value))
-    .map(
-      ([label, value]) => `
-        <div>
-          <dt>${escapeHtml(label)}</dt>
-          <dd>${escapeHtml(value)}</dd>
-        </div>
-      `
-    )
-    .join("");
-
-  return rows ? `<dl class="review-flow-table-list">${rows}</dl>` : `<span class="review-flow-empty">Not provided</span>`;
 }
 
 function formatReviewCount(value, basis) {
