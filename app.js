@@ -169,12 +169,12 @@ const STORED_VALUE_ACCOUNTS = [
   {
     key: "stablecoinWallets",
     label: "Stablecoin Wallet (USDC / USDT)",
-    description: "Receive, hold and send USDC and USDT balances as well as convert USDC/USDT to Fiats.",
+    description: "Receive, hold, send, and convert USDC/USDT balances to fiat.",
   },
   {
     key: "virtualCards",
     label: "Virtual Card (USD)",
-    description: "USD-denominated virtual cards in 30+ countries with issued for online or card-not-present spend.",
+    description: "Issue USD-denominated virtual cards in 30+ countries for online or card-not-present spend.",
   },
   {
     key: "virtualBankAccounts",
@@ -1762,9 +1762,25 @@ function renderUseCasePaymentFlow(entry, options = {}) {
             allLabel: "All stored value capabilities selected",
             countLabel: "capabilities",
           })}
+          ${renderStoredValueAccountDefinitions()}
         </div>
       </div>
     </section>
+  `;
+}
+
+function renderStoredValueAccountDefinitions() {
+  return `
+    <dl class="stored-value-explainer" aria-label="Stored value account definitions">
+      ${STORED_VALUE_ACCOUNTS.map(
+        (account) => `
+          <div class="stored-value-explainer__item">
+            <dt>${escapeHtml(account.label)}</dt>
+            <dd>${escapeHtml(account.description)}</dd>
+          </div>
+        `
+      ).join("")}
+    </dl>
   `;
 }
 

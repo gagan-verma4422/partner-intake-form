@@ -72,8 +72,8 @@ Stored value account capabilities are optional and selected per use case.
 | Item | Definition |
 | --- | --- |
 | Multi-Currency Wallet | Stored balances across 16 supported fiat currencies for treasury, payment, or wallet experiences. |
-| Stablecoin Wallet (USDC / USDT) | Receive, hold and send USDC and USDT balances as well as convert USDC/USDT to Fiats. |
-| Virtual Card (USD) | USD-denominated virtual cards in 30+ countries with issued for online or card-not-present spend. |
+| Stablecoin Wallet (USDC / USDT) | Receive, hold, send, and convert USDC/USDT balances to fiat. |
+| Virtual Card (USD) | Issue USD-denominated virtual cards in 30+ countries for online or card-not-present spend. |
 | Virtual Bank Accounts | Dedicated virtual bank account details for supported currencies: USD, EUR, GBP, MXN, BRL, and CAD. |
 
 ## Use Case Categories
