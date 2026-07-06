@@ -1,17 +1,5 @@
 const MODULES = [
   {
-    key: "collections",
-    label: "Collections",
-    description:
-      "Collect funds through supported payment methods such as local bank transfers (push and pull), card acceptance, wire transfers, and stablecoins.",
-  },
-  {
-    key: "disbursements",
-    label: "Disbursements",
-    description:
-      "Send or deliver funds through supported payout rails such as local bank transfers, local FX, Same Day ACH, RTP, Fedwire, Swift, and stablecoins.",
-  },
-  {
     key: "accounts",
     label: "Stored Value Accounts",
     description:
@@ -35,12 +23,12 @@ const PAYMENT_METHODS = [
     key: "ibtInstantBankTransfer",
     label: "IBT (Instant Bank Transfer)",
     description:
-      "U.S. Instant collections using ACH with Plaid bank validation and balance checks.",
+      "U.S. instant bank-funded payments using ACH with Plaid bank validation and balance checks.",
   },
   {
     key: "rtp",
     label: "RTP (US only)",
-    description: "Real-Time Payments rail for instant U.S. disbursements and immediate settlement.",
+    description: "Real-Time Payments rail for instant U.S. payment delivery and immediate settlement.",
   },
   {
     key: "fedwire",
@@ -55,7 +43,7 @@ const PAYMENT_METHODS = [
   {
     key: "cardAcquiring",
     label: "Card Acceptance (Debit & Credit)",
-    description: "Accept debit and credit card payments for collection flows where card-funded payments are required.",
+    description: "Accept debit and credit card-funded payments from payers.",
   },
   {
     key: "pushToCards",
@@ -94,12 +82,12 @@ const PAYMENT_METHODS = [
   {
     key: "usdcToFiat",
     label: "USDC ↔ Fiat",
-    description: "Convert between supported USDC balances and fiat currency for collection, settlement, payout, or wallet flows.",
+    description: "Convert between supported USDC balances and fiat currency for settlement, payment delivery, or wallet flows.",
   },
   {
     key: "usdtToFiat",
     label: "USDT ↔ Fiat",
-    description: "Convert between supported USDT balances and fiat currency for collection, settlement, payout, or wallet flows.",
+    description: "Convert between supported USDT balances and fiat currency for settlement, payment delivery, or wallet flows.",
   },
 ];
 
@@ -107,7 +95,7 @@ const PAYMENT_METHOD_GROUPS = [
   {
     key: "bankTransfers",
     label: "Bank transfers",
-    description: "Account-to-account payment rails for local collection and disbursement flows.",
+    description: "Account-to-account payment rails for payer and payee flows.",
     itemKeys: ["swiftWire", "sameDayAch", "ibtInstantBankTransfer", "rtp"],
   },
   {
@@ -119,7 +107,7 @@ const PAYMENT_METHOD_GROUPS = [
   {
     key: "cards",
     label: "Cards",
-    description: "Card-funded collection and card payout methods.",
+    description: "Card-funded payer payments and card-based payee delivery methods.",
     itemKeys: ["cardAcquiring", "pushToCards", "instantCardIssue"],
   },
 ];
@@ -149,13 +137,13 @@ const ADDITIONAL_SERVICES = [
     key: "payerPluginPaylinks",
     label: "Payer Plugin / Paylinks",
     category: "Plugins",
-    description: "Pre-built collection payer experience for payment links or embedded checkout flows.",
+    description: "Pre-built payer experience for payment links or embedded checkout flows.",
   },
   {
     key: "payeePlugin",
     label: "Payee Plugin",
     category: "Plugins",
-    description: "Disbursement-only pre-built payee experiences for collecting recipient details and their payment preferences.",
+    description: "Pre-built payee experience for collecting recipient details and payment preferences.",
   },
   {
     key: "plaidBankAccountVerification",
@@ -213,12 +201,12 @@ const SOLUTION_LINKS = [
   },
   {
     title: "Pay Solution",
-    description: "Embed fast, secure disbursements",
+    description: "Embed fast, secure payment delivery",
     href: "https://www.veem.com/pay-solution/",
   },
   {
     title: "Collect Solution",
-    description: "Enable frictionless payment collection",
+    description: "Enable frictionless payer payment experiences",
     href: "https://www.veem.com/collect-solution/",
   },
 ];
@@ -257,12 +245,12 @@ const USE_CASE_CATEGORIES = [
   },
   {
     value: "me-to-me-collections",
-    label: "Me-to-Me Collections",
+    label: "Wallet Funding / Me-to-Me",
     description: "Customer wallet funding where a customer moves money from their own bank account or card into their own wallet.",
   },
   {
     value: "disbursements-payroll",
-    label: "Disbursements / Payroll",
+    label: "Payables / Payroll",
     description: "Sending payments to employees, contractors, vendors, creators, payees, or other recipients.",
   },
   {
@@ -600,46 +588,45 @@ const COUNTRY_CURRENCY_MAP = {
   ZM: ["ZMW", "USD"],
 };
 
-const FLOW_MODULE_KEYS = ["collections", "disbursements", "accounts"];
-const PAYMENT_FLOW_MODULE_KEYS = ["collections", "disbursements"];
+const FLOW_MODULE_KEYS = ["accounts"];
 const PRODUCT_AVAILABILITY_RULES = {
   ibtInstantBankTransfer: {
     availableForModules: ["collections"],
-    status: "Available for collections flows.",
+    status: "Available for payer-funded bank flows.",
   },
   rtp: {
     availableForModules: ["disbursements"],
-    status: "Available for disbursement flows.",
+    status: "Available for payee-side payment delivery.",
   },
   cardAcquiring: {
     availableForModules: ["collections"],
-    status: "Available for collections flows.",
+    status: "Available for payer card-funded flows.",
   },
   pushToCards: {
     availableForModules: ["disbursements"],
-    status: "Available for disbursement flows.",
+    status: "Available for payee-side card delivery.",
   },
   instantCardIssue: {
     availableForModules: ["disbursements"],
-    status: "Available for disbursement flows.",
+    status: "Available for payee-side card issuance.",
   },
   usdcToFiat: {
     availableForModules: ["collections", "disbursements"],
-    status: "Available for collection and disbursement flows.",
+    status: "Available for payer and payee flows.",
   },
   usdtToFiat: {
     availableForModules: ["collections", "disbursements"],
-    status: "Available for collection and disbursement flows.",
+    status: "Available for payer and payee flows.",
   },
 };
 const ADDITIONAL_SERVICE_AVAILABILITY_RULES = {
   payerPluginPaylinks: {
     availableForModules: ["collections"],
-    status: "Available for collections flows.",
+    status: "Available for payer-facing flows.",
   },
   payeePlugin: {
     availableForModules: ["disbursements"],
-    status: "Available for disbursement flows.",
+    status: "Available for payee-facing flows.",
   },
 };
 
@@ -653,10 +640,10 @@ const STEP_CONTENT = {
       "Fields marked with * are required.",
   },
   useCase: {
-    eyebrow: "Use Case Category",
-    title: "Choose the dominant commercial framing.",
+    eyebrow: "Use Case Categories",
+    title: "Choose the commercial framing.",
     description:
-      "Your selection will shape which Veem solutions and use-case details we explore together.",
+      "Your selections will shape the From and To flow details we collect.",
     footer:
       "Fields marked with * are required.",
   },
@@ -669,12 +656,11 @@ const STEP_CONTENT = {
       "Fields marked with * are required.",
   },
   solutions: {
-    eyebrow: "Flow Selection",
-    title: "Choose the solution areas you would like to discuss.",
+    eyebrow: "Stored Value",
+    title: "Choose any stored value account interest.",
     description:
-      "The remaining questionnaire steps will adjust based on your selection.",
-    footer:
-      "Fields marked with * are required.",
+      "Select Stored Value Accounts if the opportunity includes wallets, virtual accounts, stablecoin wallets, or virtual cards.",
+    footer: "",
   },
   markets: {
     eyebrow: "Payment Methods",
@@ -700,22 +686,6 @@ const STEP_CONTENT = {
     footer:
       "Fields marked with * are required.",
   },
-  collections: {
-    eyebrow: "Collections Information",
-    title: "Provide information about your collections flow.",
-    description:
-      "Please share details about the users sending funds and where funds move in your collections flow.",
-    footer:
-      "Fields marked with * are required.",
-  },
-  disbursements: {
-    eyebrow: "Disbursement Information",
-    title: "Provide information about your disbursement flow.",
-    description:
-      "Please share details about the users receiving funds and where funds move in your disbursement flow.",
-    footer:
-      "Fields marked with * are required.",
-  },
   review: {
     eyebrow: "Review",
     title: "Review your responses and provide any additional context.",
@@ -733,7 +703,11 @@ const STEP_CONTENT = {
 };
 
 const APP_CONFIG = window.VEEM_ONBOARDING_CONFIG || {};
-const IS_TEST_MODE = APP_CONFIG.testMode === true;
+const TEST_MODE_QUERY_VALUES = new Set(["1", "true", "test", "yes"]);
+const IS_TEST_MODE =
+  APP_CONFIG.testMode === true ||
+  window.location.pathname.endsWith("/test.html") ||
+  TEST_MODE_QUERY_VALUES.has((new URLSearchParams(window.location.search).get("mode") || "").trim().toLowerCase());
 const SUBMISSION_WEBHOOK_URL = String(APP_CONFIG.submissionWebhookUrl || "").trim();
 const escapeSelectorValue = (value) => {
   const stringValue = String(value ?? "");
@@ -757,6 +731,27 @@ const CURRENCY_SEARCH_OPTIONS = CURRENCY_OPTIONS.map((currency) => ({
   value: currency,
   label: currency,
   keywords: currency,
+}));
+const FLOW_USER_TYPE_OPTIONS = [
+  { value: "consumers", label: "Consumers" },
+  { value: "businesses", label: "Businesses" },
+  { value: "soleProprietors", label: "Sole proprietors" },
+];
+const CUSTOMER_ROLE_OPTIONS = [
+  {
+    value: "payer",
+    label: "Payer",
+    description: "Your customer sends or funds the payment.",
+  },
+  {
+    value: "payee",
+    label: "Payee",
+    description: "Your customer receives the funds.",
+  },
+];
+const STORED_VALUE_ACCOUNT_TYPE_OPTIONS = STORED_VALUE_ACCOUNTS.map((item) => ({
+  value: item.key,
+  label: item.label,
 }));
 const SEARCH_SELECTOR_DEFINITIONS = {
   "collections.senderCountries": {
@@ -840,6 +835,92 @@ const COUNTRY_OTHER_LABELS = {
   "accounts.accountHolderCountries": "Specify other account holder countries *",
 };
 
+function parseUseCaseFlowPath(path) {
+  const match = /^useCaseFlows\.([^.]+)\.([^.]+)$/.exec(path);
+  if (!match) {
+    return null;
+  }
+
+  return {
+    useCaseKey: match[1],
+    field: match[2],
+    basePath: `useCaseFlows.${match[1]}`,
+  };
+}
+
+function getUseCaseFlowPath(path, field) {
+  const parsed = parseUseCaseFlowPath(path);
+  return parsed ? `${parsed.basePath}.${field}` : "";
+}
+
+function getCountrySelectorRegionPath(path) {
+  const staticPath = COUNTRY_SELECTOR_REGION_PATHS[path];
+  if (staticPath) {
+    return staticPath;
+  }
+
+  const parsed = parseUseCaseFlowPath(path);
+  if (parsed?.field === "senderCountries") {
+    return `${parsed.basePath}.senderRegion`;
+  }
+  if (parsed?.field === "receiverCountries") {
+    return `${parsed.basePath}.receiverRegion`;
+  }
+
+  return "";
+}
+
+function getRegionSelectorCountryPath(path) {
+  const staticPath = REGION_SELECTOR_COUNTRY_PATHS[path];
+  if (staticPath) {
+    return staticPath;
+  }
+
+  const parsed = parseUseCaseFlowPath(path);
+  if (parsed?.field === "senderRegion") {
+    return `${parsed.basePath}.senderCountries`;
+  }
+  if (parsed?.field === "receiverRegion") {
+    return `${parsed.basePath}.receiverCountries`;
+  }
+
+  return "";
+}
+
+function getCountryOtherDetailPath(path) {
+  const staticPath = COUNTRY_OTHER_DETAIL_PATHS[path];
+  if (staticPath) {
+    return staticPath;
+  }
+
+  const parsed = parseUseCaseFlowPath(path);
+  if (parsed?.field === "senderCountries") {
+    return `${parsed.basePath}.senderCountriesOther`;
+  }
+  if (parsed?.field === "receiverCountries") {
+    return `${parsed.basePath}.receiverCountriesOther`;
+  }
+
+  return "";
+}
+
+function getCountryOtherLabel(path) {
+  const staticLabel = COUNTRY_OTHER_LABELS[path];
+  if (staticLabel) {
+    return staticLabel;
+  }
+
+  const parsed = parseUseCaseFlowPath(path);
+  if (parsed?.field === "senderCountries") {
+    return "Specify other payer countries *";
+  }
+  if (parsed?.field === "receiverCountries") {
+    return "Specify other payee countries *";
+  }
+
+  return "";
+}
+
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
@@ -858,6 +939,28 @@ const submissionState = {
   submissionId: "",
 };
 
+function createUseCaseFlowState() {
+  return {
+    customerRole: "",
+    customerSides: [],
+    senderTypes: [],
+    receiverTypes: [],
+    payerCount: "",
+    payerCountBasis: "",
+    payeeCount: "",
+    payeeCountBasis: "",
+    senderRegion: [],
+    senderCountries: [],
+    senderCountriesOther: "",
+    senderCurrencies: [],
+    receiverRegion: [],
+    receiverCountries: [],
+    receiverCountriesOther: "",
+    receiverCurrencies: [],
+    storedValueAccountTypes: [],
+  };
+}
+
 const state = {
   contact: {
     firstName: "",
@@ -875,13 +978,14 @@ const state = {
     url: "",
   },
   useCase: {
-    category: "",
+    categories: [],
     other: "",
     isNewUseCaseOrCorridor: "",
     currentHandling: "",
     highRiskIndustries: "",
     highRiskIndustryDetails: "",
   },
+  useCaseFlows: {},
   role: {
     inFlowOfFundsBusiness: "",
     licensed: "",
@@ -970,32 +1074,23 @@ function shouldBypassRequiredFields() {
 }
 
 function buildSteps() {
-  const selectedFlowLabels = getSelectedFlowLabels();
-  const shouldShowFullTestPath = shouldBypassRequiredFields() && !selectedFlowLabels.length;
-  const hasPaymentFlow = PAYMENT_FLOW_MODULE_KEYS.some((moduleKey) => isModuleSelected(moduleKey));
+  const selectedUseCaseLabels = getSelectedUseCaseLabels();
+  const shouldShowFullTestPath = shouldBypassRequiredFields() && !selectedUseCaseLabels.length;
+  const selectedUseCases = getSelectedUseCaseEntries();
+  const hasPaymentFlow = selectedUseCases.length > 0;
   const steps = [
     { id: "intro", validate: validateIntro },
     { id: "useCase", validate: validateUseCase },
-    { id: "solutions", validate: validateSolutions },
   ];
 
-  if (!selectedFlowLabels.length && !shouldShowFullTestPath) {
-    if (isLastPageTestingEnabled) {
-      steps.push({ id: "thankyou", validate: () => [] });
-    }
-    return steps;
-  }
-
-  if (isModuleSelected("collections") || shouldShowFullTestPath) {
-    steps.push({ id: "collections", validate: validateCollections });
-  }
-
-  if (isModuleSelected("disbursements") || shouldShowFullTestPath) {
-    steps.push({ id: "disbursements", validate: validateDisbursements });
-  }
-
-  if (isModuleSelected("accounts") || shouldShowFullTestPath) {
-    steps.push({ id: "accounts", validate: validateAccounts });
+  if (hasPaymentFlow) {
+    selectedUseCases.forEach((entry) => {
+      steps.push({
+        id: `paymentFlow:${entry.value}`,
+        useCaseValue: entry.value,
+        validate: () => validateUseCasePaymentFlow(entry.value),
+      });
+    });
   }
 
   if (hasPaymentFlow || shouldShowFullTestPath) {
@@ -1050,7 +1145,7 @@ function render() {
     ? steps.length - 1
     : Math.max(currentStepIndex, Math.min(maxUnlockedStepIndex, steps.length - 1));
   const currentStep = steps[currentStepIndex];
-  const currentContent = STEP_CONTENT[currentStep.id];
+  const currentContent = getStepContent(currentStep);
   const progressPercent = Math.round(((currentStepIndex + 1) / steps.length) * 100);
   const stepMap = app.querySelector('[data-render="step-map"]');
   const panelHeader = app.querySelector('[data-render="panel-header"]');
@@ -1062,7 +1157,10 @@ function render() {
     <div class="step-list">
       ${steps
         .map((step, index) => {
-          const content = STEP_CONTENT[step.id];
+          const content = getStepContent(step);
+          const isPaymentFlowStep = step.id.startsWith("paymentFlow:");
+          const primaryStepLabel = isPaymentFlowStep ? content.title : content.eyebrow;
+          const secondaryStepLabel = isPaymentFlowStep ? content.eyebrow : content.title;
           const isUnlocked = index <= maxUnlockedStepIndex;
           const statusClass =
             index === currentStepIndex
@@ -1078,14 +1176,14 @@ function render() {
               data-action="goto-step"
               data-step-index="${index}"
               aria-current="${index === currentStepIndex ? "step" : "false"}"
-              aria-label="Step ${index + 1}: ${escapeHtml(content.eyebrow)}. ${escapeHtml(content.title)}"
+              aria-label="Step ${index + 1}: ${escapeHtml(primaryStepLabel)}. ${escapeHtml(secondaryStepLabel)}"
               aria-disabled="${isUnlocked ? "false" : "true"}"
               ${isUnlocked ? "" : "disabled"}
             >
               <div class="step-item__index">${index + 1}</div>
               <div class="step-item__copy">
-                <strong>${escapeHtml(content.eyebrow)}</strong>
-                <span>${escapeHtml(content.title)}</span>
+                <strong>${escapeHtml(primaryStepLabel)}</strong>
+                <span>${escapeHtml(secondaryStepLabel)}</span>
               </div>
             </button>
           `;
@@ -1113,7 +1211,7 @@ function render() {
 
   stepBody.innerHTML = `
     ${activeErrors.length ? renderErrorBox(activeErrors) : ""}
-    ${renderStepContent(currentStep.id)}
+    ${renderStepContent(currentStep)}
   `;
 
   if (currentStep.id === "thankyou") {
@@ -1146,7 +1244,36 @@ function render() {
   `;
 }
 
-function renderStepContent(stepId) {
+function getStepContent(step) {
+  const stepId = typeof step === "string" ? step : step.id;
+  if (stepId.startsWith("paymentFlow:")) {
+    const useCaseValue = typeof step === "string" ? stepId.split(":").slice(1).join(":") : step.useCaseValue;
+    const label = getUseCaseLabel(useCaseValue);
+    return {
+      eyebrow: "Payment Flow",
+      title: label,
+      description:
+        "Provide From/Payer details, To/Payee details, user/customer side, and stored value account capabilities for this use case.",
+      footer:
+        "Fields marked with * are required.",
+    };
+  }
+
+  return STEP_CONTENT[stepId] || {
+    eyebrow: "",
+    title: "",
+    description: "",
+    footer: "",
+  };
+}
+
+function renderStepContent(step) {
+  const stepId = typeof step === "string" ? step : step.id;
+  if (stepId.startsWith("paymentFlow:")) {
+    const useCaseValue = typeof step === "string" ? stepId.split(":").slice(1).join(":") : step.useCaseValue;
+    return renderUseCasePaymentFlowPage(useCaseValue);
+  }
+
   switch (stepId) {
     case "intro":
       return renderIntroStep();
@@ -1162,10 +1289,6 @@ function renderStepContent(stepId) {
       return renderAdditionalServicesStep();
     case "accounts":
       return renderAccountsStep();
-    case "collections":
-      return renderCollectionsStep();
-    case "disbursements":
-      return renderDisbursementsStep();
     case "review":
       return renderReviewStep();
     case "thankyou":
@@ -1241,13 +1364,13 @@ function renderUseCaseStep() {
   return `
     <div class="section-stack">
       <section class="section-card">
-        <h3>Use case category <span class="required-star">*</span></h3>
-        <p class="section-card__intro">Choose the dominant commercial framing for this opportunity. Select "Other" if you cannot find your use case above.</p>
-        ${renderChoiceCards("useCase.category", state.useCase.category, USE_CASE_CATEGORIES)}
+        <h3>Use case categories <span class="required-star">*</span></h3>
+        <p class="section-card__intro">Choose all commercial framings that apply. The next step will collect the From and To flow for the selected use cases.</p>
+        ${renderMultiChoiceCards("useCase.categories", state.useCase.categories, USE_CASE_CATEGORIES)}
         ${
-          state.useCase.category === "other"
+          state.useCase.categories.includes("other")
             ? renderTextField(
-                "Please specify use case category *",
+                "Please specify other use case category *",
                 "useCase.other",
                 state.useCase.other,
                 "text",
@@ -1410,13 +1533,13 @@ function renderFinancialsStep() {
 }
 
 function renderSolutionsStep() {
-  const flowModules = MODULES.filter((module) => FLOW_MODULE_KEYS.includes(module.key));
+  const flowModules = MODULES.filter((module) => module.key === "accounts");
 
   return `
     <div class="section-stack">
       <section class="section-card">
-        <h3>Solutions of interest <span class="required-star">*</span></h3>
-        <p class="section-card__intro">Select collections, disbursements, stored value accounts, or any combination. The remaining steps will adjust to your selection.</p>
+        <h3>Stored value account interest</h3>
+        <p class="section-card__intro">Select this if the opportunity includes stored balances, wallets, virtual bank accounts, stablecoin wallets, or virtual card issuance.</p>
         <div class="flow-option-list">
           ${flowModules
             .map((module) => {
@@ -1447,6 +1570,205 @@ function renderSolutionsStep() {
         </div>
       </section>
     </div>
+  `;
+}
+
+function renderUseCasePaymentFlowPage(useCaseValue) {
+  ensureUseCaseFlowsState();
+  const entry = getSelectedUseCaseEntries().find((candidate) => candidate.value === useCaseValue);
+  if (!entry) {
+    return `
+      <div class="section-stack">
+        <section class="section-card">
+          <p class="section-card__intro">This use case is no longer selected. Return to Use Case Categories to update your selections.</p>
+        </section>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="section-stack">
+      ${renderUseCasePaymentFlow(entry, { showUseCaseTitle: false })}
+    </div>
+  `;
+}
+
+function renderUseCasePaymentFlow(entry, options = {}) {
+  const flow = entry.flow;
+  const basePath = `useCaseFlows.${entry.value}`;
+  const showUseCaseTitle = options.showUseCaseTitle !== false;
+
+  return `
+    ${
+      showUseCaseTitle
+        ? `
+          <section class="section-card payment-flow-intro-card">
+            <h3>${escapeHtml(entry.label)}</h3>
+            <p class="section-card__intro">Provide From/Payer details, To/Payee details, user/customer side, and stored value account capabilities for this use case.</p>
+          </section>
+        `
+        : ""
+    }
+
+    <section class="section-card payment-flow-box">
+      <div class="flow-sections-stack">
+        <section class="flow-detail-section">
+          <div class="flow-detail-section__header">
+            <span class="flow-detail-section__eyebrow">From</span>
+            <p>Share who is sending funds and the source countries and currencies.</p>
+          </div>
+
+          <div class="flow-detail-grid">
+            <div class="flow-field-box">
+              <div class="field">
+                <label>${renderLabelText("User type *")}</label>
+                ${renderMultiSelectBubbles(`${basePath}.senderTypes`, flow.senderTypes, FLOW_USER_TYPE_OPTIONS)}
+              </div>
+            </div>
+
+            <div class="flow-field-box">
+              ${renderRegionMultiSelect(
+                `${basePath}.senderRegion`,
+                flow.senderRegion,
+                "Source regions *"
+              )}
+            </div>
+
+            <div class="flow-field-box">
+              ${renderCountryMultiSelect(
+                `${basePath}.senderCountries`,
+                flow.senderCountries,
+                "What specific countries are funds coming from? *"
+              )}
+            </div>
+
+            <div class="flow-field-box">
+              ${renderSearchMultiSelect(
+                `${basePath}.senderCurrencies`,
+                flow.senderCurrencies,
+                "Which currencies are the funds sent in? *",
+                "",
+                "Search currencies"
+              )}
+            </div>
+
+            <div class="flow-field-box">
+              ${renderTextField(
+                "Number of sending users *",
+                `${basePath}.payerCount`,
+                flow.payerCount,
+                "number",
+                "",
+                ""
+              )}
+            </div>
+
+            <div class="flow-field-box">
+              <div class="field">
+                <label>${renderLabelText("Are these users actual or estimated? *")}</label>
+                ${renderSegmentedButtons(`${basePath}.payerCountBasis`, flow.payerCountBasis, [
+                  { value: "actual", label: "Actual" },
+                  { value: "estimated", label: "Estimated" },
+                ])}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="flow-detail-section">
+          <div class="flow-detail-section__header">
+            <span class="flow-detail-section__eyebrow">To</span>
+            <p>Share who is receiving funds and the destination countries and currencies.</p>
+          </div>
+
+          <div class="flow-detail-grid">
+            <div class="flow-field-box">
+              <div class="field">
+                <label>${renderLabelText("User type *")}</label>
+                ${renderMultiSelectBubbles(`${basePath}.receiverTypes`, flow.receiverTypes, FLOW_USER_TYPE_OPTIONS)}
+              </div>
+            </div>
+
+            <div class="flow-field-box">
+              ${renderRegionMultiSelect(
+                `${basePath}.receiverRegion`,
+                flow.receiverRegion,
+                "Destination regions *"
+              )}
+            </div>
+
+            <div class="flow-field-box">
+              ${renderCountryMultiSelect(
+                `${basePath}.receiverCountries`,
+                flow.receiverCountries,
+                "What specific countries are funds going to? *"
+              )}
+            </div>
+
+            <div class="flow-field-box">
+              ${renderSearchMultiSelect(
+                `${basePath}.receiverCurrencies`,
+                flow.receiverCurrencies,
+                "Which currencies are the funds received in? *",
+                "",
+                "Search currencies"
+              )}
+            </div>
+
+            <div class="flow-field-box">
+              ${renderTextField(
+                "Number of receiving users *",
+                `${basePath}.payeeCount`,
+                flow.payeeCount,
+                "number",
+                "",
+                ""
+              )}
+            </div>
+
+            <div class="flow-field-box">
+              <div class="field">
+                <label>${renderLabelText("Are these users actual or estimated? *")}</label>
+                ${renderSegmentedButtons(`${basePath}.payeeCountBasis`, flow.payeeCountBasis, [
+                  { value: "actual", label: "Actual" },
+                  { value: "estimated", label: "Estimated" },
+                ])}
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="section-card flow-role-section">
+      <div class="flow-role-section__copy">
+        <h3>Who is your user or customer in this use case? <span class="required-star">*</span></h3>
+        <p>Indicate whether your users are payers or payees.</p>
+      </div>
+      <div class="field flow-role-field flow-role-field--no-label">
+        <label>${renderLabelText("Who is your user or customer in this use case? *")}</label>
+        ${renderOptionMultiSelectDropdown(`${basePath}.customerSides`, flow.customerSides, CUSTOMER_ROLE_OPTIONS, {
+          emptyLabel: "Select payer or payee",
+          allLabel: "Payer and payee selected",
+          countLabel: "sides",
+        })}
+      </div>
+    </section>
+
+    <section class="section-card stored-value-flow-section">
+      <div class="stored-value-flow-section__copy">
+        <h3>Stored Value Account</h3>
+        <p>Select any wallet, virtual account, stablecoin wallet, or virtual card capabilities that may support this use case.</p>
+      </div>
+      <div class="field stored-value-flow-field stored-value-flow-field--no-label">
+        <label>${renderLabelText("Stored Value Account")}</label>
+        ${renderOptionMultiSelectDropdown(`${basePath}.storedValueAccountTypes`, flow.storedValueAccountTypes, STORED_VALUE_ACCOUNT_TYPE_OPTIONS, {
+          emptyLabel: "No stored value capabilities selected",
+          allLabel: "All stored value capabilities selected",
+          countLabel: "capabilities",
+        })}
+      </div>
+    </section>
   `;
 }
 
@@ -1489,11 +1811,7 @@ function renderAccountsStep() {
 }
 
 function renderMarketsStep() {
-  const methodsIntro = isModuleSelected("collections") && !isModuleSelected("disbursements")
-    ? "Select the payment methods relevant to incoming collection flows. Payer plugins and Paylinks are handled on the next page."
-    : isModuleSelected("disbursements") && !isModuleSelected("collections")
-      ? "Select the payment methods relevant to outgoing disbursement flows. Payee plugins are handled on the next page."
-      : "Select the payment methods relevant to your selected collection and disbursement flows. Plugins and Paylinks are handled on the next page.";
+  const methodsIntro = "Select the payment methods relevant to the From and To flow. Plugins and Paylinks are handled on the next page.";
 
   return `
     <div class="section-stack">
@@ -1590,11 +1908,7 @@ function getPaymentMethodItems(itemKeys) {
 }
 
 function renderAdditionalServicesStep() {
-  const servicesIntro = isModuleSelected("collections") && !isModuleSelected("disbursements")
-    ? "Select optional verification, risk, and payer-facing services for the collection flow."
-    : isModuleSelected("disbursements") && !isModuleSelected("collections")
-      ? "Select optional verification, risk, and payee-facing services for the disbursement flow."
-      : "Select optional verification, risk, payer-facing, and payee-facing services for the selected flows.";
+  const servicesIntro = "Select optional verification, risk, payer-facing, and payee-facing services for the selected use cases.";
 
   return `
     <div class="section-stack">
@@ -1607,226 +1921,8 @@ function renderAdditionalServicesStep() {
   `;
 }
 
-function renderCollectionsStep() {
-  return `
-    <div class="section-stack">
-      <div class="flow-split-grid">
-        <section class="flow-split-card">
-          <span class="flow-split-card__eyebrow">From</span>
-          <p>Share who is sending funds and the source countries and currencies.</p>
-          <div class="flow-split-card__grid">
-            <div class="flow-field-box">
-              <div class="field">
-                <label>${renderLabelText("User type *")}</label>
-                ${renderChipSelector("collections.senderTypes", state.collections.senderTypes, [
-                  { value: "consumers", label: "Consumers" },
-                  { value: "businesses", label: "Businesses" },
-                  { value: "soleProprietors", label: "Sole proprietors" },
-                ])}
-              </div>
-            </div>
-            <div class="flow-field-box">
-              ${renderRegionMultiSelect(
-                "collections.senderRegion",
-                state.collections.senderRegion,
-                "Source regions *"
-              )}
-            </div>
-            <div class="flow-field-box">
-              ${renderCountryMultiSelect(
-                "collections.senderCountries",
-                state.collections.senderCountries,
-                "What specific countries are funds coming from? *"
-              )}
-            </div>
-            <div class="flow-field-box">
-              ${renderSearchMultiSelect(
-                "collections.senderCurrencies",
-                state.collections.senderCurrencies,
-                "Which currencies are the funds sent in? *",
-                "",
-                "Search currencies"
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section class="flow-split-card">
-          <span class="flow-split-card__eyebrow">To</span>
-          <p>Share who is receiving funds and the destination countries and currencies.</p>
-          <div class="flow-split-card__grid">
-            <div class="flow-field-box">
-              <div class="field">
-                <label>${renderLabelText("User type *")}</label>
-                ${renderChipSelector("collections.receiverTypes", state.collections.receiverTypes, [
-                  { value: "consumers", label: "Consumers" },
-                  { value: "businesses", label: "Businesses" },
-                  { value: "soleProprietors", label: "Sole proprietors" },
-                ])}
-              </div>
-            </div>
-            <div class="flow-field-box">
-              ${renderRegionMultiSelect(
-                "collections.receiverRegion",
-                state.collections.receiverRegion,
-                "Destination regions *"
-              )}
-            </div>
-            <div class="flow-field-box">
-              ${renderCountryMultiSelect(
-                "collections.receiverCountries",
-                state.collections.receiverCountries,
-                "What specific countries are funds going to? *"
-              )}
-            </div>
-            <div class="flow-field-box">
-              ${renderSearchMultiSelect(
-                "collections.receiverCurrencies",
-                state.collections.receiverCurrencies,
-                "Which currencies are the funds received in? *",
-                "",
-                "Search currencies"
-              )}
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <section class="section-card">
-        <div class="field-grid">
-          ${renderTextField(
-            "Number of payers *",
-            "collections.payerCount",
-            state.collections.payerCount,
-            "number",
-            "",
-            "is-half"
-          )}
-
-          <div class="field is-half">
-            <label>${renderLabelText("Are these users actual or estimated? *")}</label>
-            ${renderSegmentedButtons("collections.payerCountBasis", state.collections.payerCountBasis, [
-              { value: "actual", label: "Actual" },
-              { value: "estimated", label: "Estimated" },
-            ])}
-          </div>
-        </div>
-      </section>
-    </div>
-  `;
-}
-
-function renderDisbursementsStep() {
-  return `
-    <div class="section-stack">
-      <div class="flow-split-grid">
-        <section class="flow-split-card">
-          <span class="flow-split-card__eyebrow">From</span>
-          <p>Share who is sending funds and the source countries and currencies.</p>
-          <div class="flow-split-card__grid">
-            <div class="flow-field-box">
-              <div class="field">
-                <label>${renderLabelText("User type *")}</label>
-                ${renderChipSelector("disbursements.senderTypes", state.disbursements.senderTypes, [
-                  { value: "consumers", label: "Consumers" },
-                  { value: "businesses", label: "Businesses" },
-                  { value: "soleProprietors", label: "Sole proprietors" },
-                ])}
-              </div>
-            </div>
-            <div class="flow-field-box">
-              ${renderRegionMultiSelect(
-                "disbursements.senderRegion",
-                state.disbursements.senderRegion,
-                "Source regions *"
-              )}
-            </div>
-            <div class="flow-field-box">
-              ${renderCountryMultiSelect(
-                "disbursements.senderCountries",
-                state.disbursements.senderCountries,
-                "What specific countries are funds coming from? *"
-              )}
-            </div>
-            <div class="flow-field-box">
-              ${renderSearchMultiSelect(
-                "disbursements.senderCurrencies",
-                state.disbursements.senderCurrencies,
-                "Which currencies are the funds sent in? *",
-                "",
-                "Search currencies"
-              )}
-            </div>
-          </div>
-        </section>
-
-        <section class="flow-split-card">
-          <span class="flow-split-card__eyebrow">To</span>
-          <p>Share who is receiving funds and the destination countries and currencies.</p>
-          <div class="flow-split-card__grid">
-            <div class="flow-field-box">
-              <div class="field">
-                <label>${renderLabelText("User type *")}</label>
-                ${renderChipSelector("disbursements.receiverTypes", state.disbursements.receiverTypes, [
-                  { value: "consumers", label: "Consumers" },
-                  { value: "businesses", label: "Businesses" },
-                  { value: "soleProprietors", label: "Sole proprietors" },
-                ])}
-              </div>
-            </div>
-            <div class="flow-field-box">
-              ${renderRegionMultiSelect(
-                "disbursements.receiverRegion",
-                state.disbursements.receiverRegion,
-                "Destination regions *"
-              )}
-            </div>
-            <div class="flow-field-box">
-              ${renderCountryMultiSelect(
-                "disbursements.receiverCountries",
-                state.disbursements.receiverCountries,
-                "What specific countries are funds going to? *"
-              )}
-            </div>
-            <div class="flow-field-box">
-              ${renderSearchMultiSelect(
-                "disbursements.receiverCurrencies",
-                state.disbursements.receiverCurrencies,
-                "Which currencies are the funds received in? *",
-                "",
-                "Search currencies"
-              )}
-            </div>
-          </div>
-        </section>
-      </div>
-
-      <section class="section-card">
-        <div class="field-grid">
-          ${renderTextField(
-            "Number of payees *",
-            "disbursements.payeeCount",
-            state.disbursements.payeeCount,
-            "number",
-            "",
-            "is-half"
-          )}
-
-          <div class="field is-half">
-            <label>${renderLabelText("Are these users actual or estimated? *")}</label>
-            ${renderSegmentedButtons("disbursements.payeeCountBasis", state.disbursements.payeeCountBasis, [
-              { value: "actual", label: "Actual" },
-              { value: "estimated", label: "Estimated" },
-            ])}
-          </div>
-        </div>
-      </section>
-    </div>
-  `;
-}
-
 function renderReviewStep() {
-  const selectedFlows = getSelectedFlowLabels();
+  const selectedUseCases = getSelectedUseCaseLabels();
   const useCaseCategoryLabel = getUseCaseCategoryLabel();
   const useCaseSummary = [
     useCaseCategoryLabel || "Not selected",
@@ -1843,21 +1939,6 @@ function renderReviewStep() {
       ? `High-risk details: ${state.useCase.highRiskIndustryDetails.trim()}`
       : "",
   ].filter(Boolean).join(" | ");
-  const collectionsFromRegion = state.collections.senderRegion.length
-    ? `From regions: ${formatRegionList(state.collections.senderRegion)}`
-    : "";
-  const collectionsToRegion = state.collections.receiverRegion.length
-    ? `To regions: ${formatRegionList(state.collections.receiverRegion)}`
-    : "";
-  const disbursementsFromRegion = state.disbursements.senderRegion.length
-    ? `From regions: ${formatRegionList(state.disbursements.senderRegion)}`
-    : "";
-  const disbursementsToRegion = state.disbursements.receiverRegion.length
-    ? `To regions: ${formatRegionList(state.disbursements.receiverRegion)}`
-    : "";
-  const accountHolderRegion = state.accounts.accountHolderRegion.length
-    ? `Account holder regions: ${formatRegionList(state.accounts.accountHolderRegion)}`
-    : "";
   const pricingModelLabel =
     state.role.pricingModel === "revshare"
       ? "Revenue share"
@@ -1870,51 +1951,9 @@ function renderReviewStep() {
     state.role.licensed ? `Licensed: ${formatYesNo(state.role.licensed)}` : "",
   ].filter(Boolean).join(" | ");
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
-  const storedValueSummary = summarizeInterestGroup(STORED_VALUE_ACCOUNTS, state.storedValueAccounts, "storedValueAccounts");
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
-  const collectionsLocationSummary = isModuleSelected("collections")
-    ? `Collections: ${[
-        collectionsFromRegion,
-        state.collections.senderCountries.length
-          ? `From countries: ${formatCountryList(state.collections.senderCountries, state.collections.senderCountriesOther)}`
-          : "",
-        state.collections.senderCurrencies.length
-          ? `From currencies: ${state.collections.senderCurrencies.join(", ")}`
-          : "",
-        collectionsToRegion,
-        state.collections.receiverCountries.length
-          ? `To countries: ${formatCountryList(state.collections.receiverCountries, state.collections.receiverCountriesOther)}`
-          : "",
-        state.collections.receiverCurrencies.length
-          ? `To currencies: ${state.collections.receiverCurrencies.join(", ")}`
-          : "",
-      ].filter(Boolean).join(" | ")}`
-    : "";
-  const disbursementsLocationSummary = isModuleSelected("disbursements")
-    ? `Disbursements: ${[
-        disbursementsFromRegion,
-        state.disbursements.senderCountries.length
-          ? `From countries: ${formatCountryList(state.disbursements.senderCountries, state.disbursements.senderCountriesOther)}`
-          : "",
-        state.disbursements.senderCurrencies.length
-          ? `From currencies: ${state.disbursements.senderCurrencies.join(", ")}`
-          : "",
-        disbursementsToRegion,
-        state.disbursements.receiverCountries.length
-          ? `To countries: ${formatCountryList(state.disbursements.receiverCountries, state.disbursements.receiverCountriesOther)}`
-          : "",
-        state.disbursements.receiverCurrencies.length
-          ? `To currencies: ${state.disbursements.receiverCurrencies.join(", ")}`
-          : "",
-      ].filter(Boolean).join(" | ")}`
-    : "";
-  const accountsLocationSummary = isModuleSelected("accounts")
-    ? `Stored Value Accounts: ${[
-        accountHolderRegion,
-        state.accounts.accountHolderCountries.length
-          ? `Account holder countries: ${formatCountryList(state.accounts.accountHolderCountries, state.accounts.accountHolderCountriesOther)}`
-          : "",
-      ].filter(Boolean).join(" | ")}`
+  const paymentFlowLocationSummary = hasPaymentFlowInterest()
+    ? getSelectedUseCaseEntries().map((entry) => formatUseCaseFlowSummary(entry)).join(" | ")
     : "";
 
   return `
@@ -1925,21 +1964,17 @@ function renderReviewStep() {
 
         <div class="summary-grid">
           <div class="summary-card">
-            <strong>Selected flows</strong>
-            <span>${escapeHtml(selectedFlows.length ? formatList(selectedFlows) : "None indicated")}</span>
+            <strong>Use cases</strong>
+            <span>${escapeHtml(selectedUseCases.length ? formatList(selectedUseCases) : "None indicated")}</span>
           </div>
           <div class="summary-card">
-            <strong>Use case category</strong>
+            <strong>Use case details</strong>
             <span>${escapeHtml(useCaseSummary || "Not selected")}</span>
           </div>
           <div class="summary-card">
             <strong>Markets and Currencies</strong>
             <span>${escapeHtml(
-              [
-                collectionsLocationSummary,
-                disbursementsLocationSummary,
-                accountsLocationSummary,
-              ].filter(Boolean).join(" | ") || "No countries or currencies indicated"
+              paymentFlowLocationSummary || "No countries or currencies indicated"
             )}</span>
           </div>
           <div class="summary-card">
@@ -1947,7 +1982,7 @@ function renderReviewStep() {
             <span>${escapeHtml(
               [
                 paymentMethodSummary ? `Payment methods: ${paymentMethodSummary}` : "",
-                isModuleSelected("accounts") && storedValueSummary ? `Stored value: ${storedValueSummary}` : "",
+                getUseCaseStoredValueSummary() ? `Stored value by use case: ${getUseCaseStoredValueSummary()}` : "",
                 servicesSummary ? `Additional services: ${servicesSummary}` : "",
               ].filter(Boolean).join(" | ") || "No payment scope selections indicated"
             )}</span>
@@ -2103,6 +2138,41 @@ function renderChoiceCards(path, selected, options) {
   `;
 }
 
+function renderMultiChoiceCards(path, selectedValues, options) {
+  return `
+    <div class="option-grid grid auto-rows-fr md:grid-cols-2">
+      ${options
+        .map((option) => {
+          const titleId = `${toId(path)}-${toId(option.value)}-title`;
+          const descriptionId = `${toId(path)}-${toId(option.value)}-description`;
+          const hasDescription = Boolean(option.description);
+          const selected = selectedValues.includes(option.value);
+          return `
+            <button
+              class="option-card option-card--button option-card--choice ${selected ? "is-selected" : ""}"
+              type="button"
+              data-action="toggle-array"
+              data-path="${path}"
+              data-value="${option.value}"
+              aria-pressed="${selected ? "true" : "false"}"
+              aria-labelledby="${titleId}"
+              ${hasDescription ? `aria-describedby="${descriptionId}"` : ""}
+            >
+              <span class="option-card__choice-row">
+                <span class="option-card__selector" aria-hidden="true"></span>
+                <span class="option-card__choice-copy">
+                  <span class="option-card__title" id="${titleId}">${escapeHtml(option.label)}</span>
+                  ${hasDescription ? `<span class="option-card__description" id="${descriptionId}">${escapeHtml(option.description)}</span>` : ""}
+                </span>
+              </span>
+            </button>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
 function shouldRenderErrorInAlert(error) {
   return !error.startsWith("URL — ");
 }
@@ -2190,6 +2260,63 @@ function renderSegmentedButtons(path, selected, options) {
             </button>
           `
         )
+        .join("")}
+    </div>
+  `;
+}
+
+function renderMultiSelectBubbles(path, selectedValues, options) {
+  return `
+    <div class="segmented segmented--multi" role="group" aria-label="${escapeHtml(path)}">
+      ${options
+        .map((option) => {
+          const isSelected = selectedValues.includes(option.value);
+          return `
+            <button
+              class="segment ${isSelected ? "is-active" : ""}"
+              type="button"
+              data-action="toggle-array"
+              data-path="${path}"
+              data-value="${option.value}"
+              aria-pressed="${isSelected ? "true" : "false"}"
+            >
+              ${escapeHtml(option.label)}
+            </button>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function renderDescriptiveSegmentedButtons(path, selected, options) {
+  return `
+    <div class="option-grid option-grid--compact">
+      ${options
+        .map((option) => {
+          const titleId = `${toId(path)}-${toId(option.value)}-title`;
+          const descriptionId = `${toId(path)}-${toId(option.value)}-description`;
+          return `
+            <button
+              class="option-card option-card--button option-card--compact option-card--choice ${selected === option.value ? "is-selected" : ""}"
+              type="button"
+              data-action="set-value"
+              data-path="${path}"
+              data-value="${option.value}"
+              aria-pressed="${selected === option.value ? "true" : "false"}"
+              aria-labelledby="${titleId}"
+              aria-describedby="${descriptionId}"
+            >
+              <span class="option-card__choice-row">
+                <span class="option-card__selector" aria-hidden="true"></span>
+                <span class="option-card__choice-copy">
+                  <span class="option-card__title" id="${titleId}">${escapeHtml(option.label)}</span>
+                  <span class="option-card__description" id="${descriptionId}">${escapeHtml(option.description)}</span>
+                </span>
+              </span>
+            </button>
+          `;
+        })
         .join("")}
     </div>
   `;
@@ -2725,8 +2852,11 @@ async function handleClick(event) {
 
   if (action === "toggle-array") {
     toggleArrayValue(button.dataset.path, button.dataset.value);
+    syncCustomerSidesState(button.dataset.path);
+    syncUseCaseState(button.dataset.path);
     syncRegionCountryState(button.dataset.path);
     syncHighRiskIndustryState(button.dataset.path);
+    syncProductAvailabilityState();
     markSubmissionDirty();
     activeErrors = [];
     rerenderPreservingPosition();
@@ -2877,15 +3007,11 @@ function handleInput(event) {
   if (target.name === "company.entityType" && value !== "other") {
     state.company.entityTypeOther = "";
   }
-  if (target.name === "useCase.category" && value !== "other") {
-    state.useCase.other = "";
-  }
   markSubmissionDirty();
 
   if (
     target.name === "company.entityType" ||
-    target.name === "useCase.category" ||
-    REGION_SELECTOR_COUNTRY_PATHS[target.name]
+    getRegionSelectorCountryPath(target.name)
   ) {
     activeErrors = [];
     rerenderPreservingPosition();
@@ -3123,11 +3249,11 @@ function validateIntro() {
 function validateUseCase() {
   const errors = [];
 
-  if (!state.useCase.category) {
-    errors.push("Use case category");
+  if (!state.useCase.categories.length) {
+    errors.push("Use case categories");
   }
-  if (state.useCase.category === "other" && !state.useCase.other.trim()) {
-    errors.push("Please specify use case category");
+  if (state.useCase.categories.includes("other") && !state.useCase.other.trim()) {
+    errors.push("Please specify other use case category");
   }
   if (!state.useCase.isNewUseCaseOrCorridor) {
     errors.push("New use case or corridor status");
@@ -3174,13 +3300,7 @@ function validateFinancials() {
 }
 
 function validateSolutions() {
-  const errors = [];
-
-  if (!getSelectedFlowLabels().length) {
-    errors.push("Solution area interest");
-  }
-
-  return errors;
+  return [];
 }
 
 function validateMarkets() {
@@ -3216,87 +3336,64 @@ function validateAccounts() {
   return errors;
 }
 
-function validateCollections() {
-  const errors = [];
-
-  if (!state.collections.senderTypes.length) {
-    errors.push("Collections — From user type");
-  }
-  if (!state.collections.receiverTypes.length) {
-    errors.push("Collections — To user type");
-  }
-  if (!state.collections.payerCount) {
-    errors.push("Number of payer users");
-  }
-  if (!state.collections.payerCountBasis) {
-    errors.push("Whether payer users are actual or estimated");
-  }
-  if (!state.collections.senderRegion.length) {
-    errors.push("From regions");
-  }
-  if (!state.collections.senderCountries.length) {
-    errors.push("From countries");
-  }
-  if (isOtherCountrySelected("collections.senderCountries") && !state.collections.senderCountriesOther.trim()) {
-    errors.push("Specify other from countries");
-  }
-  if (!state.collections.senderCurrencies.length) {
-    errors.push("From currencies");
-  }
-  if (!state.collections.receiverRegion.length) {
-    errors.push("To regions");
-  }
-  if (!state.collections.receiverCountries.length) {
-    errors.push("To countries");
-  }
-  if (isOtherCountrySelected("collections.receiverCountries") && !state.collections.receiverCountriesOther.trim()) {
-    errors.push("Specify other to countries");
-  }
-  if (!state.collections.receiverCurrencies.length) {
-    errors.push("To currencies");
-  }
+function validatePaymentFlow() {
+  const errors = getSelectedUseCaseEntries().flatMap((entry) => validateUseCaseFlowEntry(entry));
 
   return errors;
 }
 
-function validateDisbursements() {
+function validateUseCasePaymentFlow(useCaseValue) {
+  const entry = getSelectedUseCaseEntries().find((candidate) => candidate.value === useCaseValue);
+  return entry ? validateUseCaseFlowEntry(entry) : [];
+}
+
+function validateUseCaseFlowEntry({ label, flow }) {
   const errors = [];
 
-  if (!state.disbursements.senderTypes.length) {
-    errors.push("Disbursements — From user type");
+  if (!flow.customerSides.length) {
+    errors.push(`${label} — user/customer side`);
   }
-  if (!state.disbursements.receiverTypes.length) {
-    errors.push("Disbursements — To user type");
+  if (!flow.senderTypes.length) {
+    errors.push(`${label} — payer type`);
   }
-  if (!state.disbursements.payeeCount) {
-    errors.push("Number of payee users");
+  if (!flow.receiverTypes.length) {
+    errors.push(`${label} — payee type`);
   }
-  if (!state.disbursements.payeeCountBasis) {
-    errors.push("Whether payee users are actual or estimated");
+  if (!flow.payerCount) {
+    errors.push(`${label} — number of payers`);
   }
-  if (!state.disbursements.senderRegion.length) {
-    errors.push("From regions");
+  if (!flow.payerCountBasis) {
+    errors.push(`${label} — payer count basis`);
   }
-  if (!state.disbursements.senderCountries.length) {
-    errors.push("From countries");
+  if (!flow.payeeCount) {
+    errors.push(`${label} — number of payees`);
   }
-  if (isOtherCountrySelected("disbursements.senderCountries") && !state.disbursements.senderCountriesOther.trim()) {
-    errors.push("Specify other from countries");
+  if (!flow.payeeCountBasis) {
+    errors.push(`${label} — payee count basis`);
   }
-  if (!state.disbursements.senderCurrencies.length) {
-    errors.push("From currencies");
+  if (!flow.senderRegion.length) {
+    errors.push(`${label} — payer regions`);
   }
-  if (!state.disbursements.receiverRegion.length) {
-    errors.push("To regions");
+  if (!flow.senderCountries.length) {
+    errors.push(`${label} — payer countries`);
   }
-  if (!state.disbursements.receiverCountries.length) {
-    errors.push("To countries");
+  if (flow.senderCountries.includes(OTHER_COUNTRY_VALUE) && !flow.senderCountriesOther.trim()) {
+    errors.push(`${label} — specify other payer countries`);
   }
-  if (isOtherCountrySelected("disbursements.receiverCountries") && !state.disbursements.receiverCountriesOther.trim()) {
-    errors.push("Specify other to countries");
+  if (!flow.senderCurrencies.length) {
+    errors.push(`${label} — payer currencies`);
   }
-  if (!state.disbursements.receiverCurrencies.length) {
-    errors.push("To currencies");
+  if (!flow.receiverRegion.length) {
+    errors.push(`${label} — payee regions`);
+  }
+  if (!flow.receiverCountries.length) {
+    errors.push(`${label} — payee countries`);
+  }
+  if (flow.receiverCountries.includes(OTHER_COUNTRY_VALUE) && !flow.receiverCountriesOther.trim()) {
+    errors.push(`${label} — specify other payee countries`);
+  }
+  if (!flow.receiverCurrencies.length) {
+    errors.push(`${label} — payee currencies`);
   }
 
   return errors;
@@ -3311,6 +3408,10 @@ function isModuleSelected(moduleKey) {
   return module.current || module.interested;
 }
 
+function hasPaymentFlowInterest() {
+  return state.useCase.categories.length > 0;
+}
+
 function getSelectedModuleLabels() {
   return MODULES.filter((module) => isModuleSelected(module.key)).map((module) => module.label);
 }
@@ -3321,9 +3422,86 @@ function getSelectedFlowLabels() {
   ).map((module) => module.label);
 }
 
+function getSelectedUseCaseLabels() {
+  return state.useCase.categories
+    .map((value) => getUseCaseLabel(value))
+    .filter(Boolean);
+}
+
+function getUseCaseLabel(value) {
+  const label = labelForOption(USE_CASE_CATEGORIES, value) || value;
+  if (value === "other") {
+    return state.useCase.other.trim() || "Custom Use Case";
+  }
+
+  return label;
+}
+
+function getSelectedUseCaseEntries() {
+  ensureUseCaseFlowsState();
+  return state.useCase.categories.map((value) => ({
+    value,
+    label: getUseCaseLabel(value),
+    flow: state.useCaseFlows[value],
+  }));
+}
+
+function ensureUseCaseFlowsState() {
+  state.useCase.categories.forEach((value) => {
+    if (!state.useCaseFlows[value]) {
+      state.useCaseFlows[value] = createUseCaseFlowState();
+    }
+
+    normalizeUseCaseFlowState(state.useCaseFlows[value]);
+  });
+
+  Object.keys(state.useCaseFlows).forEach((value) => {
+    if (!state.useCase.categories.includes(value)) {
+      delete state.useCaseFlows[value];
+    }
+  });
+}
+
+function normalizeUseCaseFlowState(flow) {
+  const defaults = createUseCaseFlowState();
+
+  Object.entries(defaults).forEach(([key, defaultValue]) => {
+    if (flow[key] === undefined) {
+      flow[key] = Array.isArray(defaultValue) ? [...defaultValue] : defaultValue;
+    }
+  });
+
+  if (!Array.isArray(flow.customerSides)) {
+    flow.customerSides = [];
+  }
+
+  if (flow.customerRole && !flow.customerSides.length) {
+    if (flow.customerRole === "both") {
+      flow.customerSides = ["payer", "payee"];
+    } else if (CUSTOMER_ROLE_OPTIONS.some((option) => option.value === flow.customerRole)) {
+      flow.customerSides = [flow.customerRole];
+    }
+  }
+
+  flow.customerSides = [...new Set(flow.customerSides)].filter((value) =>
+    CUSTOMER_ROLE_OPTIONS.some((option) => option.value === value)
+  );
+  flow.customerRole = flow.customerSides.length === 2 ? "both" : flow.customerSides[0] || "";
+}
+
+function syncCustomerSidesState(path) {
+  const parsed = parseUseCaseFlowPath(path);
+  if (parsed?.field !== "customerSides") {
+    return;
+  }
+
+  normalizeUseCaseFlowState(state.useCaseFlows[parsed.useCaseKey]);
+}
+
 function getSelectedFlowPhrase() {
-  const labels = getSelectedFlowLabels().map((label) => label.toLowerCase());
-  return formatList(labels) || "your selected payment flows";
+  const useCaseLabels = getSelectedUseCaseLabels().map((label) => label.toLowerCase());
+  const solutionLabels = getSelectedFlowLabels().map((label) => label.toLowerCase());
+  return formatList([...useCaseLabels, ...solutionLabels]) || "your selected use cases";
 }
 
 function formatList(values) {
@@ -3427,7 +3605,7 @@ function setCountrySelection(path, shouldSelectAll) {
 }
 
 function syncRegionCountryState(path) {
-  const countryPath = REGION_SELECTOR_COUNTRY_PATHS[path];
+  const countryPath = getRegionSelectorCountryPath(path);
   if (!countryPath) {
     return;
   }
@@ -3455,7 +3633,7 @@ function syncRegionCountryState(path) {
 }
 
 function syncOtherCountryState(path) {
-  const detailPath = COUNTRY_OTHER_DETAIL_PATHS[path];
+  const detailPath = getCountryOtherDetailPath(path);
   if (!detailPath || getValueByPath(state, path).includes(OTHER_COUNTRY_VALUE)) {
     return;
   }
@@ -3463,17 +3641,42 @@ function syncOtherCountryState(path) {
   setValueByPath(state, detailPath, "");
 }
 
+function getCurrencyPathForCountryPath(path) {
+  if (path === "collections.senderCountries") return "collections.senderCurrencies";
+  if (path === "collections.receiverCountries") return "collections.receiverCurrencies";
+  if (path === "disbursements.senderCountries") return "disbursements.senderCurrencies";
+  if (path === "disbursements.receiverCountries") return "disbursements.receiverCurrencies";
+
+  const parsed = parseUseCaseFlowPath(path);
+  if (parsed?.field === "senderCountries") {
+    return `${parsed.basePath}.senderCurrencies`;
+  }
+  if (parsed?.field === "receiverCountries") {
+    return `${parsed.basePath}.receiverCurrencies`;
+  }
+
+  return "";
+}
+
+function getCountryPathForCurrencyPath(path) {
+  if (path === "collections.senderCurrencies") return "collections.senderCountries";
+  if (path === "collections.receiverCurrencies") return "collections.receiverCountries";
+  if (path === "disbursements.senderCurrencies") return "disbursements.senderCountries";
+  if (path === "disbursements.receiverCurrencies") return "disbursements.receiverCountries";
+
+  const parsed = parseUseCaseFlowPath(path);
+  if (parsed?.field === "senderCurrencies") {
+    return `${parsed.basePath}.senderCountries`;
+  }
+  if (parsed?.field === "receiverCurrencies") {
+    return `${parsed.basePath}.receiverCountries`;
+  }
+
+  return "";
+}
+
 function syncCurrenciesForCountrySelection(path) {
-  const currencyPath =
-    path === "collections.senderCountries"
-      ? "collections.senderCurrencies"
-      : path === "collections.receiverCountries"
-        ? "collections.receiverCurrencies"
-        : path === "disbursements.senderCountries"
-          ? "disbursements.senderCurrencies"
-        : path === "disbursements.receiverCountries"
-          ? "disbursements.receiverCurrencies"
-          : "";
+  const currencyPath = getCurrencyPathForCountryPath(path);
 
   if (!currencyPath) {
     return;
@@ -3517,16 +3720,7 @@ function getCurrenciesForCountries(countryCodes) {
 
 function getManualCurrenciesForPath(path) {
   const currentCurrencies = getValueByPath(state, path);
-  const pairedCountryPath =
-    path === "collections.senderCurrencies"
-      ? "collections.senderCountries"
-      : path === "collections.receiverCurrencies"
-        ? "collections.receiverCountries"
-        : path === "disbursements.senderCurrencies"
-          ? "disbursements.senderCountries"
-        : path === "disbursements.receiverCurrencies"
-          ? "disbursements.receiverCountries"
-          : "";
+  const pairedCountryPath = getCountryPathForCurrencyPath(path);
 
   if (!pairedCountryPath) {
     return [];
@@ -3546,6 +3740,25 @@ function getSearchSelectorDefinition(path) {
     return getRegionFilteredSearchSelectorDefinition(path, definition);
   }
 
+  const parsed = parseUseCaseFlowPath(path);
+  if (parsed?.field === "senderCountries" || parsed?.field === "receiverCountries") {
+    return getRegionFilteredSearchSelectorDefinition(path, {
+      options: COUNTRY_SEARCH_OPTIONS,
+      placeholder: "Search countries",
+      selectionLabel: "selected",
+      emptySelectionLabel: "",
+    });
+  }
+
+  if (parsed?.field === "senderCurrencies" || parsed?.field === "receiverCurrencies") {
+    return {
+      options: CURRENCY_SEARCH_OPTIONS,
+      placeholder: "Search currencies",
+      selectionLabel: "selected",
+      emptySelectionLabel: "",
+    };
+  }
+
   return {
     options: [],
     placeholder: "Search",
@@ -3559,7 +3772,7 @@ function getRegionOptionsForPath(path) {
 }
 
 function getRegionFilteredSearchSelectorDefinition(path, definition) {
-  const regionPath = COUNTRY_SELECTOR_REGION_PATHS[path];
+  const regionPath = getCountrySelectorRegionPath(path);
   if (!regionPath) {
     return definition;
   }
@@ -3749,22 +3962,19 @@ function buildSubmissionResponses() {
     additionalInfo: state.additionalInfo,
   };
 
-  if (isModuleSelected("collections")) {
-    responses.collections = {
-      ...state.collections,
-      highRiskIndustries: state.useCase.highRiskIndustries,
-      highRiskIndustryDetails:
-        state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails : "",
-    };
-  }
-
-  if (isModuleSelected("disbursements")) {
-    responses.disbursements = {
-      ...state.disbursements,
-      highRiskIndustries: state.useCase.highRiskIndustries,
-      highRiskIndustryDetails:
-        state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails : "",
-    };
+  if (hasPaymentFlowInterest()) {
+    responses.useCaseFlows = Object.fromEntries(
+      getSelectedUseCaseEntries().map(({ value, label, flow }) => [
+        value,
+        {
+          label,
+          ...flow,
+          highRiskIndustries: state.useCase.highRiskIndustries,
+          highRiskIndustryDetails:
+            state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails : "",
+        },
+      ])
+    );
   }
 
   if (isModuleSelected("accounts")) {
@@ -3786,11 +3996,10 @@ function buildZapierRawData(submittedAt) {
       : state.role.pricingModel === "wholesale"
         ? "Wholesale pricing"
         : state.role.pricingModel;
-  const selectedFlows = getSelectedFlowLabels();
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
-  const storedValueSummary = summarizeInterestGroup(STORED_VALUE_ACCOUNTS, state.storedValueAccounts, "storedValueAccounts");
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
-  const storedValueAccountSummary = isModuleSelected("accounts") ? storedValueSummary : "";
+  const storedValueAccountSummary = getUseCaseStoredValueSummary();
+  const paymentFlowByUseCaseSummary = getSelectedUseCaseEntries().map((entry) => formatUseCaseFlowSummary(entry)).join(" || ");
   const productInterestSummary = summarizeProductInterest(
     paymentMethodSummary,
     storedValueAccountSummary,
@@ -3817,13 +4026,12 @@ function buildZapierRawData(submittedAt) {
     "Entity Type": entityTypeLabel || "",
     "Entity Type detail": state.company.entityTypeOther || "",
     "Url": state.company.url || "",
-    "Use case category": useCaseCategoryLabel || "",
+    "Use case categories": useCaseCategoryLabel || "",
     "Use case category detail": state.useCase.other || "",
     "New use case or corridor": formatYesNo(state.useCase.isNewUseCaseOrCorridor),
     "Current handling": state.useCase.currentHandling || "",
     "High-risk industries": highRiskIndustries,
     "High-risk industry details": highRiskIndustryDetails,
-    "Selected flows": selectedFlows.length ? formatList(selectedFlows) : "",
     "Currently in flow of funds business": formatYesNo(state.role.inFlowOfFundsBusiness),
     "Licensed in operating countries": formatYesNo(state.role.licensed),
     "Pricing model": pricingModelLabel || "",
@@ -3839,51 +4047,48 @@ function buildZapierRawData(submittedAt) {
     "Methods": paymentMethodSummary || "",
     "Stored value accounts": storedValueAccountSummary || "",
     "Stored value account options": storedValueAccountSummary || "",
-    "Stored value account holder regions": isModuleSelected("accounts") ? formatRegionList(state.accounts.accountHolderRegion) : "",
-    "Stored value account holder countries": isModuleSelected("accounts")
-      ? formatCountryList(state.accounts.accountHolderCountries, state.accounts.accountHolderCountriesOther)
-      : "",
-    "Stored value account holder other countries": isModuleSelected("accounts") ? state.accounts.accountHolderCountriesOther || "" : "",
     "Additional services": servicesSummary || "",
-    "Collections sender types": state.collections.senderTypes.join(", "),
-    "Collections from regions": formatRegionList(state.collections.senderRegion),
-    "Collections from countries": formatCountryList(state.collections.senderCountries, state.collections.senderCountriesOther),
-    "Collections from other countries": state.collections.senderCountriesOther || "",
-    "Collections from currencies": state.collections.senderCurrencies.join(", "),
-    "Collections receiver types": state.collections.receiverTypes.join(", "),
-    "Collections to regions": formatRegionList(state.collections.receiverRegion),
-    "Collections to countries": formatCountryList(state.collections.receiverCountries, state.collections.receiverCountriesOther),
-    "Collections to other countries": state.collections.receiverCountriesOther || "",
-    "Collections to currencies": state.collections.receiverCurrencies.join(", "),
-    "Collections payer count": state.collections.payerCount || "",
-    "Collections High-risk industries": isModuleSelected("collections") ? highRiskIndustries : "",
-    "Collections High-risk industry details": isModuleSelected("collections") ? highRiskIndustryDetails : "",
-    "Disbursements sender types": state.disbursements.senderTypes.join(", "),
-    "Disbursements from regions": formatRegionList(state.disbursements.senderRegion),
-    "Disbursements from countries": formatCountryList(state.disbursements.senderCountries, state.disbursements.senderCountriesOther),
-    "Disbursements from other countries": state.disbursements.senderCountriesOther || "",
-    "Disbursements from currencies": state.disbursements.senderCurrencies.join(", "),
-    "Disbursements receiver types": state.disbursements.receiverTypes.join(", "),
-    "Disbursements to regions": formatRegionList(state.disbursements.receiverRegion),
-    "Disbursements to countries": formatCountryList(state.disbursements.receiverCountries, state.disbursements.receiverCountriesOther),
-    "Disbursements to other countries": state.disbursements.receiverCountriesOther || "",
-    "Disbursements to currencies": state.disbursements.receiverCurrencies.join(", "),
-    "Disbursements payee count": state.disbursements.payeeCount || "",
-    "Disbursements High-risk industries": isModuleSelected("disbursements") ? highRiskIndustries : "",
-    "Disbursements High-risk industry details": isModuleSelected("disbursements") ? highRiskIndustryDetails : "",
+    "Use case payment flows": paymentFlowByUseCaseSummary || "",
+    "Stored value by use case": storedValueAccountSummary || "",
+    ...buildUseCaseFlowRawData(),
+    "Payment flow High-risk industries": hasPaymentFlowInterest() ? highRiskIndustries : "",
+    "Payment flow High-risk industry details": hasPaymentFlowInterest() ? highRiskIndustryDetails : "",
     "Additional info": state.additionalInfo || "",
   };
+}
+
+function buildUseCaseFlowRawData() {
+  return getSelectedUseCaseEntries().reduce((rawData, { label, flow }, index) => {
+    const prefix = `Use case ${index + 1} - ${label}`;
+
+    rawData[`${prefix} - User/customer side`] = formatCustomerSides(flow.customerSides);
+    rawData[`${prefix} - Payer types`] = flow.senderTypes.map((value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value)).join(", ");
+    rawData[`${prefix} - Payer count`] = flow.payerCount || "";
+    rawData[`${prefix} - Payer count basis`] = flow.payerCountBasis || "";
+    rawData[`${prefix} - Payer regions`] = formatRegionList(flow.senderRegion);
+    rawData[`${prefix} - Payer countries`] = formatCountryList(flow.senderCountries, flow.senderCountriesOther);
+    rawData[`${prefix} - Payer other countries`] = flow.senderCountriesOther || "";
+    rawData[`${prefix} - Payer currencies`] = flow.senderCurrencies.join(", ");
+    rawData[`${prefix} - Payee types`] = flow.receiverTypes.map((value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value)).join(", ");
+    rawData[`${prefix} - Payee count`] = flow.payeeCount || "";
+    rawData[`${prefix} - Payee count basis`] = flow.payeeCountBasis || "";
+    rawData[`${prefix} - Payee regions`] = formatRegionList(flow.receiverRegion);
+    rawData[`${prefix} - Payee countries`] = formatCountryList(flow.receiverCountries, flow.receiverCountriesOther);
+    rawData[`${prefix} - Payee other countries`] = flow.receiverCountriesOther || "";
+    rawData[`${prefix} - Payee currencies`] = flow.receiverCurrencies.join(", ");
+    rawData[`${prefix} - Stored value account capabilities`] = formatStoredValueAccountTypes(flow.storedValueAccountTypes);
+
+    return rawData;
+  }, {});
 }
 
 function buildSummary() {
   const entityTypeLabel = getCompanyEntityTypeLabel();
   const useCaseCategoryLabel = getUseCaseCategoryLabel();
   const pricingModelLabel = state.role.pricingModel === "revshare" ? "Revenue share" : state.role.pricingModel === "wholesale" ? "Wholesale pricing" : "N/A";
-  const selectedFlows = getSelectedFlowLabels();
   const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
-  const storedValueSummary = summarizeInterestGroup(STORED_VALUE_ACCOUNTS, state.storedValueAccounts, "storedValueAccounts");
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
-  const storedValueAccountSummary = isModuleSelected("accounts") ? storedValueSummary : "";
+  const storedValueAccountSummary = getUseCaseStoredValueSummary();
   const productInterestSummary = summarizeProductInterest(
     paymentMethodSummary,
     storedValueAccountSummary,
@@ -3901,13 +4106,12 @@ function buildSummary() {
     `Company: ${state.company.companyName || "N/A"}`,
     `Entity type: ${entityTypeLabel || "N/A"}`,
     `URL: ${state.company.url || "N/A"}`,
-    `Use case category: ${useCaseCategoryLabel || "N/A"}`,
+    `Use case categories: ${useCaseCategoryLabel || "N/A"}`,
     `New use case or corridor: ${formatYesNo(state.useCase.isNewUseCaseOrCorridor) || "N/A"}`,
     `Current handling: ${state.useCase.currentHandling || "N/A"}`,
     `High-risk industries: ${formatYesNo(state.useCase.highRiskIndustries) || "N/A"}`,
     `High-risk industry details: ${state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails || "N/A" : "N/A"}`,
     "",
-    `Selected flows: ${selectedFlows.length ? formatList(selectedFlows) : "N/A"}`,
     `Currently in flow of funds business: ${formatYesNo(state.role.inFlowOfFundsBusiness) || "N/A"}`,
     `Licensed in operating countries: ${formatYesNo(state.role.licensed) || "N/A"}`,
     `Pricing model: ${pricingModelLabel}`,
@@ -3925,42 +4129,11 @@ function buildSummary() {
     `Additional services: ${servicesSummary || "N/A"}`,
   ];
 
-  if (isModuleSelected("accounts")) {
+  if (hasPaymentFlowInterest()) {
     lines.push(
       "",
-      `Stored value account holder regions: ${formatRegionList(state.accounts.accountHolderRegion) || "N/A"}`,
-      `Stored value account holder countries: ${formatCountryList(state.accounts.accountHolderCountries, state.accounts.accountHolderCountriesOther) || "N/A"}`,
-      `Stored value account options: ${storedValueAccountSummary || "N/A"}`
-    );
-  }
-
-  if (isModuleSelected("collections")) {
-    lines.push(
-      "",
-      `Collections sender types: ${state.collections.senderTypes.join(", ") || "N/A"}`,
-      `Collections receiver types: ${state.collections.receiverTypes.join(", ") || "N/A"}`,
-      `Collections payer count: ${state.collections.payerCount || "N/A"} (${state.collections.payerCountBasis})`,
-      `Collections from regions: ${formatRegionList(state.collections.senderRegion) || "N/A"}`,
-      `Collections from countries: ${formatCountryList(state.collections.senderCountries, state.collections.senderCountriesOther) || "N/A"}`,
-      `Collections from currencies: ${state.collections.senderCurrencies.join(", ") || "N/A"}`,
-      `Collections to regions: ${formatRegionList(state.collections.receiverRegion) || "N/A"}`,
-      `Collections to countries: ${formatCountryList(state.collections.receiverCountries, state.collections.receiverCountriesOther) || "N/A"}`,
-      `Collections to currencies: ${state.collections.receiverCurrencies.join(", ") || "N/A"}`
-    );
-  }
-
-  if (isModuleSelected("disbursements")) {
-    lines.push(
-      "",
-      `Disbursements sender types: ${state.disbursements.senderTypes.join(", ") || "N/A"}`,
-      `Disbursements receiver types: ${state.disbursements.receiverTypes.join(", ") || "N/A"}`,
-      `Disbursements payee count: ${state.disbursements.payeeCount || "N/A"} (${state.disbursements.payeeCountBasis})`,
-      `Disbursements from regions: ${formatRegionList(state.disbursements.senderRegion) || "N/A"}`,
-      `Disbursements from countries: ${formatCountryList(state.disbursements.senderCountries, state.disbursements.senderCountriesOther) || "N/A"}`,
-      `Disbursements from currencies: ${state.disbursements.senderCurrencies.join(", ") || "N/A"}`,
-      `Disbursements to regions: ${formatRegionList(state.disbursements.receiverRegion) || "N/A"}`,
-      `Disbursements to countries: ${formatCountryList(state.disbursements.receiverCountries, state.disbursements.receiverCountriesOther) || "N/A"}`,
-      `Disbursements to currencies: ${state.disbursements.receiverCurrencies.join(", ") || "N/A"}`
+      "Use case payment flows:",
+      ...getSelectedUseCaseEntries().map((entry) => formatUseCaseFlowSummary(entry))
     );
   }
 
@@ -4005,13 +4178,7 @@ function getCompanyEntityTypeLabel() {
 }
 
 function getUseCaseCategoryLabel() {
-  const useCaseCategoryLabel =
-    labelForOption(USE_CASE_CATEGORIES, state.useCase.category) || state.useCase.category;
-  if (state.useCase.category === "other" && state.useCase.other.trim()) {
-    return `${useCaseCategoryLabel} — ${state.useCase.other.trim()}`;
-  }
-
-  return useCaseCategoryLabel;
+  return formatList(getSelectedUseCaseLabels());
 }
 
 function isInterestItemDisabled(storeKey, itemKey) {
@@ -4020,12 +4187,21 @@ function isInterestItemDisabled(storeKey, itemKey) {
     return false;
   }
 
-  const selectedModules = FLOW_MODULE_KEYS.filter((moduleKey) => isModuleSelected(moduleKey));
+  const selectedModules = getProductAvailabilityContextModules();
   if (!selectedModules.length) {
     return false;
   }
 
   return !rule.availableForModules.some((moduleKey) => selectedModules.includes(moduleKey));
+}
+
+function getProductAvailabilityContextModules() {
+  const selectedModules = FLOW_MODULE_KEYS.filter((moduleKey) => isModuleSelected(moduleKey));
+  if (hasPaymentFlowInterest()) {
+    selectedModules.push("collections", "disbursements");
+  }
+
+  return [...new Set(selectedModules)];
 }
 
 function getInterestItemDisabledStatus(storeKey, itemKey) {
@@ -4088,8 +4264,11 @@ function syncContactState(path) {
 }
 
 function syncUseCaseState(path) {
-  if (path === "useCase.category" && state.useCase.category !== "other") {
+  if (path === "useCase.categories" && !state.useCase.categories.includes("other")) {
     state.useCase.other = "";
+  }
+  if (path === "useCase.categories") {
+    ensureUseCaseFlowsState();
   }
   if (path === "useCase.isNewUseCaseOrCorridor" && state.useCase.isNewUseCaseOrCorridor !== "no") {
     state.useCase.currentHandling = "";
@@ -4151,6 +4330,57 @@ function formatCountryList(codes, otherDetail = "") {
 
 function formatRegionList(regions) {
   return regions.join(", ");
+}
+
+function getCustomerRoleLabel(value) {
+  if (value === "both") {
+    return "Payer and payee";
+  }
+
+  return labelForOption(CUSTOMER_ROLE_OPTIONS, value) || value;
+}
+
+function formatCustomerSides(values) {
+  return values
+    .map((value) => getCustomerRoleLabel(value))
+    .filter(Boolean)
+    .join(", ");
+}
+
+function formatStoredValueAccountTypes(keys) {
+  return keys
+    .map((key) => STORED_VALUE_ACCOUNTS.find((item) => item.key === key)?.label || key)
+    .filter(Boolean)
+    .join(", ");
+}
+
+function formatUseCaseFlowSummary({ label, flow }) {
+  const parts = [
+    flow.customerSides.length ? `User/customer side: ${formatCustomerSides(flow.customerSides)}` : "",
+    flow.senderTypes.length ? `Payers: ${formatList(flow.senderTypes.map((value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value)))}` : "",
+    flow.payerCount ? `Number of payers: ${flow.payerCount} (${flow.payerCountBasis || "basis not selected"})` : "",
+    flow.senderRegion.length ? `Payer regions: ${formatRegionList(flow.senderRegion)}` : "",
+    flow.senderCountries.length ? `Payer countries: ${formatCountryList(flow.senderCountries, flow.senderCountriesOther)}` : "",
+    flow.senderCurrencies.length ? `Payer currencies: ${flow.senderCurrencies.join(", ")}` : "",
+    flow.receiverTypes.length ? `Payees: ${formatList(flow.receiverTypes.map((value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value)))}` : "",
+    flow.payeeCount ? `Number of payees: ${flow.payeeCount} (${flow.payeeCountBasis || "basis not selected"})` : "",
+    flow.receiverRegion.length ? `Payee regions: ${formatRegionList(flow.receiverRegion)}` : "",
+    flow.receiverCountries.length ? `Payee countries: ${formatCountryList(flow.receiverCountries, flow.receiverCountriesOther)}` : "",
+    flow.receiverCurrencies.length ? `Payee currencies: ${flow.receiverCurrencies.join(", ")}` : "",
+    flow.storedValueAccountTypes.length ? `Stored value: ${formatStoredValueAccountTypes(flow.storedValueAccountTypes)}` : "",
+  ].filter(Boolean);
+
+  return `${label}: ${parts.join(" | ") || "No flow details indicated"}`;
+}
+
+function getUseCaseStoredValueSummary() {
+  return getSelectedUseCaseEntries()
+    .map(({ label, flow }) => {
+      const storedValueSummary = formatStoredValueAccountTypes(flow.storedValueAccountTypes);
+      return storedValueSummary ? `${label}: ${storedValueSummary}` : "";
+    })
+    .filter(Boolean)
+    .join(" | ");
 }
 
 function markSubmissionDirty() {

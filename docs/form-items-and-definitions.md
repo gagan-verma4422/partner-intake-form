@@ -1,6 +1,6 @@
 # Partner Intake Form Items and Definitions
 
-Last updated: June 24, 2026
+Last updated: July 3, 2026
 
 This document summarizes the selectable items currently used in the partner intake form. It is intended as a shared reference for product, sales, partnerships, operations, and implementation teams.
 
@@ -8,31 +8,31 @@ This document summarizes the selectable items currently used in the partner inta
 
 | Item | Definition |
 | --- | --- |
-| Collections | Collect funds through supported payment methods such as local bank transfers (push and pull), card acceptance, wire transfers, and stablecoins. |
-| Disbursements | Send or deliver funds through supported payout rails such as local bank transfers, local FX, Same Day ACH, RTP, Fedwire, Swift, and stablecoins. |
 | Stored Value Accounts | Launch stored-balance experiences with multi-currency wallets, virtual bank accounts, stablecoin wallets, and virtual card issuance. |
+
+Collections and disbursements are no longer selected as separate solution areas. The form now captures payer and payee movement through a payment flow for each selected use case. Stored value account capabilities are offered inside each use-case payment flow.
 
 ## Payment Method Categories
 
 | Category | Definition | Included items |
 | --- | --- | --- |
-| Bank transfers | Account-to-account payment rails for local collection and disbursement flows. | Local Bank Transfers, Same Day ACH (US only), IBT (Instant Bank Transfer), RTP (US only) |
+| Bank transfers | Account-to-account payment rails for payer and payee flows. | Local Bank Transfers, Same Day ACH (US only), IBT (Instant Bank Transfer), RTP (US only) |
 | Bank wires | Wire transfer rails for U.S. domestic and international bank movement. | Fedwire, International Swift |
-| Cards | Card-funded collection and card payout methods. | Card Acceptance (Debit & Credit), Push to Cards, Instant Card Issuance |
+| Cards | Card-funded payer payments and card-based payee delivery methods. | Card Acceptance (Debit & Credit), Push to Cards, Instant Card Issuance |
 
 ## Payment Methods
 
 | Item | Definition | Form availability note |
 | --- | --- | --- |
-| Local Bank Transfers | Market-specific local bank transfer rails, including ACH debit (pull) or credit (push), SEPA, FPS, EFT, and similar local transfer methods. | Not restricted by form flow selection. |
-| Same Day ACH (US only) | U.S. ACH rail with same-day settlement for faster domestic bank movement. | Not restricted by form flow selection. |
-| IBT (Instant Bank Transfer) | U.S. Instant collections using ACH with Plaid bank validation and balance checks. | Collections only. |
-| RTP (US only) | Real-Time Payments rail for instant U.S. disbursements and immediate settlement. | Disbursements only. |
-| Fedwire (US) | Domestic U.S. wire transfer rail for higher-value bank movement and faster settlement. | Not restricted by form flow selection. |
-| International Swift | Cross-border wire transfers through the Swift network for international bank movement. | Not restricted by form flow selection. |
-| Card Acceptance (Debit & Credit) | Accept debit and credit card payments for collection flows where card-funded payments are required. | Collections only. |
-| Push to Cards | Send payments to Visa and Mastercard debit cards globally. | Disbursements only. |
-| Instant Card Issuance | Issue USD virtual cards instantly for 30+ countries. | Disbursements only. |
+| Local Bank Transfers | Market-specific local bank transfer rails, including ACH debit (pull) or credit (push), SEPA, FPS, EFT, and similar local transfer methods. | Shown when one or more use cases are selected. |
+| Same Day ACH (US only) | U.S. ACH rail with same-day settlement for faster domestic bank movement. | Shown when one or more use cases are selected. |
+| IBT (Instant Bank Transfer) | U.S. instant bank-funded payments using ACH with Plaid bank validation and balance checks. | Shown when one or more use cases are selected. |
+| RTP (US only) | Real-Time Payments rail for instant U.S. payment delivery and immediate settlement. | Shown when one or more use cases are selected. |
+| Fedwire (US) | Domestic U.S. wire transfer rail for higher-value bank movement and faster settlement. | Shown when one or more use cases are selected. |
+| International Swift | Cross-border wire transfers through the Swift network for international bank movement. | Shown when one or more use cases are selected. |
+| Card Acceptance (Debit & Credit) | Accept debit and credit card-funded payments from payers. | Shown when one or more use cases are selected. |
+| Push to Cards | Send payments to Visa and Mastercard debit cards globally. | Shown when one or more use cases are selected. |
+| Instant Card Issuance | Issue USD virtual cards instantly for 30+ countries. | Shown when one or more use cases are selected. |
 
 ## Fiat and Digital Currency Conversions
 
@@ -53,19 +53,21 @@ This document summarizes the selectable items currently used in the partner inta
 
 | Item | Definition | Form availability note |
 | --- | --- | --- |
-| USDC ↔ Fiat | Convert between supported USDC balances and fiat currency for collection, settlement, payout, or wallet flows. | Collections and disbursements. |
-| USDT ↔ Fiat | Convert between supported USDT balances and fiat currency for collection, settlement, payout, or wallet flows. | Collections and disbursements. |
+| USDC ↔ Fiat | Convert between supported USDC balances and fiat currency for settlement, payment delivery, or wallet flows. | Shown when one or more use cases are selected. |
+| USDT ↔ Fiat | Convert between supported USDT balances and fiat currency for settlement, payment delivery, or wallet flows. | Shown when one or more use cases are selected. |
 
 ## Additional Services
 
 | Item | Category | Definition | Form availability note |
 | --- | --- | --- | --- |
-| Payer Plugin / Paylinks | Plugins | Pre-built collection payer experience for payment links or embedded checkout flows. | Collections only. |
-| Payee Plugin | Plugins | Disbursement-only pre-built payee experiences for collecting recipient details and their payment preferences. | Disbursements only. |
-| Plaid Bank Account Verification | Verification | Verify bank accounts, account ownership, identity, and check balances before executing the payment. | Not restricted by form flow selection. |
-| Risk Services | Risk | Additional risk signals for assessing and managing fraud risk. | Not restricted by form flow selection. |
+| Payer Plugin / Paylinks | Plugins | Pre-built payer experience for payment links or embedded checkout flows. | Shown when one or more use cases are selected. |
+| Payee Plugin | Plugins | Pre-built payee experience for collecting recipient details and payment preferences. | Shown when one or more use cases are selected. |
+| Plaid Bank Account Verification | Verification | Verify bank accounts, account ownership, identity, and check balances before executing the payment. | Shown when one or more use cases are selected. |
+| Risk Services | Risk | Additional risk signals for assessing and managing fraud risk. | Shown when one or more use cases are selected. |
 
 ## Stored Value Accounts
+
+Stored value account capabilities are optional and selected per use case.
 
 | Item | Definition |
 | --- | --- |
@@ -76,13 +78,15 @@ This document summarizes the selectable items currently used in the partner inta
 
 ## Use Case Categories
 
+Use case categories are multi-select. Each selected use case receives its own payment flow page.
+
 | Item | Definition |
 | --- | --- |
 | B2B Payments | Business-to-business payments such as invoices, vendor payments, supplier payments, or account-to-account transfers. |
 | Marketplace / Platform | Multi-party payment flows where a platform collects from buyers and pays sellers, merchants, or service providers. |
 | Personal Remittance | Consumer money movement, including individuals sending funds to family, friends, or their own accounts. |
-| Me-to-Me Collections | Customer wallet funding where a customer moves money from their own bank account or card into their own wallet. |
-| Disbursements / Payroll | Sending payments to employees, contractors, vendors, creators, payees, or other recipients. |
+| Wallet Funding / Me-to-Me | Customer wallet funding where a customer moves money from their own bank account or card into their own wallet. |
+| Payables / Payroll | Sending payments to employees, contractors, vendors, creators, payees, or other recipients. |
 | Ecommerce | Online commerce, checkout, cart, or merchant payment experiences. |
 | Other | Select this if you cannot find your use case above. |
 
@@ -113,13 +117,36 @@ This document summarizes the selectable items currently used in the partner inta
 
 ## Flow User Types
 
-These user types are used in both collections and disbursements for sender and receiver selections.
+These user types are used in the payer and payee payment-flow selections.
+
+| Item | Definition |
+| --- | --- |
+| Payer / From | The party that sends or funds the payment. |
+| Payee / To | The party that receives the funds. |
+| User/customer side | Identifies whether the partner's user or customer is on the payer side, payee side, or payer and payee sides of the payment flow. |
 
 | Item | Definition |
 | --- | --- |
 | Consumers | Individual end users acting in a personal capacity. |
 | Businesses | Companies or organizations acting in a commercial capacity. |
 | Sole proprietors | Individual business operators who may act as both a person and a business. |
+
+## Payment Flow Page Per Use Case
+
+Each selected use case has a separate page that asks for:
+
+| Field | Definition |
+| --- | --- |
+| Who is your user or customer in this use case? | Indicate whether your users are payers or payees. |
+| Who is the payer? | Select the payer user types: consumers, businesses, and/or sole proprietors. |
+| Payer regions, countries, and currencies | Identify where payers are located and which currencies they send. |
+| Number of payers | Approximate number of payer users for the selected use case. |
+| Payer count basis | Indicates whether the payer count is actual or estimated. |
+| Who is the payee? | Select the payee user types: consumers, businesses, and/or sole proprietors. |
+| Payee regions, countries, and currencies | Identify where payees are located and which currencies they receive. |
+| Number of payees | Approximate number of payee users for the selected use case. |
+| Payee count basis | Indicates whether the payee count is actual or estimated. |
+| Stored value account capabilities | Optional wallet, virtual account, stablecoin wallet, or virtual card capabilities that may support the selected use case. |
 
 ## Transaction Types
 
@@ -164,5 +191,5 @@ ALL, USD, DZD, ARS, AMD, AUD, EUR, BSD, BHD, BDT, BBD, BMD, BRL, BND, BGN, CAD, 
 | Solutions Overview | Drive revenue and expand globally. | https://www.veem.com/partnerships/ |
 | Virtual Account Solution | Dedicated virtual bank accounts. | https://www.veem.com/virtual-bank-account-solution/ |
 | Wallet Solution | Multi-currency balances. | https://www.veem.com/wallet-solution/ |
-| Pay Solution | Embed fast, secure disbursements. | https://www.veem.com/pay-solution/ |
-| Collect Solution | Enable frictionless payment collection. | https://www.veem.com/collect-solution/ |
+| Pay Solution | Embed fast, secure payment delivery. | https://www.veem.com/pay-solution/ |
+| Collect Solution | Enable frictionless payer payment experiences. | https://www.veem.com/collect-solution/ |
