@@ -1740,33 +1740,28 @@ function renderUseCasePaymentFlow(entry, options = {}) {
       </div>
     </section>
 
-    <section class="section-card flow-role-section">
-      <div class="flow-role-section__copy">
-        <h3>Who is your user or customer in this use case? <span class="required-star">*</span></h3>
-        <p>Indicate whether your users are payers or payees.</p>
+    <section class="section-card flow-preferences-section">
+      <div class="flow-preferences-section__copy">
+        <h3>Use case setup</h3>
+        <p>Share who your users are and which stored value account capabilities Veem should offer for this use case.</p>
       </div>
-      <div class="field flow-role-field flow-role-field--no-label">
+      <div class="flow-preferences-fields">
+        <div class="field flow-role-field">
         <label>${renderLabelText("Who is your user or customer in this use case? *")}</label>
         ${renderOptionMultiSelectDropdown(`${basePath}.customerSides`, flow.customerSides, CUSTOMER_ROLE_OPTIONS, {
           emptyLabel: "Select payer or payee",
           allLabel: "Payer and payee selected",
           countLabel: "sides",
         })}
-      </div>
-    </section>
-
-    <section class="section-card stored-value-flow-section">
-      <div class="stored-value-flow-section__copy">
-        <h3>Stored Value Account</h3>
-        <p>Select any wallet, virtual account, stablecoin wallet, or virtual card capabilities that may support this use case.</p>
-      </div>
-      <div class="field stored-value-flow-field stored-value-flow-field--no-label">
+        </div>
+        <div class="field stored-value-flow-field">
         <label>${renderLabelText("Stored Value Account")}</label>
         ${renderOptionMultiSelectDropdown(`${basePath}.storedValueAccountTypes`, flow.storedValueAccountTypes, STORED_VALUE_ACCOUNT_TYPE_OPTIONS, {
           emptyLabel: "No stored value capabilities selected",
           allLabel: "All stored value capabilities selected",
           countLabel: "capabilities",
         })}
+        </div>
       </div>
     </section>
   `;
