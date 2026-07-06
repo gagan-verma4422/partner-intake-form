@@ -2047,56 +2047,84 @@ function renderReviewStep() {
 }
 
 function renderReviewPaymentFlowSummary(entries) {
-  const cards = entries
+  const rows = entries
     .map(({ label, flow }) => {
-      const rows = [
-        renderReviewFlowRow("User/customer", formatCustomerSides(flow.customerSides)),
-        renderReviewFlowRow(
-          "Payers",
-          formatReviewCompactList(flow.senderTypes, (value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value), 3)
-        ),
-        renderReviewFlowRow("Payer count", formatReviewCount(flow.payerCount, flow.payerCountBasis)),
-        renderReviewFlowRow("Payer regions", formatReviewCompactList(flow.senderRegion, (value) => value, 5)),
-        renderReviewFlowRow("Payer countries", formatReviewCountryList(flow.senderCountries, flow.senderCountriesOther)),
-        renderReviewFlowRow("Payer currencies", formatReviewCompactList(flow.senderCurrencies, (value) => value, 8)),
-        renderReviewFlowRow(
-          "Payees",
-          formatReviewCompactList(flow.receiverTypes, (value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value), 3)
-        ),
-        renderReviewFlowRow("Payee count", formatReviewCount(flow.payeeCount, flow.payeeCountBasis)),
-        renderReviewFlowRow("Payee regions", formatReviewCompactList(flow.receiverRegion, (value) => value, 5)),
-        renderReviewFlowRow("Payee countries", formatReviewCountryList(flow.receiverCountries, flow.receiverCountriesOther)),
-        renderReviewFlowRow("Payee currencies", formatReviewCompactList(flow.receiverCurrencies, (value) => value, 8)),
-        renderReviewFlowRow("Stored value", formatStoredValueAccountTypes(flow.storedValueAccountTypes)),
-      ].filter(Boolean);
-
       return `
-        <section class="review-flow-card">
-          <h4>${escapeHtml(label)}</h4>
-          ${
-            rows.length
-              ? `<dl class="review-flow-rows">${rows.join("")}</dl>`
-              : `<p>No flow details indicated</p>`
-          }
-        </section>
+        <tr>
+          <th scope="row">${escapeHtml(label)}</th>
+          <td>
+            ${renderReviewFlowTableCell([
+              ["User/customer", formatCustomerSides(flow.customerSides)],
+            ])}
+          </td>
+          <td>
+            ${renderReviewFlowTableCell([
+              [
+                "Payers",
+                formatReviewCompactList(flow.senderTypes, (value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value), 3),
+              ],
+              ["Count", formatReviewCount(flow.payerCount, flow.payerCountBasis)],
+              ["Regions", formatReviewCompactList(flow.senderRegion, (value) => value, 5)],
+              ["Countries", formatReviewCountryList(flow.senderCountries, flow.senderCountriesOther)],
+              ["Currencies", formatReviewCompactList(flow.senderCurrencies, (value) => value, 8)],
+            ])}
+          </td>
+          <td>
+            ${renderReviewFlowTableCell([
+              [
+                "Payees",
+                formatReviewCompactList(flow.receiverTypes, (value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value), 3),
+              ],
+              ["Count", formatReviewCount(flow.payeeCount, flow.payeeCountBasis)],
+              ["Regions", formatReviewCompactList(flow.receiverRegion, (value) => value, 5)],
+              ["Countries", formatReviewCountryList(flow.receiverCountries, flow.receiverCountriesOther)],
+              ["Currencies", formatReviewCompactList(flow.receiverCurrencies, (value) => value, 8)],
+            ])}
+          </td>
+          <td>
+            ${renderReviewFlowTableCell([
+              ["Capabilities", formatStoredValueAccountTypes(flow.storedValueAccountTypes)],
+            ])}
+          </td>
+        </tr>
       `;
     })
     .join("");
 
-  return `<div class="review-flow-list">${cards || "<span>No countries or currencies indicated</span>"}</div>`;
+  return rows
+    ? `
+      <div class="review-flow-table-wrap">
+        <table class="review-flow-table">
+          <thead>
+            <tr>
+              <th scope="col">Use case</th>
+              <th scope="col">Customer</th>
+              <th scope="col">From / Payer</th>
+              <th scope="col">To / Payee</th>
+              <th scope="col">Stored Value Account</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    `
+    : "<span>No countries or currencies indicated</span>";
 }
 
-function renderReviewFlowRow(label, value) {
-  if (!value) {
-    return "";
-  }
+function renderReviewFlowTableCell(items) {
+  const rows = items
+    .filter(([, value]) => Boolean(value))
+    .map(
+      ([label, value]) => `
+        <div>
+          <dt>${escapeHtml(label)}</dt>
+          <dd>${escapeHtml(value)}</dd>
+        </div>
+      `
+    )
+    .join("");
 
-  return `
-    <div class="review-flow-row">
-      <dt>${escapeHtml(label)}</dt>
-      <dd>${escapeHtml(value)}</dd>
-    </div>
-  `;
+  return rows ? `<dl class="review-flow-table-list">${rows}</dl>` : `<span class="review-flow-empty">Not provided</span>`;
 }
 
 function formatReviewCount(value, basis) {
