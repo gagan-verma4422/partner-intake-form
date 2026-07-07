@@ -1748,7 +1748,7 @@ function renderUseCasePaymentFlow(entry, options = {}) {
         </div>
         <div class="field stored-value-flow-field">
           <label>${renderLabelText("Stored Value Account")}</label>
-          <p class="flow-preferences-field-help">Select any stored value capabilities that may support this use case, such as wallets, virtual accounts, stablecoin wallets, or virtual cards.</p>
+          <p class="flow-preferences-field-help">Select any stored value account capabilities needed for this use case. A stored value account lets you receive, hold, and use funds before they are sent or spent.</p>
           ${renderStoredValueAccountSelector(`${basePath}.storedValueAccountTypes`, flow.storedValueAccountTypes)}
         </div>
       </div>
