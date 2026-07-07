@@ -2090,13 +2090,34 @@ function renderReviewQuestionAnswerSummary({
     }
   });
 
-  const tableRows = rows
-    .map(({ section, question, answer }) => `
-      <tr>
-        <th scope="row" class="review-qa-table__section">${escapeHtml(section)}</th>
-        <td class="review-qa-table__question">${escapeHtml(question)}</td>
-        <td class="review-qa-table__answer">${escapeHtml(answer)}</td>
+  const groupedRows = rows.reduce((groups, row) => {
+    const currentGroup = groups.at(-1);
+
+    if (!currentGroup || currentGroup.section !== row.section) {
+      groups.push({
+        section: row.section,
+        rows: [row],
+      });
+      return groups;
+    }
+
+    currentGroup.rows.push(row);
+    return groups;
+  }, []);
+
+  const tableRows = groupedRows
+    .map(({ section, rows: sectionRows }) => `
+      <tr class="review-qa-table__group-row">
+        <th scope="colgroup" colspan="2">${escapeHtml(section)}</th>
       </tr>
+      ${sectionRows
+        .map(({ question, answer }) => `
+          <tr class="review-qa-table__row">
+            <th scope="row" class="review-qa-table__question">${escapeHtml(question)}</th>
+            <td class="review-qa-table__answer">${escapeHtml(answer)}</td>
+          </tr>
+        `)
+        .join("")}
     `)
     .join("");
 
@@ -2105,7 +2126,6 @@ function renderReviewQuestionAnswerSummary({
       <table class="review-qa-table">
         <thead>
           <tr>
-            <th scope="col">Section</th>
             <th scope="col">Question</th>
             <th scope="col">Answer</th>
           </tr>
