@@ -1,72 +1,86 @@
 # Veem Partner Intake Form
 
-This project is a static multi-step partner intake form intended to be published at:
+Static multi-step partner intake form for collecting partner use cases, payment flows, payment method interest, commercial context, and Zapier-ready submission data.
 
-- `https://veem.com/partner-intake-form/`
+## Canonical App Files
 
-## What to deploy
-
-Deploy the contents of:
+The only real app copy lives in:
 
 - `site/partner-intake-form/`
 
-That folder contains the production site files:
+That folder contains:
 
 - `index.html`
+- `test.html`
 - `app.js`
 - `styles.css`
 - `config.js`
+- `config.test.js`
+- `favicon.webp`
 
-## Required deployment steps
+The root `index.html` and `test.html` files are lightweight redirects for local convenience.
 
-1. Publish all files from `site/partner-intake-form/` to the web path:
-   - `/partner-intake-form/`
+## Local Testing
 
-2. Make sure these URLs resolve on `veem.com`:
-   - `/partner-intake-form/`
-   - `/partner-intake-form/app.js`
-   - `/partner-intake-form/styles.css`
-   - `/partner-intake-form/config.js`
+From the repo root:
 
-3. Redirect:
-   - `/partner-intake-form`
-   to
-   - `/partner-intake-form/`
+```bash
+python3 -m http.server 4175
+```
 
-4. Set the submission endpoint in:
-   - `site/partner-intake-form/config.js`
+Then open:
 
-   The current file uses a Zapier webhook. Replace it with the final production webhook or endpoint before launch.
+- `http://127.0.0.1:4175/test.html`
 
-5. Ensure the submission endpoint accepts the form POST request and returns a `2xx` response on success.
+That redirects to:
 
-## Submission behavior
+- `http://127.0.0.1:4175/site/partner-intake-form/test.html?mode=test`
 
-The frontend is already wired to submit from `config.js`.
+## GitHub Pages
 
-Before publishing, confirm `submissionWebhookUrl` points to the correct production destination.
+GitHub Pages deploys the canonical app folder:
+
+- `site/partner-intake-form/`
+
+The workflow is:
+
+- `.github/workflows/pages.yml`
+
+## Production Deployment
+
+For `veem.com`, deploy the contents of:
+
+- `site/partner-intake-form/`
+
+to:
+
+- `/partner-intake-form/`
+
+Before publishing, set the production webhook in:
+
+- `site/partner-intake-form/config.js`
 
 Example:
 
 ```js
 window.VEEM_ONBOARDING_CONFIG = {
+  testMode: false,
   submissionWebhookUrl: "https://your-production-endpoint"
 };
 ```
 
-## Important notes
+Keep `testMode: true` for the GitHub Pages test version.
+
+## Project Notes
 
 - No build step is required.
 - The frontend is plain HTML, CSS, and JavaScript.
-- `docs/` is the GitHub Pages mirror, not the primary production deployment target.
-- If the live form changes, keep both copies in sync:
-  - `site/partner-intake-form/`
-  - `docs/`
+- `docs/` now contains project documentation only.
+- Generated exports should stay out of git; `outputs/` is ignored.
 
-## Helpful files
+Helpful references:
 
-- `deployment/DEPLOYMENT.md`
-- `deployment/nginx.partner-intake-form.conf.example`
-- `deployment/partner-intake-form-submission-handler.example.js`
-- `docs/project-handoff.md`
 - `docs/team-feedback-questionnaire-outline.md`
+- `docs/form-items-and-definitions.md`
+- `docs/project-handoff.md`
+- `deployment/DEPLOYMENT.md`

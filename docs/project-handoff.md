@@ -1,177 +1,101 @@
 # Veem Partner Intake Form Handoff
 
-## What this project is
+Last updated: July 8, 2026
 
-This project is a static multi-step intake form for Veem partner onboarding.
+## What This Project Is
 
-Its purpose is to help Veem collect structured information from prospective partners across:
+This is a static, deployable partner intake form for collecting structured information from prospective Veem partners.
+
+It captures:
 
 - contact and company information
-- selected solution flows
-- collections requirements
-- disbursement requirements
-- product and service interest
-- financial profile
-- business profile and licensing context
+- one or more use case categories
+- From and To payment flow details for each selected use case
+- payment method and conversion interest
+- additional service interest
+- financial scale and commercial preferences
+- review-ready and Zapier-ready submission data
 
-The experience ends with a review screen and a final page with Veem solution and partnership links.
-
-## Current goal
-
-The current work is focused on turning the intake experience into a polished, review-ready questionnaire that:
-
-- matches the latest business requirements
-- reflects updated product and content decisions
-- is easier to review internally with stakeholders
-- feels visually aligned with Veem branding
-
-This is an actively iterated prototype / deployable static form, not a finished long-term production application.
-
-## Project structure
+## Simplified Project Structure
 
 - `site/partner-intake-form/`
-  Main static app version.
+  Canonical app copy. Edit this folder for UI, logic, config, and deployment changes.
+- `index.html`
+  Local convenience redirect to `site/partner-intake-form/`.
+- `test.html`
+  Local convenience redirect to `site/partner-intake-form/test.html?mode=test`.
 - `docs/`
-  GitHub Pages / docs-hosted version of the same app.
+  Documentation only.
 - `deployment/`
-  Deployment notes and example backend submission handler.
-- `docs/team-feedback-questionnaire-outline.md`
-  Stakeholder review document that mirrors the current form structure and wording.
+  Deployment notes and optional backend example.
 
 Important:
 
-- `site/partner-intake-form/` and `docs/` must stay in sync.
-- Most product and UI changes were applied to both copies.
+- The old `docs/` app mirror has been removed.
+- GitHub Pages now deploys `site/partner-intake-form/` directly.
+- Root app asset duplicates have been removed.
 
-## Tech approach
-
-This project uses:
-
-- plain HTML
-- plain CSS
-- plain JavaScript
-
-There is no frontend framework and no build step.
-
-The form logic, rendering, conditional steps, validation, and review screen behavior are handled in `app.js`.
-
-## Current form flow
-
-The current questionnaire order is:
+## Current Form Flow
 
 1. Contact Information
-2. Use Case Category
-3. Flow Selection
-4. Collection Information
-   Only shown if `Collections` is selected
-5. Disbursement Information
-   Only shown if `Disbursements` is selected
-6. Product Scope
-7. Financial Profile
-8. Business Profile
-9. Review
-10. Thank You / Available Documents
+2. Use Case Categories
+3. One Payment Flow page for each selected use case
+4. Payment Methods
+5. Additional Services
+6. Business & Financial Profile
+7. Review
+8. Thank You / Available Documents
 
-The sidebar uses progressive locking:
+The form no longer asks partners to choose separate Collection or Disbursement flows. Instead, each selected use case collects:
 
-- future sections stay locked
-- sections unlock through the `Continue` action
-- step visibility depends on selected flow where applicable
+- From / sending users
+- To / receiving users
+- payer and payee regions, countries, currencies, and counts
+- whether the partner's user/customer is on the payer or payee side
+- optional Stored Value Account capabilities for that use case
 
-## Key business/content updates already made
+## Submission Behavior
 
-- Renamed the experience to `Veem Partner Intake Form`
-- Reordered the flow so `Product Scope` appears before `Financial Profile`
-- Removed `Transaction types`
-- Removed the old `Markets and currencies` section from Product Scope
-- Merged payment methods and money storage into one `Products` section
-- Reduced `Additional services` to:
-  - Plaid Bank Account Verification
-  - Risk Services
-- Updated Flow Selection descriptions for Collections and Disbursements
-- Added `Sole proprietors` to relevant user-type questions
-- Removed numeric placeholders from payer / payee count fields
-- Made `Are these users actual or estimated?` required with no default selection
-- Replaced the old `Who is the end customer?` question with current use case and licensing questions
-- Updated Review summary behavior and final page messaging
-- Added decision maker capture to Primary Contact
-- Added new use case / corridor status and current handling details
-- Added implementation timeline to Business Profile
-- RTP is greyed out in Product Scope when `Collections` is selected
-- IBT is greyed out in Product Scope when `Disbursements` is selected
+The app submits a JSON payload configured by:
 
-## Current product scope
+- `site/partner-intake-form/config.js`
 
-Products currently listed:
+The payload includes:
 
-- Standard ACH
-- Same Day ACH
-- IBT (Instant Bank Transfer)
-- RTP
-- Swift Wire
-- Named Virtual Accounts
-- Foreign Exchange
-- Pay Links
-- Card Acquiring
-- Card Issuance
-- Stablecoin
-- Digital Wallet
+- `summary`: readable plain-text summary
+- `rawData`: flat key/value fields for Zapier mapping
+- `responses`: nested structured response data
 
-Additional services currently listed:
+See:
 
-- Plaid Bank Account Verification
-- Risk Services
+- `docs/team-feedback-questionnaire-outline.md`
 
-## Current UI / branding direction
+for a sample Zapier payload and summary.
 
-The form has been restyled toward a Veem-aligned visual language with:
+## Local Testing
 
-- dark sidebar
-- white content panels
-- blue primary accents
-- orange CTA usage in limited places
-- rounded pills, tags, and cards
+From the repo root:
 
-Recent UI work has mainly focused on:
+```bash
+python3 -m http.server 4175
+```
 
-- reducing visual clutter
-- improving consistency between selected states
-- aligning the Review and Documents pages with the rest of the form
-- flattening overly heavy shadows and background glow effects
+Open:
 
-## Ongoing development
+- `http://127.0.0.1:4175/test.html`
 
-The project is still being refined in these areas:
+or directly:
 
-- final visual polish and consistency between local and GitHub-hosted rendering
-- continued tuning of shadows, selected states, and card styling
-- maintaining parity between `site/partner-intake-form` and `docs`
-- continued copy review with stakeholders
-- validating whether the current questions and order are final
+- `http://127.0.0.1:4175/site/partner-intake-form/test.html?mode=test`
 
-## Known implementation notes
+## Safe Change Checklist
 
-- The app is static and does not require a build step.
-- The thank-you page now shares Veem solution and partnership links after submission.
-- The deployment folder includes an example backend handler, but backend integration may still need production wiring depending on deployment target.
+When changing the form:
 
-## How to continue work safely
+- Edit the canonical files in `site/partner-intake-form/`.
+- Update `docs/team-feedback-questionnaire-outline.md` when flow, wording, or summary output changes.
+- Update `docs/form-items-and-definitions.md` when selectable items or definitions change.
+- Run `node --check site/partner-intake-form/app.js`.
+- Smoke-test `site/partner-intake-form/test.html?mode=test` locally.
 
-- Always update both:
-  - `site/partner-intake-form/app.js`
-  - `docs/app.js`
-  - `site/partner-intake-form/styles.css`
-  - `docs/styles.css`
-- If content changes, also review:
-  - `docs/team-feedback-questionnaire-outline.md`
-- Check both local versions after UI or logic changes:
-  - `http://127.0.0.1:4173/`
-  - `http://127.0.0.1:4174/`
-- Be careful not to reintroduce removed fields such as transaction types unless explicitly requested.
-
-## Suggested next steps
-
-- finalize visual cleanup for hosted rendering
-- confirm remaining stakeholder feedback on wording and section order
-- do a final sync pass between app behavior and the review questionnaire doc
-- prepare a stable release / deployment pass once content and styling are approved
+Generated exports under `outputs/` should stay untracked.

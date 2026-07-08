@@ -1,3 +1,4 @@
 .DS_Store
 .claude/
-site/partner-onboarding/config.local.js
+site/partner-intake-form/config.local.js
+outputs/

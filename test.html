@@ -4,29 +4,17 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Veem Partner Test</title>
-    <meta
-      name="description"
-      content="Local test page for the Veem partner intake questionnaire."
-    />
-    <link rel="icon" type="image/webp" href="./favicon.webp" />
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="./styles.css?v=usecase-flow-v48" />
+    <meta name="description" content="Redirect to the canonical local test page." />
+    <meta http-equiv="refresh" content="0; url=./site/partner-intake-form/test.html?mode=test" />
+    <script>
+      const target = new URL("./site/partner-intake-form/test.html", window.location.href);
+      target.search = window.location.search || "?mode=test";
+      window.location.replace(target.href);
+    </script>
   </head>
   <body>
-    <a
-      href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:text-sky-700"
-    >
-      Skip to content
-    </a>
-    <div id="app"></div>
-    <noscript>
-      <main class="noscript-shell">
-        <h1>Veem Partner Test</h1>
-        <p>This questionnaire needs JavaScript enabled to run.</p>
-      </main>
-    </noscript>
-    <script src="./config.test.js?v=usecase-flow-v48"></script>
-    <script type="module" src="./app.js?v=usecase-flow-v48"></script>
+    <main>
+      <p>Redirecting to <a href="./site/partner-intake-form/test.html?mode=test">the Veem partner intake test page</a>.</p>
+    </main>
   </body>
 </html>

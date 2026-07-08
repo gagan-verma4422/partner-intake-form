@@ -4,94 +4,46 @@ This package is prepared to live at:
 
 - `https://veem.com/partner-intake-form/`
 
-It expects a submission webhook URL configured in:
+## Static Site Deployment
 
-- `/partner-intake-form/config.js`
+Deploy the contents of:
 
-## 1. Static site deployment
+- `site/partner-intake-form/`
 
-Deploy the contents of the `site/partner-intake-form/` folder so these files resolve:
+so these files resolve:
 
 - `/partner-intake-form/`
 - `/partner-intake-form/app.js`
 - `/partner-intake-form/styles.css`
 - `/partner-intake-form/config.js`
+- `/partner-intake-form/favicon.webp`
 
-Important:
+Redirect:
 
-- redirect `/partner-intake-form` to `/partner-intake-form/`
+- `/partner-intake-form`
 
-## 2. Zapier webhook contract
+to:
 
-The frontend sends:
+- `/partner-intake-form/`
 
-```json
-{
-  "event": "veem.partner_onboarding.submitted",
-  "submissionId": "uuid-or-random-id",
-  "submittedAt": "2026-03-19T12:34:56.000Z",
-  "pageUrl": "https://example.com/partner-intake-form/",
-  "userAgent": "browser user agent string",
-  "contact": {},
-  "company": {},
-  "summary": "Plain-text submission summary...",
-  "rawData": {
-    "First Name": "Ada",
-    "Last name": "Lovelace",
-    "Email": "ada@example.com",
-    "Whatsapp Number": "+1 555 000 0000",
-    "Company Name": "Acme Payments",
-    "Entity Type": "Corporation",
-    "Url": "https://example.com",
-    "Selected flows": "Collections and Disbursements",
-    "Flow of funds business": "yes",
-    "Licensed in operating countries": "yes",
-    "Additional licenses": "no",
-    "Additional license locations": "",
-    "Pricing model": "Wholesale pricing",
-    "Revenue range": "$10M-$50M",
-    "Expected company growth (next 12 months)": "30",
-    "Annual volume range": "$50M-$250M",
-    "Payment count range": "100K-500K",
-    "Average ticket size": "2500",
-    "Product interest summary": "Methods: Bank Transfers (Local) (interested) | Stored value accounts: Multi-Currency Wallet (interested) | Additional services: Risk Services (interested)",
-    "Products": "Bank Transfers (Local) (interested), Multi-Currency Wallet (interested)",
-    "Methods": "Bank Transfers (Local) (interested)",
-    "Stored value accounts": "Multi-Currency Wallet (interested)",
-    "Stored value account options": "Multi-Currency Wallet (interested)",
-    "Additional services": "Risk Services (interested)",
-    "Collections sender types": "businesses",
-    "Collections receiver types": "consumers",
-    "Collections payer count": "1000",
-    "Collections from countries": "United States",
-    "Collections from currencies": "USD",
-    "Collections to countries": "Canada",
-    "Disbursements sender types": "businesses",
-    "Disbursements receiver types": "soleProprietors",
-    "High risk industries": "no",
-    "Disbursements payee count": "500",
-    "Disbursements from countries": "United States",
-    "Disbursements from currencies": "USD",
-    "Disbursements to countries": "Mexico",
-    "Disbursements to currencies": "MXN",
-    "Additional info": "Launch planned for Q3."
-  },
-  "responses": {
-    "contact": {},
-    "company": {},
-    "role": {},
-    "financials": {},
-    "modules": {},
-    "paymentMethods": {},
-    "additionalServices": {},
-    "additionalInfo": ""
-  }
-}
+## Configuration
+
+Set the production Zapier Catch Hook URL in:
+
+- `site/partner-intake-form/config.js`
+
+Example:
+
+```js
+window.VEEM_ONBOARDING_CONFIG = {
+  testMode: false,
+  submissionWebhookUrl: "https://hooks.zapier.com/hooks/catch/123456/abcdef/"
+};
 ```
 
-`collections` and `disbursements` are included only when those solution areas are selected in the form.
+Keep `testMode: true` only for the GitHub Pages test version.
 
-The webhook should respond with any `2xx` status. If it returns JSON, the frontend can read:
+The webhook should accept a JSON `POST` request and return any `2xx` status on success. If it returns JSON, the frontend can read:
 
 ```json
 {
@@ -100,7 +52,7 @@ The webhook should respond with any `2xx` status. If it returns JSON, the fronte
 }
 ```
 
-If submission fails, return a non-2xx response and optionally:
+For failures, return a non-2xx response and optionally:
 
 ```json
 {
@@ -109,39 +61,73 @@ If submission fails, return a non-2xx response and optionally:
 }
 ```
 
-## 3. Zapier behavior
+## Payload Contract
 
-Recommended production behavior:
+The frontend sends:
 
-- use a Zapier Catch Hook URL as `submissionWebhookUrl`
-- map `rawData` into your Zap or store the entire webhook body
-- use `summary` for email/slack-friendly notifications
-
-There is still a sample Node implementation in `deployment/partner-intake-form-submission-handler.example.js` if you ever decide to place your own backend between the site and Zapier.
-
-## 4. Config example
-
-Set the Zapier Catch Hook URL in `/partner-intake-form/config.js`:
-
-```js
-window.VEEM_ONBOARDING_CONFIG = {
-  submissionWebhookUrl: "https://hooks.zapier.com/hooks/catch/123456/abcdef/"
-};
+```json
+{
+  "event": "veem.partner_onboarding.submitted",
+  "submissionId": "generated-id",
+  "submittedAt": "2026-07-08T14:30:00.000Z",
+  "pageUrl": "https://www.veem.com/partner-intake-form/",
+  "userAgent": "browser user agent string",
+  "contact": {},
+  "company": {},
+  "summary": "Plain-text submission summary...",
+  "rawData": {
+    "First Name": "Maya",
+    "Last name": "Patel",
+    "Email": "maya.patel@example.com",
+    "Company Name": "OrbitPay",
+    "Entity Type": "Corporation",
+    "Url": "https://orbitpay.example",
+    "Use case categories": "B2B Payments, Marketplace / Platform",
+    "New use case or corridor": "Yes",
+    "High-risk industries": "No",
+    "Currently in flow of funds business": "Yes",
+    "Licensed in operating countries": "No",
+    "Pricing model": "Revenue share",
+    "Implementation timeline": "3-6 months",
+    "Annual Revenue range": "$5M - $10M",
+    "Annual volume range": "$100M - $250M",
+    "Payment count range": "500K - 1M",
+    "Product interest summary": "Payment methods: ... | Stored value accounts: ... | Additional services: ...",
+    "Payment methods": "Local Bank Transfers (current + interested), Same Day ACH (interested)",
+    "Stored value accounts": "B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet",
+    "Additional services": "Payer Plugin / Paylinks (interested), Risk Services (interested)",
+    "Use case payment flows": "B2B Payments: User/customer side: Payer | Payers: Businesses | ...",
+    "Use case 1 - B2B Payments - User/customer side": "Payer",
+    "Use case 1 - B2B Payments - Payer types": "Businesses",
+    "Use case 1 - B2B Payments - Payer countries": "United States, Canada",
+    "Use case 1 - B2B Payments - Payee types": "Businesses, Sole proprietors",
+    "Use case 1 - B2B Payments - Payee countries": "United States, Canada, United Kingdom",
+    "Use case 1 - B2B Payments - Stored value account capabilities": "Virtual Bank Accounts, Multi-Currency Wallet",
+    "Additional info": "Partner wants to launch a pilot first."
+  },
+  "responses": {
+    "contact": {},
+    "company": {},
+    "useCase": {},
+    "useCaseFlows": {},
+    "role": {},
+    "financials": {},
+    "paymentMethods": {},
+    "additionalServices": {},
+    "additionalInfo": ""
+  }
+}
 ```
 
-## 5. File layout example
+Use `rawData` for simple Zapier field mapping. Use `summary` for Slack, email, or CRM notes. Store `responses` if downstream systems need the structured form state.
 
-```text
-/var/www/veem/
-  partner-intake-form/
-    index.html
-    app.js
-    styles.css
-    config.js
-```
+## Optional Backend Example
 
-## 6. Notes for the web team
+`deployment/partner-intake-form-submission-handler.example.js` is an optional Express email-forwarding example. Production can use Zapier directly without this backend.
 
-- The frontend is plain HTML, CSS, and JavaScript. No build step is required.
-- Set `config.js` to the final Zapier webhook URL before publishing.
-- This package intentionally excludes the old local workbook and Apps Script submission helpers.
+## Notes For The Web Team
+
+- The frontend is plain HTML, CSS, and JavaScript.
+- No build step is required.
+- Do not deploy root `index.html` or `test.html`; those are local redirects only.
+- Set `config.js` to the final production webhook URL before publishing.
