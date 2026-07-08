@@ -1,10 +1,10 @@
 # Partner Intake Form Items and Definitions
 
-Last updated: July 3, 2026
+Last updated: July 8, 2026
 
 This document summarizes the selectable items currently used in the partner intake form. It is intended as a shared reference for product, sales, partnerships, operations, and implementation teams.
 
-## Solution Areas
+## Stored Value Account Capability Area
 
 | Item | Definition |
 | --- | --- |
@@ -67,7 +67,7 @@ Collections and disbursements are no longer selected as separate solution areas.
 
 ## Stored Value Accounts
 
-Stored value account capabilities are optional and selected per use case.
+Stored value account capabilities are optional and selected per use case. A stored value account lets a partner receive, hold, and use funds before they are sent or spent.
 
 | Item | Definition |
 | --- | --- |
@@ -123,7 +123,7 @@ These user types are used in the payer and payee payment-flow selections.
 | --- | --- |
 | Payer / From | The party that sends or funds the payment. |
 | Payee / To | The party that receives the funds. |
-| User/customer side | Identifies whether the partner's user or customer is on the payer side, payee side, or payer and payee sides of the payment flow. |
+| User/customer side | Identifies whether the partner's user or customer is on the payer side or payee side of the payment flow. |
 
 | Item | Definition |
 | --- | --- |
@@ -138,24 +138,19 @@ Each selected use case has a separate page that asks for:
 | Field | Definition |
 | --- | --- |
 | Who is your user or customer in this use case? | Indicate whether your users are payers or payees. |
-| Who is the payer? | Select the payer user types: consumers, businesses, and/or sole proprietors. |
+| From user type | Select the sending user types: consumers, businesses, and/or sole proprietors. |
 | Payer regions, countries, and currencies | Identify where payers are located and which currencies they send. |
 | Number of payers | Approximate number of payer users for the selected use case. |
 | Payer count basis | Indicates whether the payer count is actual or estimated. |
-| Who is the payee? | Select the payee user types: consumers, businesses, and/or sole proprietors. |
+| To user type | Select the receiving user types: consumers, businesses, and/or sole proprietors. |
 | Payee regions, countries, and currencies | Identify where payees are located and which currencies they receive. |
 | Number of payees | Approximate number of payee users for the selected use case. |
 | Payee count basis | Indicates whether the payee count is actual or estimated. |
-| Stored value account capabilities | Optional wallet, virtual account, stablecoin wallet, or virtual card capabilities that may support the selected use case. |
+| Stored Value Account | Optional stored value account capabilities needed for the selected use case, such as wallets, virtual accounts, stablecoin wallets, or virtual cards. A stored value account lets the partner receive, hold, and use funds before they are sent or spent. |
 
-## Transaction Types
+## Review Summary Format
 
-| Item | Definition |
-| --- | --- |
-| Domestic | Funds move within the same domestic market or country context. |
-| FX | Funds require foreign exchange or currency conversion. |
-| Cross border USD | Funds move across borders while using USD as the transaction or settlement currency. |
-| Money storage accounts only | The opportunity is focused on stored balances or wallet accounts without a payment movement flow. |
+The Review page uses a grouped question-and-answer table. Groups include use case setup, payment scope, commercial profile, and one group for each selected use case. Long country, region, and currency lists are summarized with a selected count and a short preview.
 
 ## Financial Range Options
 

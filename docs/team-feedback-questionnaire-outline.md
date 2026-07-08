@@ -1,34 +1,29 @@
 # Veem Partner Intake Form Review
 
-Use this document to collect feedback on the current intake experience. The goal is to review content, order, clarity, and anything that may be missing or unnecessary before finalizing the form.
+Last updated: July 8, 2026
+
+Use this document to review the current partner intake experience. The goal is to confirm the page order, field wording, conditional logic, and summary output before the form is finalized.
 
 ## How To Review
 
-- Focus on whether each page is clear, necessary, and in the right sequence.
-- Comment on wording that may feel too internal, vague, or repetitive.
-- Flag any required fields that should be optional, or optional fields that should be required.
-- Note any questions that should be added, removed, or moved.
-
-## Review Focus
-
-- Overall flow and sequencing
-- Clarity of page titles and helper text
-- Field relevance and completeness
-- Conditional logic and whether questions appear at the right time
-- Readiness for internal and external review
+- Confirm that each page is clear, necessary, and in the right sequence.
+- Comment on wording that feels too internal, vague, repetitive, or difficult for a partner to answer.
+- Flag required fields that should be optional, or optional fields that should be required.
+- Note any questions that should be added, removed, moved, or grouped differently.
+- Review whether the final summary gives the internal team enough context to qualify and route the opportunity.
 
 ## Current Experience
 
+The form no longer asks partners to choose separate Collection or Disbursement flows. Partners select one or more use cases, then provide a From and To payment flow for each selected use case.
+
 1. Contact Information
-2. Use Case Category
-3. Flow Selection
-4. Collection Information (only shown if `Collections` is selected)
-5. Disbursement Information (only shown if `Disbursements` is selected)
-6. Product Scope
-7. Financial Profile
-8. Business Profile
-9. Review
-10. Thank You / Available Documents
+2. Use Case Categories
+3. Payment Flow page for each selected use case
+4. Payment Methods
+5. Additional Services
+6. Business & Financial Profile
+7. Review
+8. Thank You / Available Documents
 
 ## 1. Contact Information
 
@@ -40,7 +35,7 @@ Page description:
 Page footer:
 `Fields marked with * are required.`
 
-### Primary contact
+### Primary Contact
 
 Section description:
 `Please provide the primary contact for this inquiry.`
@@ -56,201 +51,198 @@ Section description:
 - Decision maker email
   Note: optional; only shown when `Are you the decision maker?` is unchecked
 
-### Company details
+### Company Details
 
 Section description:
 `Please provide basic company information.`
 
 - Company name
 - Entity type
+  Options: Corporation, LLC, Partnership, Sole proprietorship, Nonprofit, Other
+- Please specify entity type
+  Note: only shown when `Other` is selected
 - URL
 
-## 2. Use Case Category
+## 2. Use Case Categories
 
-Page title: `Choose the dominant commercial framing.`
+Page title: `Choose the commercial framing.`
 
 Page description:
-`Select the primary business motion for this opportunity.`
+`Your selections will shape the From and To flow details we collect.`
 
 Page footer:
 `Fields marked with * are required.`
 
-### Use case category
+### Use Case Categories
 
 Section description:
-`Choose the dominant commercial framing for this opportunity.`
+`Choose all commercial framings that apply. The next step will collect the From and To flow for the selected use cases.`
 
-- Use case category
-  Options: B2B Payments, Marketplace / Platform, Personal Remittance, Disbursements / Payroll, Embedded Finance, Other
-- Please specify use case category
-  Note: only shown when `Other` is selected above
+- Use case categories
+  Control: multi-select cards
+  Options: B2B Payments, Marketplace / Platform, Personal Remittance, Wallet Funding / Me-to-Me, Payables / Payroll, Ecommerce, Other
+- Please specify other use case category
+  Note: only shown when `Other` is selected
 - Is this a new use case or corridor?
   Options: Yes, No
 - How do you handle it today?
   Note: only shown when `No` is selected above
-
-## 3. Flow Selection
-
-Page title: `Choose the solution areas you would like to discuss.`
-
-Page description:
-`Select collections, disbursements, or both.`
-
-### Solutions of interest
-
-Section description:
-`Select the solution areas you would like to discuss. The remaining steps will adjust to your selection.`
-
-Reviewer note:
-Descriptions should help users quickly understand the difference between Collections and Disbursements without needing additional explanation.
-
-- Collections
-  Description: Receive funds through Standard ACH, Same Day ACH, IBT, Swift Wire, Named Virtual Accounts, Pay Links, Card Acquiring, Foreign Exchange, Digital Wallet, and Stablecoin.
-- Disbursements
-  Description: Send or deliver funds through Standard ACH, Same Day ACH, Swift Wire, Foreign Exchange, Card Issuance, and Stablecoin.
-
-## 4. Collection Information
-
-Shown only when `Collections` is selected.
-
-Page title: `Provide information about your collections flow.`
-
-Page description:
-`Please share details about the users sending funds and where funds move in your collections flow.`
-
-Page footer:
-`Fields marked with * are required.`
-
-### Originating users
-
-Section description:
-`Please provide information about where funds are coming from and where they are going in your collections flow.`
-
-- What type of users are sending funds?
-  Options: Consumers, Businesses, Sole proprietors
-- Number of users (payers)
-- Are these users actual or estimated?
-  Options: Actual, Estimated
-- From which countries will funds be sent?
-- In which currencies will funds be sent?
-- To which countries will funds be delivered?
-- In which currencies will funds be delivered?
-
-## 5. Disbursement Information
-
-Shown only when `Disbursements` is selected.
-
-Page title: `Provide information about your disbursement flow.`
-
-Page description:
-`Please share details about the users receiving funds and where funds move in your disbursement flow.`
-
-Page footer:
-`Fields marked with * are required.`
-
-### Receiving users
-
-- What type of users are receiving funds?
-  Options: Consumers, Businesses, Sole proprietors
-- Do any of these businesses operate in high risk industries?
+- Do any of the industries involved operate in high-risk industries?
   Options: Yes, No
-  Note: only shown when `Businesses` is selected above
-- Number of users receiving funds
-- Are these users actual or estimated?
-  Options: Actual, Estimated
-- From countries
-- From currencies
-- To countries
-- To currencies
+- Please specify high-risk industries
+  Note: only shown when `Yes` is selected above
 
-## 6. Product Scope
+Reviewer note:
+Confirm that partners can select multiple use cases without confusion, and that the use case labels are broad enough for common partner scenarios.
 
-Page title: `Identify products and services.`
+## 3. Payment Flow Pages
+
+One page is created for each selected use case. The page title is the selected use case name, for example `B2B Payments` or `Marketplace / Platform`.
+
+Page eyebrow: `Payment Flow`
 
 Page description:
-`Select the products and additional services most relevant to your business.`
+`Provide payer, payee, market, currency, and stored value details for this use case.`
 
 Page footer:
 `Fields marked with * are required.`
 
-### Products
+### From
 
 Section description:
-Prompt changes slightly based on selected flow.
+`Share who is sending funds and the source countries and currencies.`
+
+- User type
+  Options: Consumers, Businesses, Sole proprietors
+- Source regions
+- What specific countries are funds coming from?
+- Which currencies are the funds sent in?
+- Number of sending users
+- Are these users actual or estimated?
+  Options: Actual, Estimated
+
+### To
+
+Section description:
+`Share who is receiving funds and the destination countries and currencies.`
+
+- User type
+  Options: Consumers, Businesses, Sole proprietors
+- Destination regions
+- What specific countries are funds going to?
+- Which currencies are the funds received in?
+- Number of receiving users
+- Are these users actual or estimated?
+  Options: Actual, Estimated
+
+### Use Case Setup
+
+Section description:
+`Confirm the user role and account preferences for this use case.`
+
+- Who is your user or customer in this use case?
+  Options: Payer, Payee
+- Stored Value Account
+  Helper text: `Select any stored value account capabilities needed for this use case. A stored value account lets you receive, hold, and use funds before they are sent or spent.`
+  Options: Multi-Currency Wallet, Stablecoin Wallet (USDC / USDT), Virtual Card (USD), Virtual Bank Accounts
+  Note: optional per use case
 
 Reviewer note:
-Confirm that the product list is complete, clearly labeled, and grouped in a way that matches how the team wants to position Veem capabilities.
+Check whether the From and To language is easy for external partners to understand without using collection/disbursement terminology.
 
-Collections only:
-`Please indicate the products relevant to your incoming collection flows.`
+## 4. Payment Methods
 
-Disbursements only:
-`Please indicate the products relevant to your outgoing disbursement flows.`
+Page title: `Select the payment methods.`
 
-Both flows selected:
-`Please indicate the products relevant to your selected flows.`
+Page description:
+`Mark each payment rail as current use, interested in Veem, or both.`
 
-- Standard ACH
-  Description: Veem's standard domestic U.S. bank transfer option for lower-cost transactions where moderate settlement speed is acceptable.
-- Same Day ACH
-  Description: Domestic U.S. ACH with same-day settlement for faster bank movement when timing matters.
+Page footer:
+`Fields marked with * are required.`
+
+### Payment Methods
+
+Section description:
+`Select the payment methods relevant to the From and To flow. Plugins and Paylinks are handled on the next page.`
+
+Required: at least one payment method must be marked as `Current use`, `Interested in Veem`, or both.
+
+#### Bank Transfers
+
+- Local Bank Transfers
+- Same Day ACH (US only)
 - IBT (Instant Bank Transfer)
-  Description: Instant bank transfer collection option for account-to-account payments where users connect a bank account and move funds quickly.
-  Note: greyed out and unavailable when `Disbursements` is selected.
-- RTP
-  Description: Real-Time Payments for instant U.S. bank transfers and immediate settlement in time-sensitive use cases.
-  Note: greyed out and unavailable when `Collections` is selected.
-- Swift Wire
-  Description: Domestic or cross-border USD wire transfers through the SWIFT network for direct bank-to-bank settlement.
-- Named Virtual Accounts
-  Description: Unique U.S.-based account and routing numbers that support incoming payments, reconciliation, and account-level tracking.
-- Foreign Exchange
-  Description: Currency conversion supported by institutional liquidity providers for cross-border payments and treasury movement.
-- Pay Links
-  Description: Invoice, checkout, or link-based collection experience.
-- Card Acquiring
-  Description: Card-funded payment acceptance for partners taking debit or credit card payments.
-- Card Issuance
-  Description: Commercial prepaid card issuance, including virtual card experiences for wallets and ecommerce use cases.
-- Stablecoin
-  Description: USDC and USDT on-ramp and off-ramp support across multiple blockchain networks with routed settlement options.
-- Digital Wallet
-  Description: Balance-supported collection flow that lets users receive funds into a stored balance, hold funds for later use, and route balances to payouts, cards, or external accounts.
+- RTP (US only)
 
-For each product:
+#### Bank Wires
 
-- Current
-- Interested
-- Estimated share of volume
-- Share basis: current or expected
+- Fedwire (US)
+- International Swift
 
-### Additional services
+#### Cards
+
+- Card Acceptance (Debit & Credit)
+- Push to Cards
+- Instant Card Issuance
+
+### Fiat and Digital Currency Conversions
 
 Section description:
-`Please select any additional services relevant to this opportunity.`
+`Select relevant FX currency tiers and stablecoin conversion directions.`
+
+#### FX
+
+- FX - Majors
+- FX - Minors
+- FX - Tertiary
+
+#### Stablecoins
+
+- USDC ↔ Fiat
+- USDT ↔ Fiat
 
 Reviewer note:
-Confirm whether this list should stay narrow or whether other services should be brought back into scope.
+Confirm that payment methods and conversion options are grouped in a way that is easy to scan and does not imply unavailable functionality.
 
+## 5. Additional Services
+
+Page title: `Select any add-on services.`
+
+Page description:
+`Choose verification, risk, or plugin services that should be included with the selected flow.`
+
+Page footer:
+`Fields marked with * are required.`
+
+### Additional Services
+
+Section description:
+`Select optional verification, risk, payer-facing, and payee-facing services for the selected use cases.`
+
+- Payer Plugin / Paylinks
+- Payee Plugin
 - Plaid Bank Account Verification
 - Risk Services
 
-For each additional service:
+For each service:
 
-- Current
-- Interested
+- Current use
+- Interested in Veem
 
-## 7. Financial Profile
+Reviewer note:
+This page is optional in the current test version. Confirm whether any service should be required or whether more add-on services should be included.
 
-Page title: `Provide current scale and expected growth.`
+## 6. Business & Financial Profile
+
+Page title: `Provide financial scale and commercial preferences.`
 
 Page description:
-`Please provide directional ranges for revenue, payment volume, payment count, and expected growth over the next 12 months.`
+`Please provide directional ranges for volume and the business preferences for this opportunity.`
 
 Page footer:
 `Fields marked with * are required.`
 
-### Company financials
+### Company Financials
 
 Section description:
 `Please provide directional ranges for the business supporting the selected flow or flows.`
@@ -259,35 +251,32 @@ Section description:
 - Annual volume
 - Payment count
 - Average ticket size
-- Expected company growth (next 12 months)
+- Expected company growth (Next 12 months)
 
-## 8. Business Profile
-
-Page title: `Provide business profile and licensing information.`
-
-Page footer:
-`Fields marked with * are required.`
-
-### Business profile
+### Business Profile
 
 Section description:
-`Please provide information on your role in the flow of funds and your licensing status for the selected flow or flows.`
+`Please confirm your current operating status for this opportunity.`
 
-Reviewer note:
-This page is intended to capture operating model and licensing context without asking for overly detailed implementation information too early.
-
+- Are you currently in the flow of funds business?
+  Options: Yes, No
 - Are you licensed in the countries in which you operate?
   Options: Yes, No
-- Do you hold any additional licenses?
-  Options: Yes, No
-- Where do you hold additional licenses?
-  Note: only shown when `Yes` is selected above
+
+### Commercial Preferences
+
+Section description:
+`Please share the business model and launch timing for this opportunity.`
+
 - Which commercial model do you prefer?
   Options: Wholesale pricing, Revenue share
 - What is your timeline to implement the solution?
   Options: Immediately / 0-3 months, 3-6 months, 6-12 months, 12+ months, Exploring / no fixed timeline
 
-## 9. Review
+Reviewer note:
+Confirm that the commercial preference questions are enough for routing without making the partner provide implementation detail too early.
+
+## 7. Review
 
 Page title: `Review your responses and provide any additional context.`
 
@@ -302,37 +291,65 @@ Page footer:
 Section description:
 `Please review the information provided below.`
 
-Reviewer note:
-This summary should help the team quickly understand the submission at a glance. Flag anything that feels repetitive, unclear, or missing.
+The current summary is a grouped question-and-answer table. Groups include:
 
-- Selected flows
-- Use case category and new use case / corridor status
-- Markets and Currencies
-  Example summary:
-  `Collections: Countries: Canada | Currencies: USD`
-  `Disbursements: Countries: Mexico | Currencies: USD`
-- Commercial model summary
+- Use case setup
+- Payment scope
+- Commercial profile
+- One group for each selected use case
 
-### Additional information
+The table summarizes:
+
+- Selected use cases
+- New use case or corridor status
+- Current handling, when applicable
+- High-risk industry status and details, when applicable
+- Payment method interest
+- Additional service interest
+- Stored Value Account selections
+- Flow of funds and licensing status
+- Commercial model, annual revenue, and implementation timeline
+- From / payer details per use case
+- To / payee details per use case
+
+Long country, region, and currency lists are summarized with a selected count and a short preview.
+
+### Additional Information
 
 Section description:
 `Please provide any additional information that would assist our review.`
 
 - Additional context
 
-## 9. Thank You / Available Documents
+Reviewer note:
+Confirm that the grouped summary is concise enough for internal review and still includes the details needed for follow-up.
 
-Page title: `Thank you for your submission.`
+## 8. Thank You / Available Documents
+
+Page title: `Thank you for your submission`
 
 Page description:
-`Explore Veem solutions and partnership resources using the links below.`
+`Our team will review your responses and get back to you shortly.`
 
-### Completion screen
+### Completion Screen
 
 - Submission confirmation
+- Submission received timestamp, when available
 - Links to Veem solution pages and partnership resources
 
-## Feedback prompts for the team
+## Not Currently In The Main Flow
+
+The app still contains some legacy or future-ready components that are not currently inserted into the active step order:
+
+- Standalone Stored Value Accounts coverage page
+- Standalone Stored Value Account interest page
+- Transaction type selection
+- Collection and disbursement selection pages
+
+Reviewer note:
+Do not review these as active partner-facing pages unless they are intentionally reintroduced into the step order.
+
+## Feedback Prompts For The Team
 
 - Does the form feel easy to understand from start to finish?
 - Are the section names clear?
@@ -341,7 +358,7 @@ Page description:
 - Are any questions unnecessary?
 - Are any labels confusing or too internal?
 - Are the conditional sections showing in the right places?
-- Do we need different wording for collections vs disbursements?
+- Does the From and To flow remove the need for collection/disbursement wording?
 - Are there fields that should be optional instead of required?
 - Are there any places where the user may hesitate or need extra explanation?
 - Does the Review page summarize the right information for internal follow-up?
