@@ -324,6 +324,161 @@ Section description:
 Reviewer note:
 Confirm that the grouped summary is concise enough for internal review and still includes the details needed for follow-up.
 
+## Sample Submission Data For Zapier
+
+The form submits a JSON payload to Zapier with three useful areas:
+
+- `summary`: readable plain-text summary for Slack, email, CRM notes, or internal review.
+- `rawData`: flat key/value fields that are easier to map in Zapier.
+- `responses`: nested structured data for more detailed automation or storage.
+
+### Example Summary
+
+```text
+New Partner Intake form submission
+
+Contact: Maya Patel
+Email: maya.patel@orbitpay.example
+WhatsApp: +1 416 555 0198
+Primary contact is decision maker: Yes
+Decision maker name: N/A
+Decision maker email: N/A
+Company: OrbitPay
+Entity type: Corporation
+URL: https://orbitpay.example
+Use case categories: B2B Payments, Marketplace / Platform
+New use case or corridor: Yes
+Current handling: N/A
+High-risk industries: No
+High-risk industry details: N/A
+
+Currently in flow of funds business: Yes
+Licensed in operating countries: No
+Pricing model: Revenue share
+Implementation timeline: 3-6 months
+
+Revenue range: $5M - $10M
+Expected company growth (next 12 months): 45%
+Annual volume range: $100M - $250M
+Payment count range: 500K - 1M
+Average ticket size: $2,500
+
+Product interest summary: Payment methods: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | Stored value accounts: B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD) | Additional services: Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested)
+Payment methods: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current)
+Stored value accounts: B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)
+Additional services: Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested)
+
+Use case payment flows:
+B2B Payments: User/customer side: Payer | Payers: Businesses | Number of payers: 1200 (actual) | Payer regions: North America | Payer countries: United States, Canada | Payer currencies: USD, CAD | Payees: Businesses, Sole proprietors | Number of payees: 3800 (estimated) | Payee regions: North America, Europe | Payee countries: United States, Canada, United Kingdom, Germany | Payee currencies: USD, CAD, GBP, EUR | Stored value: Virtual Bank Accounts, Multi-Currency Wallet
+Marketplace / Platform: User/customer side: Payee | Payers: Consumers, Businesses | Number of payers: 25000 (estimated) | Payer regions: North America, Europe | Payer countries: United States, Canada, United Kingdom, Germany | Payer currencies: USD, CAD, GBP, EUR | Payees: Businesses | Number of payees: 9000 (actual) | Payee regions: North America, Europe | Payee countries: United States, Canada, United Kingdom, Germany | Payee currencies: USD, CAD, GBP, EUR | Stored value: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)
+
+Additional info: Partner wants to launch the B2B flow first, then add marketplace payouts after pilot approval.
+```
+
+### Example `rawData` Fields
+
+| Zapier field | Sample value |
+| --- | --- |
+| Submission date | 2026-07-08T14:30:00.000Z |
+| First Name | Maya |
+| Last name | Patel |
+| Email | maya.patel@orbitpay.example |
+| Whatsapp Number | +1 416 555 0198 |
+| Primary contact is decision maker | Yes |
+| Company Name | OrbitPay |
+| Entity Type | Corporation |
+| Url | https://orbitpay.example |
+| Use case categories | B2B Payments, Marketplace / Platform |
+| New use case or corridor | Yes |
+| High-risk industries | No |
+| Currently in flow of funds business | Yes |
+| Licensed in operating countries | No |
+| Pricing model | Revenue share |
+| Implementation timeline | 3-6 months |
+| Annual Revenue range | $5M - $10M |
+| Annual volume range | $100M - $250M |
+| Payment count range | 500K - 1M |
+| Expected company growth (next 12 months) | 45 |
+| Average ticket size | 2500 |
+| Payment methods | Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) |
+| Stored value accounts | B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet \| Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD) |
+| Additional services | Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested) |
+| Use case payment flows | B2B Payments: User/customer side: Payer ... \|\| Marketplace / Platform: User/customer side: Payee ... |
+| Use case 1 - B2B Payments - User/customer side | Payer |
+| Use case 1 - B2B Payments - Payer types | Businesses |
+| Use case 1 - B2B Payments - Payer count | 1200 |
+| Use case 1 - B2B Payments - Payer count basis | actual |
+| Use case 1 - B2B Payments - Payer regions | North America |
+| Use case 1 - B2B Payments - Payer countries | United States, Canada |
+| Use case 1 - B2B Payments - Payer currencies | USD, CAD |
+| Use case 1 - B2B Payments - Payee types | Businesses, Sole proprietors |
+| Use case 1 - B2B Payments - Payee count | 3800 |
+| Use case 1 - B2B Payments - Payee count basis | estimated |
+| Use case 1 - B2B Payments - Payee regions | North America, Europe |
+| Use case 1 - B2B Payments - Payee countries | United States, Canada, United Kingdom, Germany |
+| Use case 1 - B2B Payments - Payee currencies | USD, CAD, GBP, EUR |
+| Use case 1 - B2B Payments - Stored value account capabilities | Virtual Bank Accounts, Multi-Currency Wallet |
+| Use case 2 - Marketplace / Platform - User/customer side | Payee |
+| Use case 2 - Marketplace / Platform - Payer types | Consumers, Businesses |
+| Use case 2 - Marketplace / Platform - Payer count | 25000 |
+| Use case 2 - Marketplace / Platform - Payer count basis | estimated |
+| Use case 2 - Marketplace / Platform - Payer regions | North America, Europe |
+| Use case 2 - Marketplace / Platform - Payer countries | United States, Canada, United Kingdom, Germany |
+| Use case 2 - Marketplace / Platform - Payer currencies | USD, CAD, GBP, EUR |
+| Use case 2 - Marketplace / Platform - Payee types | Businesses |
+| Use case 2 - Marketplace / Platform - Payee count | 9000 |
+| Use case 2 - Marketplace / Platform - Payee count basis | actual |
+| Use case 2 - Marketplace / Platform - Payee regions | North America, Europe |
+| Use case 2 - Marketplace / Platform - Payee countries | United States, Canada, United Kingdom, Germany |
+| Use case 2 - Marketplace / Platform - Payee currencies | USD, CAD, GBP, EUR |
+| Use case 2 - Marketplace / Platform - Stored value account capabilities | Stablecoin Wallet (USDC / USDT), Virtual Card (USD) |
+| Additional info | Partner wants to launch the B2B flow first, then add marketplace payouts after pilot approval. |
+
+### Example Payload Shape
+
+```json
+{
+  "event": "veem.partner_onboarding.submitted",
+  "submissionId": "submission-20260708-143000",
+  "submittedAt": "2026-07-08T14:30:00.000Z",
+  "pageUrl": "https://example.com/test.html?mode=test",
+  "contact": {
+    "firstName": "Maya",
+    "lastName": "Patel",
+    "email": "maya.patel@orbitpay.example",
+    "whatsapp": "+1 416 555 0198",
+    "isDecisionMaker": true
+  },
+  "company": {
+    "companyName": "OrbitPay",
+    "entityType": "corporation",
+    "url": "https://orbitpay.example"
+  },
+  "summary": "New Partner Intake form submission...",
+  "rawData": {
+    "Company Name": "OrbitPay",
+    "Use case categories": "B2B Payments, Marketplace / Platform",
+    "Stored value accounts": "B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)"
+  },
+  "responses": {
+    "useCase": {
+      "categories": ["b2b-payments", "marketplace-platform"],
+      "isNewUseCaseOrCorridor": "yes",
+      "highRiskIndustries": "no"
+    },
+    "useCaseFlows": {
+      "b2b-payments": {
+        "label": "B2B Payments",
+        "customerSides": ["payer"],
+        "senderTypes": ["businesses"],
+        "receiverTypes": ["businesses", "soleProprietors"],
+        "storedValueAccountTypes": ["virtualBankAccounts", "multiCurrencyWallets"]
+      }
+    }
+  }
+}
+```
+
 ## 8. Thank You / Available Documents
 
 Page title: `Thank you for your submission`
