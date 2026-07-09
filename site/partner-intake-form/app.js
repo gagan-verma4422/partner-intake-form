@@ -589,6 +589,7 @@ const COUNTRY_CURRENCY_MAP = {
 };
 
 const FLOW_MODULE_KEYS = ["accounts"];
+const RTP_HIDDEN_USE_CASE_VALUES = ["marketplace-platform", "ecommerce"];
 const PRODUCT_AVAILABILITY_RULES = {
   ibtInstantBankTransfer: {
     availableForModules: ["collections"],
@@ -661,14 +662,6 @@ const STEP_CONTENT = {
     description:
       "Select Stored Value Accounts if the opportunity includes wallets, virtual accounts, stablecoin wallets, or virtual cards.",
     footer: "",
-  },
-  markets: {
-    eyebrow: "Payment Methods",
-    title: "Select the payment methods.",
-    description:
-      "Mark each payment rail as current use, interested in Veem, or both.",
-    footer:
-      "Fields marked with * are required.",
   },
   additionalServices: {
     eyebrow: "Additional Services",
@@ -928,7 +921,12 @@ let maxUnlockedStepIndex = 0;
 let activeErrors = [];
 let isLastPageTestingEnabled = false;
 let testingReturnStepIndex = 0;
-const selectorUiState = {};
+// UX changelog: each flag below supports a visual simplification without changing submitted field names or validation.
+const selectorUiState = {
+  activeUseCaseSections: {},
+  expandedSelectedValues: {},
+  countryCustomize: {},
+};
 const submissionState = {
   status: "idle",
   submittedAt: "",
@@ -976,27 +974,29 @@ const state = {
   useCase: {
     categories: [],
     other: "",
-    isNewUseCaseOrCorridor: "",
+    // UX fix: binary Yes/No fields start unanswered so no option appears selected by default.
+    isNewUseCaseOrCorridor: null,
     currentHandling: "",
-    highRiskIndustries: "",
+    highRiskIndustries: null,
     highRiskIndustryDetails: "",
   },
   useCaseFlows: {},
   role: {
-    inFlowOfFundsBusiness: "",
-    licensed: "",
+    inFlowOfFundsBusiness: null,
+    licensed: null,
     pricingModel: "",
     implementationTimeline: "",
   },
   financials: {
     revenueRange: "",
-    companyGrowth: 30,
+    companyGrowth: "",
     annualVolumeRange: "",
     paymentCountRange: "",
-    averageTicket: 2500,
+    averageTicket: "",
   },
   modules: buildInterestMap(MODULES),
   paymentMethods: buildInterestMap(PAYMENT_METHODS),
+  useCasePaymentMethods: {},
   storedValueAccounts: buildInterestMap(STORED_VALUE_ACCOUNTS),
   additionalServices: buildInterestMap(ADDITIONAL_SERVICES),
   accounts: {
@@ -1090,13 +1090,16 @@ function buildSteps() {
   }
 
   if (hasPaymentFlow || shouldShowFullTestPath) {
-    steps.push({ id: "markets", validate: validateMarkets });
     steps.push({ id: "additionalServices", validate: validateAdditionalServices });
   }
   steps.push({ id: "financials", validate: validateFinancials });
   steps.push({ id: "review", validate: () => [] });
   steps.push({ id: "thankyou", validate: () => [] });
   return steps;
+}
+
+function getStepIndexById(stepId) {
+  return buildSteps().findIndex((step) => step.id === stepId);
 }
 
 function ensureLayout() {
@@ -1154,9 +1157,9 @@ function render() {
       ${steps
         .map((step, index) => {
           const content = getStepContent(step);
-          const isPaymentFlowStep = step.id.startsWith("paymentFlow:");
-          const primaryStepLabel = isPaymentFlowStep ? content.title : content.eyebrow;
-          const secondaryStepLabel = isPaymentFlowStep ? content.eyebrow : content.title;
+          const isUseCaseStep = step.id.startsWith("paymentFlow:");
+          const primaryStepLabel = isUseCaseStep ? content.title : content.eyebrow;
+          const secondaryStepLabel = isUseCaseStep ? content.eyebrow : content.title;
           const isUnlocked = index <= maxUnlockedStepIndex;
           const statusClass =
             index === currentStepIndex
@@ -1246,10 +1249,10 @@ function getStepContent(step) {
     const useCaseValue = typeof step === "string" ? stepId.split(":").slice(1).join(":") : step.useCaseValue;
     const label = getUseCaseLabel(useCaseValue);
     return {
-      eyebrow: "Payment Flow",
+      eyebrow: "Payment Flow & Methods",
       title: label,
       description:
-        "Provide From/Payer details, To/Payee details, user/customer side, and stored value account capabilities for this use case.",
+        "Complete the payment flow and payment methods for this use case.",
       footer:
         "Fields marked with * are required.",
     };
@@ -1279,8 +1282,6 @@ function renderStepContent(step) {
       return renderFinancialsStep();
     case "solutions":
       return renderSolutionsStep();
-    case "markets":
-      return renderMarketsStep();
     case "additionalServices":
       return renderAdditionalServicesStep();
     case "accounts":
@@ -1377,7 +1378,10 @@ function renderUseCaseStep() {
         }
         <div class="use-case-detail-grid">
           <div class="use-case-toggle-row">
-            <label>${renderLabelText("Is this a new use case or corridor? *")}</label>
+            <div>
+              <label>${renderLabelText("Is this a new use case or corridor? *")}</label>
+              ${renderInlineInfo("What is a corridor?", "A corridor is a specific payment route, usually defined by where funds start, where they go, and which currencies are used.")}
+            </div>
             ${renderSegmentedButtons("useCase.isNewUseCaseOrCorridor", state.useCase.isNewUseCaseOrCorridor, [
               { value: "yes", label: "Yes" },
               { value: "no", label: "No" },
@@ -1396,7 +1400,10 @@ function renderUseCaseStep() {
           }
 
           <div class="use-case-toggle-row">
-            <label>${renderLabelText("Do any of the industries involved operate in high-risk industries? *")}</label>
+            <div>
+              <label>${renderLabelText("Do any of the industries involved operate in high-risk industries? *")}</label>
+              ${renderInlineInfo("What are high-risk industries?", "High-risk industries are business categories that may need extra compliance review, such as regulated financial services, gambling, cannabis, adult content, or similar sectors.")}
+            </div>
             ${renderSegmentedButtons("useCase.highRiskIndustries", state.useCase.highRiskIndustries, [
               { value: "yes", label: "Yes" },
               { value: "no", label: "No" },
@@ -1484,9 +1491,10 @@ function renderFinancialsStep() {
       <section class="section-card">
         <h3>Business profile</h3>
         <p class="section-card__intro">Please confirm your current operating status for this opportunity.</p>
-        <div class="field-grid">
+        <div class="field-grid business-status-grid">
           <div class="field is-half">
             <label>${renderLabelText("Are you currently in the flow of funds business? *")}</label>
+            ${renderInlineInfo("What is flow of funds?", "Flow of funds means your business already receives, holds, moves, or sends customer money as part of the product experience.")}
             ${renderSegmentedButtons("role.inFlowOfFundsBusiness", state.role.inFlowOfFundsBusiness, [
               { value: "yes", label: "Yes" },
               { value: "no", label: "No" },
@@ -1494,7 +1502,7 @@ function renderFinancialsStep() {
           </div>
 
           <div class="field is-half">
-            <label>${renderLabelText("Are you licensed in the countries in which you operate? *")}</label>
+            <label>${renderLabelText("Are you licensed in your operating countries? *")}</label>
             ${renderSegmentedButtons("role.licensed", state.role.licensed, [
               { value: "yes", label: "Yes" },
               { value: "no", label: "No" },
@@ -1507,8 +1515,9 @@ function renderFinancialsStep() {
         <h3>Commercial preferences</h3>
         <p class="section-card__intro">Please share the business model and launch timing for this opportunity.</p>
         <div class="field-grid">
-          <div class="field">
+          <div class="field commercial-model-field">
             <label>${renderLabelText("Which commercial model do you prefer? *")}</label>
+            <small>Choose Wholesale pricing to pay a flat fee, or Revenue share to earn a percentage of interchange instead.</small>
             ${renderSegmentedButtons("role.pricingModel", state.role.pricingModel, [
               { value: "wholesale", label: "Wholesale pricing" },
               { value: "revshare", label: "Revenue share" },
@@ -1570,9 +1579,10 @@ function renderSolutionsStep() {
 }
 
 function renderUseCasePaymentFlowPage(useCaseValue) {
-  ensureUseCaseFlowsState();
-  const entry = getSelectedUseCaseEntries().find((candidate) => candidate.value === useCaseValue);
-  if (!entry) {
+  const activeEntry = getSelectedUseCaseEntries().find((entry) => entry.value === useCaseValue);
+  const activeSection = getActiveUseCaseSection(useCaseValue);
+
+  if (!activeEntry) {
     return `
       <div class="section-stack">
         <section class="section-card">
@@ -1584,8 +1594,121 @@ function renderUseCasePaymentFlowPage(useCaseValue) {
 
   return `
     <div class="section-stack">
-      ${renderUseCasePaymentFlow(entry, { showUseCaseTitle: false })}
+      ${renderUseCaseWorkspaceHeader(activeEntry, activeSection)}
+      ${
+        activeSection === "methods"
+          ? renderUseCasePaymentMethodsSection(activeEntry)
+          : `
+            ${renderUseCasePaymentFlow(activeEntry, { showUseCaseTitle: false, showSectionIntro: false })}
+            ${renderUseCaseStoredValueSection(activeEntry)}
+          `
+      }
     </div>
+  `;
+}
+
+function renderInlineInfo(label, text) {
+  return `
+    <details class="inline-info-note">
+      <summary>
+        <span class="method-group__info-dot" aria-hidden="true">i</span>
+        <span>${escapeHtml(label)}</span>
+      </summary>
+      <p>${escapeHtml(text)}</p>
+    </details>
+  `;
+}
+
+function getActiveUseCaseSection(useCaseValue) {
+  return selectorUiState.activeUseCaseSections[useCaseValue] === "methods" ? "methods" : "flow";
+}
+
+function renderUseCaseWorkspaceHeader(entry, activeSection) {
+  return `
+    <section class="section-card use-case-workspace-card use-case-workspace-card--compact">
+      ${renderUseCaseSectionToggle(entry, activeSection)}
+    </section>
+  `;
+}
+
+function renderUseCaseSectionToggle(entry, activeSection) {
+  const completion = getUseCaseCompletion(entry);
+  const options = [
+    {
+      value: "flow",
+      label: "Payment Flow",
+      complete: completion.flowComplete,
+    },
+    {
+      value: "methods",
+      label: "Payment Methods",
+      complete: completion.methodsComplete,
+    },
+  ];
+
+  return `
+    <div class="use-case-section-toggle" role="group" aria-label="${escapeHtml(entry.label)} sections">
+      ${options
+        .map((option) => {
+          const isActive = activeSection === option.value;
+          return `
+            <button
+              class="use-case-section-toggle__button ${isActive ? "is-active" : ""} ${option.complete ? "is-complete" : ""}"
+              type="button"
+              data-action="set-use-case-section"
+              data-use-case-value="${escapeHtml(entry.value)}"
+              data-section="${escapeHtml(option.value)}"
+              aria-pressed="${isActive ? "true" : "false"}"
+            >
+              <span>${escapeHtml(option.label)}</span>
+              <em>${option.complete ? "Complete" : "Needs info"}</em>
+            </button>
+          `;
+        })
+        .join("")}
+    </div>
+  `;
+}
+
+function getUseCaseCompletion(entry) {
+  const flowComplete = validateUseCaseFlowEntry(entry).length === 0;
+  const methodsComplete = hasInterestSelection(PAYMENT_METHODS, entry.paymentMethods);
+  return {
+    completed: Number(flowComplete) + Number(methodsComplete),
+    total: 2,
+    flowComplete,
+    methodsComplete,
+  };
+}
+
+function renderUseCasePaymentMethodsSection(entry) {
+  return `
+    <section class="section-card" id="payment-method-${toId(entry.value)}">
+      <div class="flow-preferences-section__copy">
+        <h3>Payment Methods</h3>
+        <p>Select the payment methods relevant to ${escapeHtml(entry.label)}.</p>
+      </div>
+      ${renderPaymentMethodMatrix(`useCasePaymentMethods.${entry.value}`)}
+    </section>
+  `;
+}
+
+function renderUseCaseStoredValueSection(entry) {
+  return `
+    <section class="section-card stored-value-default-section">
+      <div class="stored-value-default-section__header">
+        <div class="stored-value-default-section__title-row">
+          <h3>Stored Value Account</h3>
+          ${renderInlineInfo("What is a stored value account?", "A stored value account can receive, hold, and use funds before those funds are sent or spent.")}
+        </div>
+        <p>Select any stored value account capabilities needed for ${escapeHtml(entry.label)}.</p>
+      </div>
+
+      <div class="field stored-value-flow-field">
+        <label>${renderLabelText("Stored value account capabilities")}</label>
+        ${renderStoredValueAccountSelector(`useCaseFlows.${entry.value}.storedValueAccountTypes`, entry.flow.storedValueAccountTypes)}
+      </div>
+    </section>
   `;
 }
 
@@ -1593,6 +1716,7 @@ function renderUseCasePaymentFlow(entry, options = {}) {
   const flow = entry.flow;
   const basePath = `useCaseFlows.${entry.value}`;
   const showUseCaseTitle = options.showUseCaseTitle !== false;
+  const showSectionIntro = options.showSectionIntro !== false;
 
   return `
     ${
@@ -1600,7 +1724,18 @@ function renderUseCasePaymentFlow(entry, options = {}) {
         ? `
           <section class="section-card payment-flow-intro-card">
             <h3>${escapeHtml(entry.label)}</h3>
-            <p class="section-card__intro">Provide From/Payer details, To/Payee details, user/customer side, and stored value account capabilities for this use case.</p>
+            <p class="section-card__intro">Provide From/Payer details, To/Payee details, and user/customer side for this use case.</p>
+          </section>
+        `
+        : ""
+    }
+
+    ${
+      showSectionIntro
+        ? `
+          <section class="section-card payment-flow-intro-card">
+            <h3>Payment Flow</h3>
+            <p class="section-card__intro">Complete the From, To, user counts, and user/customer side for ${escapeHtml(entry.label)}.</p>
           </section>
         `
         : ""
@@ -1739,17 +1874,12 @@ function renderUseCasePaymentFlow(entry, options = {}) {
     <section class="section-card flow-preferences-section">
       <div class="flow-preferences-section__copy">
         <h3>Use case setup</h3>
-        <p>Confirm the user role and account preferences for this use case.</p>
+        <p>Confirm where your user or customer sits in this use case.</p>
       </div>
       <div class="flow-preferences-fields">
         <div class="field flow-role-field">
           <label>${renderLabelText("Who is your user or customer in this use case? *")}</label>
           ${renderCustomerRoleSelector(`${basePath}.customerSides`, flow.customerSides)}
-        </div>
-        <div class="field stored-value-flow-field">
-          <label>${renderLabelText("Stored Value Account")}</label>
-          <p class="flow-preferences-field-help">Select any stored value account capabilities needed for this use case. A stored value account lets you receive, hold, and use funds before they are sent or spent.</p>
-          ${renderStoredValueAccountSelector(`${basePath}.storedValueAccountTypes`, flow.storedValueAccountTypes)}
         </div>
       </div>
     </section>
@@ -1844,39 +1974,42 @@ function renderAccountsStep() {
   `;
 }
 
-function renderMarketsStep() {
-  const methodsIntro = "Select the payment methods relevant to the From and To flow. Plugins and Paylinks are handled on the next page.";
-
+function renderPaymentMethodMatrix(storeKey) {
   return `
-    <div class="section-stack">
-      <section class="section-card">
-        <h3>Payment methods <span class="required-star">*</span></h3>
-        <p class="section-card__intro">${escapeHtml(methodsIntro)}</p>
-        ${renderPaymentMethodGroups()}
-      </section>
-
-      <section class="section-card">
-        <h3>${escapeHtml(FIAT_DIGITAL_CURRENCY_CONVERSIONS.label)}</h3>
-        <p class="section-card__intro">${escapeHtml(FIAT_DIGITAL_CURRENCY_CONVERSIONS.description)}</p>
-        ${renderFiatDigitalCurrencyConversionGroups()}
+    <div class="payment-method-matrix">
+      ${renderPaymentMethodGroups(storeKey)}
+      <section class="method-group method-group--conversion" aria-labelledby="conversion-group-${toId(storeKey)}">
+        <div class="method-group__header">
+          <div>
+            <h4 id="conversion-group-${toId(storeKey)}">${escapeHtml(FIAT_DIGITAL_CURRENCY_CONVERSIONS.label)}</h4>
+            <p>${escapeHtml(FIAT_DIGITAL_CURRENCY_CONVERSIONS.description)}</p>
+          </div>
+        </div>
+        ${renderFiatDigitalCurrencyConversionGroups(storeKey)}
       </section>
     </div>
   `;
 }
 
-function renderPaymentMethodGroups() {
+function renderPaymentMethodGroups(storeKey = "paymentMethods") {
   return `
     <div class="method-group-stack">
       ${PAYMENT_METHOD_GROUPS
         .map((group) => {
-          const items = getPaymentMethodItems(group.itemKeys);
+          const items = getVisiblePaymentMethodItems(group.itemKeys, storeKey);
+          if (!items.length) {
+            return "";
+          }
+          const titleId = `method-group-${toId(`${storeKey}-${group.key}`)}`;
           return `
-            <section class="method-group" aria-labelledby="method-group-${group.key}">
+            <section class="method-group" aria-labelledby="${titleId}">
               <div class="method-group__header">
-                <h4 id="method-group-${group.key}">${escapeHtml(group.label)}</h4>
-                <p>${escapeHtml(group.description)}</p>
+                <div>
+                  <h4 id="${titleId}">${escapeHtml(group.label)}</h4>
+                  <p>${escapeHtml(group.description)}</p>
+                </div>
               </div>
-              ${renderInterestGrid(items, "paymentMethods", { compact: true, showCategory: false })}
+              ${renderInterestGrid(items, storeKey, { compact: true, showCategory: false, selectOnly: true })}
             </section>
           `;
         })
@@ -1885,20 +2018,26 @@ function renderPaymentMethodGroups() {
   `;
 }
 
-function renderFiatDigitalCurrencyConversionGroups() {
+function renderFiatDigitalCurrencyConversionGroups(storeKey = "paymentMethods") {
   return `
     <div class="method-group-stack">
       ${FIAT_DIGITAL_CURRENCY_CONVERSIONS.groups
         .map((group) => {
-          const items = getPaymentMethodItems(group.itemKeys);
+          const items = getVisiblePaymentMethodItems(group.itemKeys, storeKey);
+          if (!items.length) {
+            return "";
+          }
+          const titleId = `conversion-group-${toId(`${storeKey}-${group.key}`)}`;
           return `
-            <section class="method-group" aria-labelledby="conversion-group-${group.key}">
+            <section class="method-group" aria-labelledby="${titleId}">
               <div class="method-group__header">
-                <h4 id="conversion-group-${group.key}">${escapeHtml(group.label)}</h4>
-                <p>${escapeHtml(group.description)}</p>
+                <div>
+                  <h4 id="${titleId}">${escapeHtml(group.label)}</h4>
+                  <p>${escapeHtml(group.description)}</p>
+                </div>
               </div>
               ${renderConversionGroupDetails(group, items)}
-              ${renderInterestGrid(items, "paymentMethods", { compact: true, showCategory: false })}
+              ${renderInterestGrid(items, storeKey, { compact: true, showCategory: false, selectOnly: true })}
             </section>
           `;
         })
@@ -1917,7 +2056,7 @@ function renderConversionGroupDetails(group, items) {
     <details class="method-group__details method-group__details--top">
       <summary>
         <span class="method-group__info-dot" aria-hidden="true">i</span>
-        <span>Currency bucket details</span>
+        <span>What are FX currency tiers?</span>
       </summary>
       <div class="method-group__details-grid">
         ${detailItems
@@ -1939,6 +2078,10 @@ function getPaymentMethodItems(itemKeys) {
   return itemKeys
     .map((key) => PAYMENT_METHODS.find((item) => item.key === key))
     .filter(Boolean);
+}
+
+function getVisiblePaymentMethodItems(itemKeys, storeKey) {
+  return getPaymentMethodItems(itemKeys).filter((item) => !isInterestItemHidden(storeKey, item.key));
 }
 
 function renderAdditionalServicesStep() {
@@ -1964,14 +2107,10 @@ function renderReviewStep() {
         ? "Wholesale pricing"
         : "Pricing model not selected";
   const implementationTimelineLabel = getImplementationTimelineLabel();
-  const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
-  const storedValueSummary = getUseCaseStoredValueSummary();
   const reviewSummaryMarkup = renderReviewQuestionAnswerSummary({
     selectedUseCases,
-    paymentMethodSummary,
     servicesSummary,
-    storedValueSummary,
     pricingModelLabel,
     implementationTimelineLabel,
   });
@@ -2001,9 +2140,7 @@ function renderReviewStep() {
 
 function renderReviewQuestionAnswerSummary({
   selectedUseCases,
-  paymentMethodSummary,
   servicesSummary,
-  storedValueSummary,
   pricingModelLabel,
   implementationTimelineLabel,
 }) {
@@ -2023,6 +2160,13 @@ function renderReviewQuestionAnswerSummary({
     });
   };
 
+  addRow("Contact Information", "Contact", `${state.contact.firstName} ${state.contact.lastName}`.trim());
+  addRow("Contact Information", "Email", state.contact.email);
+  addRow("Contact Information", "WhatsApp", state.contact.whatsapp);
+  addRow("Contact Information", "Primary contact is decision maker?", state.contact.isDecisionMaker ? "Yes" : "No", { showEmpty: true });
+  addRow("Company", "Company name", state.company.companyName);
+  addRow("Company", "Entity type", getCompanyEntityTypeLabel());
+  addRow("Company", "URL", state.company.url);
   addRow(
     "Use case setup",
     "Selected use cases",
@@ -2049,9 +2193,8 @@ function renderReviewQuestionAnswerSummary({
     "High-risk details",
     state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails.trim() : ""
   );
-  addRow("Payment scope", "Payment methods", formatReviewDelimitedSummary(paymentMethodSummary, ", ", 3));
-  addRow("Payment scope", "Additional services", formatReviewDelimitedSummary(servicesSummary, ", ", 3));
-  addRow("Payment scope", "Stored Value Account", formatReviewDelimitedSummary(storedValueSummary, " | ", 2));
+  addRow("Payment Methods", "Selections by use case", formatReviewDelimitedSummary(getUseCasePaymentMethodSummary(), " | ", 2));
+  addRow("Additional Services", "Selected services", formatReviewDelimitedSummary(servicesSummary, ", ", 3));
   addRow(
     "Commercial profile",
     "Flow of funds business?",
@@ -2060,9 +2203,20 @@ function renderReviewQuestionAnswerSummary({
   addRow("Commercial profile", "Licensed in operating countries?", state.role.licensed ? formatYesNo(state.role.licensed) : "");
   addRow("Commercial profile", "Preferred commercial model", pricingModelLabel);
   addRow("Commercial profile", "Annual revenue", state.financials.revenueRange);
+  // UX fix: Review now includes every financial field collected in step 6.
+  addRow("Commercial profile", "Annual volume", state.financials.annualVolumeRange);
+  addRow("Commercial profile", "Payment count", state.financials.paymentCountRange);
+  addRow("Commercial profile", "Average ticket size", formatOptionalCurrency(state.financials.averageTicket), {
+    showEmpty: true,
+    fallback: "Not provided",
+  });
+  addRow("Commercial profile", "Expected company growth", formatOptionalPercent(state.financials.companyGrowth), {
+    showEmpty: true,
+    fallback: "Not provided",
+  });
   addRow("Commercial profile", "Implementation timeline", implementationTimelineLabel);
 
-  getSelectedUseCaseEntries().forEach(({ label, flow }) => {
+  getSelectedUseCaseEntries().forEach(({ value, label, flow }) => {
     const rowCountBeforeFlow = rows.length;
     addRow(label, "User/customer side", formatCustomerSides(flow.customerSides));
     addRow(
@@ -2105,35 +2259,92 @@ function renderReviewQuestionAnswerSummary({
     return groups;
   }, []);
 
-  const tableRows = groupedRows
-    .map(({ section, rows: sectionRows }) => `
-      <tr class="review-qa-table__group-row">
-        <th scope="colgroup" colspan="2">${escapeHtml(section)}</th>
-      </tr>
-      ${sectionRows
-        .map(({ question, answer }) => `
-          <tr class="review-qa-table__row">
-            <th scope="row" class="review-qa-table__question">${escapeHtml(question)}</th>
-            <td class="review-qa-table__answer">${escapeHtml(answer)}</td>
-          </tr>
-        `)
-        .join("")}
-    `)
-    .join("");
-
   return `
-    <div class="review-qa-table-wrap">
-      <table class="review-qa-table">
-        <thead>
-          <tr>
-            <th scope="col">Question</th>
-            <th scope="col">Answer</th>
-          </tr>
-        </thead>
-        <tbody>${tableRows}</tbody>
-      </table>
+    <div class="review-accordion">
+      ${groupedRows
+        .map(({ section, rows: sectionRows }, index) => {
+          const editTarget = getReviewEditTarget(section);
+          return `
+            <!-- UX fix: Review groups stay expanded so use-case answers can be verified inline. -->
+            <details class="review-accordion__item" open>
+              <summary>
+                <span>
+                  <strong>${escapeHtml(section)}</strong>
+                  <em>${sectionRows.length} ${sectionRows.length === 1 ? "answer" : "answers"}</em>
+                </span>
+                ${
+                  editTarget
+                    ? `
+                      <button
+                        class="text-button"
+                        type="button"
+                        data-action="goto-step-id"
+                        data-step-id="${escapeHtml(editTarget.stepId)}"
+                        ${editTarget.useCaseValue ? `data-use-case-value="${escapeHtml(editTarget.useCaseValue)}"` : ""}
+                        ${editTarget.useCaseSection ? `data-use-case-section="${escapeHtml(editTarget.useCaseSection)}"` : ""}
+                      >
+                        Edit
+                      </button>
+                    `
+                    : ""
+                }
+              </summary>
+              <dl class="review-answer-list">
+                ${sectionRows
+                  .map(
+                    ({ question, answer }) => `
+                      <div class="review-answer-list__row">
+                        <dt>${escapeHtml(question)}</dt>
+                        <dd>${escapeHtml(answer)}</dd>
+                      </div>
+                    `
+                  )
+                  .join("")}
+              </dl>
+            </details>
+          `;
+        })
+        .join("")}
     </div>
   `;
+}
+
+function getReviewEditTarget(section) {
+  if (section === "Contact Information" || section === "Company") {
+    return { stepId: "intro" };
+  }
+  if (section === "Use case setup") {
+    return { stepId: "useCase" };
+  }
+  if (section === "Additional Services") {
+    return { stepId: "additionalServices" };
+  }
+  if (section === "Payment Methods") {
+    const firstUseCaseValue = getSelectedUseCaseEntries()[0]?.value || "";
+    return { stepId: `paymentFlow:${firstUseCaseValue}`, useCaseValue: firstUseCaseValue, useCaseSection: "methods" };
+  }
+  if (section === "Commercial profile") {
+    return { stepId: "financials" };
+  }
+
+  const matchingUseCase = getSelectedUseCaseEntries().find((entry) => entry.label === section);
+  if (matchingUseCase) {
+    return { stepId: `paymentFlow:${matchingUseCase.value}`, useCaseValue: matchingUseCase.value, useCaseSection: "flow" };
+  }
+
+  return null;
+}
+
+function formatOptionalCurrency(value) {
+  return value === "" || value === null || value === undefined
+    ? ""
+    : currencyFormatter.format(Number(value || 0));
+}
+
+function formatOptionalPercent(value) {
+  return value === "" || value === null || value === undefined
+    ? ""
+    : `${Number(value || 0)}%`;
 }
 
 function formatReviewCount(value, basis) {
@@ -2321,7 +2532,7 @@ function renderMultiChoiceCards(path, selectedValues, options) {
           const selected = selectedValues.includes(option.value);
           return `
             <button
-              class="option-card option-card--button option-card--choice ${selected ? "is-selected" : ""}"
+              class="option-card option-card--button option-card--choice option-card--multi ${selected ? "is-selected" : ""}"
               type="button"
               data-action="toggle-array"
               data-path="${path}"
@@ -2331,7 +2542,7 @@ function renderMultiChoiceCards(path, selectedValues, options) {
               ${hasDescription ? `aria-describedby="${descriptionId}"` : ""}
             >
               <span class="option-card__choice-row">
-                <span class="option-card__selector" aria-hidden="true"></span>
+                <span class="option-card__selector option-card__selector--checkbox" aria-hidden="true"></span>
                 <span class="option-card__choice-copy">
                   <span class="option-card__title" id="${titleId}">${escapeHtml(option.label)}</span>
                   ${hasDescription ? `<span class="option-card__description" id="${descriptionId}">${escapeHtml(option.description)}</span>` : ""}
@@ -2415,23 +2626,25 @@ function renderSelectField(label, name, value, options, placeholder, className =
 }
 
 function renderSegmentedButtons(path, selected, options) {
+  const hasExplicitSelection = options.some((option) => option.value === selected);
   return `
-    <div class="segmented" role="group" aria-label="${escapeHtml(path)}">
+    <div class="segmented ${hasExplicitSelection ? "" : "segmented--unset"}" role="group" aria-label="${escapeHtml(path)}">
       ${options
-        .map(
-          (option) => `
+        .map((option) => {
+          const isActive = hasExplicitSelection && selected === option.value;
+          return `
             <button
-              class="segment ${selected === option.value ? "is-active" : ""}"
+              class="segment ${isActive ? "is-active" : ""}"
               type="button"
               data-action="set-value"
-              data-path="${path}"
-              data-value="${option.value}"
-              aria-pressed="${selected === option.value ? "true" : "false"}"
+              data-path="${escapeHtml(path)}"
+              data-value="${escapeHtml(option.value)}"
+              aria-pressed="${isActive ? "true" : "false"}"
             >
               ${escapeHtml(option.label)}
             </button>
-          `
-        )
+          `;
+        })
         .join("")}
     </div>
   `;
@@ -2607,7 +2820,7 @@ function renderCountryMultiSelect(path, selectedValues, title = "") {
   const selectedCountryValues = selectedValues.filter((value) => value !== OTHER_COUNTRY_VALUE);
   const selectedTotal = selectedCountryValues.length;
   const summaryLabel = getCountrySelectionSummary(path, selectedCountryValues, options.length);
-  const countLabel = selectedTotal ? `${selectedTotal} selected` : "";
+  const countLabel = selectedTotal && selectedTotal !== options.length ? `${selectedTotal} selected` : "";
   const summaryTextClassName = `country-dropdown__summary-text ${selectedTotal ? "" : "is-placeholder"}`.trim();
 
   return `
@@ -2671,6 +2884,37 @@ function renderCountryDropdownOptions(path, options, selectedValues) {
     options: visibleOptions.filter((option) => countryLookup.get(option.value)?.region === region.value),
   })).filter((group) => group.options.length);
   const allAvailableSelected = Boolean(options.length) && options.every((option) => selectedValues.includes(option.value));
+  const shouldCollapseAllCountries = allAvailableSelected && !query && !selectorUiState.countryCustomize[path];
+
+  if (shouldCollapseAllCountries) {
+    return `
+      <div class="country-dropdown__options country-dropdown__options--collapsed" data-country-scroll="${escapeHtml(path)}" aria-label="Country options">
+        <div class="country-dropdown__collapsed-panel">
+          <strong>All ${options.length} countries selected</strong>
+          <p>Keep all countries selected, or customize the list if this use case only applies to specific countries.</p>
+          <div class="country-dropdown__collapsed-actions">
+            <button
+              class="ghost-button ghost-button--compact"
+              type="button"
+              data-action="customize-country-selection"
+              data-path="${escapeHtml(path)}"
+            >
+              Customize country list
+            </button>
+            <button
+              class="text-button"
+              type="button"
+              data-action="set-country-selection"
+              data-path="${escapeHtml(path)}"
+              data-mode="clear"
+            >
+              Clear all
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
 
   return `
     <div class="country-dropdown__options" data-country-scroll="${escapeHtml(path)}" aria-label="Country options">
@@ -2834,6 +3078,26 @@ function renderSearchSelectedValues(path, selectedValues, definition) {
       : "";
   }
 
+  const compactThreshold = 12;
+  const isExpanded = Boolean(selectorUiState.expandedSelectedValues[path]);
+  if (selectedValues.length > compactThreshold && !isExpanded) {
+    const previewLabels = selectedValues.slice(0, 3).map((value) => labelForSearchValue(path, value));
+    const extraCount = selectedValues.length - previewLabels.length;
+    return `
+      <div class="search-select__selected-summary">
+        <span>${escapeHtml(`${selectedValues.length} selected: ${previewLabels.join(", ")} + ${extraCount} more`)}</span>
+        <button
+          class="text-button text-button--compact"
+          type="button"
+          data-action="toggle-selected-values"
+          data-path="${escapeHtml(path)}"
+        >
+          Show all
+        </button>
+      </div>
+    `;
+  }
+
   const tagsMarkup = selectedValues
     .map((value) => {
       const label = labelForSearchValue(path, value);
@@ -2853,7 +3117,23 @@ function renderSearchSelectedValues(path, selectedValues, definition) {
     })
     .join("");
 
-  return `<div class="search-select__tags search-select__tags--selected">${tagsMarkup}</div>`;
+  return `
+    <div class="search-select__tags search-select__tags--selected">${tagsMarkup}</div>
+    ${
+      selectedValues.length > compactThreshold
+        ? `
+          <button
+            class="text-button text-button--compact search-select__collapse"
+            type="button"
+            data-action="toggle-selected-values"
+            data-path="${escapeHtml(path)}"
+          >
+            Collapse selected list
+          </button>
+        `
+        : ""
+    }
+  `;
 }
 
 function renderLabelText(label) {
@@ -2868,13 +3148,34 @@ function renderRichText(text) {
 
 function renderRangeCard(label, name, value, min, max, step, format, help = "") {
   const inputId = toId(name);
+  const tickListId = `${inputId}-ticks`;
+  const numberInputId = `${inputId}-number`;
+  const isUnset = value === "" || value === null || value === undefined;
+  const inputValue = isUnset ? min : value;
+  const midpoint = min + (max - min) / 2;
   return `
-    <div class="range-card">
+    <div class="range-card ${isUnset ? "is-unset" : ""}">
       <div class="range-card__header">
         <label class="range-card__label" for="${inputId}">${escapeHtml(label)}</label>
-        <span class="range-card__value" data-output="${name}" data-format="${format}">
-          ${escapeHtml(formatOutput(value, format))}
-        </span>
+        <div class="range-card__controls">
+          <span class="range-card__value" data-output="${name}" data-format="${format}">
+            ${escapeHtml(isUnset ? "Not set" : formatOutput(value, format))}
+          </span>
+          <input
+            class="text-input range-number-input"
+            id="${numberInputId}"
+            type="number"
+            name="${name}"
+            min="${min}"
+            max="${max}"
+            step="${step}"
+            value="${escapeHtml(isUnset ? "" : value)}"
+            data-format="${format}"
+            data-range-number="true"
+            placeholder="${escapeHtml(formatOutput(midpoint, format))}"
+            aria-label="${escapeHtml(`${label} exact value`)}"
+          />
+        </div>
       </div>
       <input
         class="range-input"
@@ -2884,10 +3185,31 @@ function renderRangeCard(label, name, value, min, max, step, format, help = "") 
         min="${min}"
         max="${max}"
         step="${step}"
-        value="${value}"
+        value="${inputValue}"
+        list="${tickListId}"
         data-format="${format}"
       />
-      ${help ? `<small>${escapeHtml(help)}</small>` : ""}
+      <datalist id="${tickListId}">
+        <option value="${min}"></option>
+        <option value="${midpoint}"></option>
+        <option value="${max}"></option>
+      </datalist>
+      <div class="range-card__scale" aria-hidden="true">
+        <span>${escapeHtml(formatOutput(min, format))}</span>
+        <span>${escapeHtml(formatOutput(midpoint, format))}</span>
+        <span>${escapeHtml(formatOutput(max, format))}</span>
+      </div>
+      <div class="range-card__meta">
+        ${help ? `<small>${escapeHtml(help)}</small>` : "<span></span>"}
+        <button
+          class="text-button text-button--compact"
+          type="button"
+          data-action="clear-range"
+          data-path="${escapeHtml(name)}"
+        >
+          I don't know yet
+        </button>
+      </div>
     </div>
   `;
 }
@@ -2897,18 +3219,44 @@ function renderInterestGrid(items, storeKey, options = {}) {
     ? "option-grid option-grid--compact"
     : "option-grid grid auto-rows-fr md:grid-cols-2";
   const showCategory = options.showCategory !== false;
+  const groupState = getInterestGroupState(storeKey);
+  const selectOnly = options.selectOnly === true;
 
   return `
     <div class="${gridClassName}">
       ${items
         .map((item) => {
-          const entry = state[storeKey][item.key];
+          const entry = groupState[item.key];
           const disabled = isInterestItemDisabled(storeKey, item.key);
           const current = !disabled && entry.current;
           const interested = !disabled && entry.interested;
           const selected = current || interested;
-          const titleId = `${storeKey}-${item.key}-title`;
-          const descriptionId = `${storeKey}-${item.key}-description`;
+          const titleId = `${toId(`${storeKey}-${item.key}`)}-title`;
+          const descriptionId = `${toId(`${storeKey}-${item.key}`)}-description`;
+
+          if (selectOnly) {
+            return `
+              <button
+                class="option-card option-card--button option-card--select-only ${options.compact ? "option-card--compact" : ""} ${selected ? "is-selected" : ""} ${disabled ? "is-disabled" : ""}"
+                type="button"
+                data-action="toggle-payment-method-selection"
+                data-store="${escapeHtml(storeKey)}"
+                data-key="${escapeHtml(item.key)}"
+                aria-pressed="${selected ? "true" : "false"}"
+                aria-labelledby="${titleId}"
+                aria-describedby="${descriptionId}"
+                ${disabled ? "disabled" : ""}
+              >
+                <span class="option-card__checkbox" aria-hidden="true"></span>
+                <span class="option-card__body">
+                  ${showCategory && item.category ? `<span class="option-card__category">${escapeHtml(item.category)}</span>` : ""}
+                  <span class="option-card__title" id="${titleId}">${escapeHtml(item.shortLabel || item.label)}</span>
+                  <span class="option-card__description" id="${descriptionId}">${escapeHtml(item.description)}</span>
+                  ${disabled ? `<span class="option-card__status">${escapeHtml(getInterestItemDisabledStatus(storeKey, item.key))}</span>` : ""}
+                </span>
+              </button>
+            `;
+          }
 
           return `
             <article class="option-card ${options.compact ? "option-card--compact" : ""} ${selected ? "is-selected" : ""} ${disabled ? "is-disabled" : ""}" role="group" aria-labelledby="${titleId}" aria-describedby="${descriptionId}" ${disabled ? 'aria-disabled="true"' : ""}>
@@ -2927,7 +3275,7 @@ function renderInterestGrid(items, storeKey, options = {}) {
                   aria-pressed="${current ? "true" : "false"}"
                   ${disabled ? "disabled" : ""}
                 >
-                  Current use
+                  We already use this
                 </button>
                 <button
                   class="pill-button ${interested ? "is-active" : ""}"
@@ -2939,7 +3287,7 @@ function renderInterestGrid(items, storeKey, options = {}) {
                   aria-pressed="${interested ? "true" : "false"}"
                   ${disabled ? "disabled" : ""}
                 >
-                  Interested in Veem
+                  We'd like Veem to offer this
                 </button>
               </div>
             </article>
@@ -2970,6 +3318,32 @@ async function handleClick(event) {
     return;
   }
 
+  if (action === "goto-step-id") {
+    event.preventDefault();
+    event.stopPropagation();
+    const targetStepIndex = getStepIndexById(button.dataset.stepId);
+    if (targetStepIndex < 0 || targetStepIndex > maxUnlockedStepIndex) {
+      return;
+    }
+    if (button.dataset.useCaseSection) {
+      const useCaseValue = button.dataset.useCaseValue || "";
+      selectorUiState.activeUseCaseSections[useCaseValue] = button.dataset.useCaseSection;
+    }
+    activeErrors = [];
+    currentStepIndex = targetStepIndex;
+    render();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
+
+  if (action === "set-use-case-section") {
+    const useCaseValue = button.dataset.useCaseValue || "";
+    selectorUiState.activeUseCaseSections[useCaseValue] = button.dataset.section === "methods" ? "methods" : "flow";
+    activeErrors = [];
+    rerenderPreservingPosition();
+    return;
+  }
+
   if (action === "prev-step") {
     activeErrors = [];
     currentStepIndex = Math.max(0, currentStepIndex - 1);
@@ -2984,6 +3358,9 @@ async function handleClick(event) {
     const errors = shouldBypassRequiredFields() ? [] : currentStep.validate();
 
     if (errors.length) {
+      if (currentStep.id.startsWith("paymentFlow:")) {
+        activateFirstIncompleteUseCaseSection(currentStep.useCaseValue);
+      }
       activeErrors = errors;
       render();
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -3028,7 +3405,7 @@ async function handleClick(event) {
     syncProductAvailabilityState();
     markSubmissionDirty();
     activeErrors = [];
-    rerenderPreservingPosition();
+    rerenderPreservingPosition({ restoreFocus: false });
     return;
   }
 
@@ -3036,15 +3413,33 @@ async function handleClick(event) {
     setRegionSelection(button.dataset.path, button.dataset.mode === "all");
     markSubmissionDirty();
     activeErrors = [];
-    rerenderPreservingPosition();
+    rerenderPreservingPosition({ restoreFocus: false });
     return;
   }
 
   if (action === "set-country-selection") {
     setCountrySelection(button.dataset.path, button.dataset.mode === "all");
+    selectorUiState.countryCustomize[button.dataset.path] = false;
     markSubmissionDirty();
     activeErrors = [];
+    rerenderPreservingPosition({ restoreFocus: false });
+    return;
+  }
+
+  if (action === "customize-country-selection") {
+    selectorUiState.countryCustomize[button.dataset.path] = true;
+    activeErrors = [];
     rerenderPreservingPosition();
+    focusSelectorInput(button.dataset.path);
+    return;
+  }
+
+  if (action === "toggle-selected-values") {
+    const path = button.dataset.path;
+    selectorUiState.expandedSelectedValues[path] = !selectorUiState.expandedSelectedValues[path];
+    activeErrors = [];
+    rerenderPreservingPosition();
+    focusSelectorInput(path);
     return;
   }
 
@@ -3067,13 +3462,39 @@ async function handleClick(event) {
     return;
   }
 
+  if (action === "toggle-payment-method-selection") {
+    const { store, key } = button.dataset;
+    if (isInterestItemDisabled(store, key)) {
+      return;
+    }
+    const interestGroup = getInterestGroupState(store);
+    const entry = interestGroup[key];
+    const isSelected = Boolean(entry.current || entry.interested);
+    entry.current = false;
+    entry.interested = !isSelected;
+    syncProductAvailabilityState();
+    markSubmissionDirty();
+    activeErrors = [];
+    rerenderPreservingPosition();
+    return;
+  }
+
   if (action === "toggle-interest") {
     const { store, key, field } = button.dataset;
     if (isInterestItemDisabled(store, key)) {
       return;
     }
-    state[store][key][field] = !state[store][key][field];
+    const interestGroup = getInterestGroupState(store);
+    interestGroup[key][field] = !interestGroup[key][field];
     syncProductAvailabilityState();
+    markSubmissionDirty();
+    activeErrors = [];
+    rerenderPreservingPosition();
+    return;
+  }
+
+  if (action === "clear-range") {
+    setValueByPath(state, button.dataset.path, "");
     markSubmissionDirty();
     activeErrors = [];
     rerenderPreservingPosition();
@@ -3187,7 +3608,8 @@ function handleInput(event) {
     return;
   }
 
-  if (target.type === "range") {
+  if (target.type === "range" || target.dataset.rangeNumber === "true") {
+    syncRangeControlInputs(target.name, value, target);
     updateRangeOutput(target.name, value, target.dataset.format);
   }
 
@@ -3472,16 +3894,6 @@ function validateSolutions() {
   return [];
 }
 
-function validateMarkets() {
-  const errors = [];
-
-  if (!hasInterestSelection(PAYMENT_METHODS, state.paymentMethods)) {
-    errors.push("Payment method interest");
-  }
-
-  return errors;
-}
-
 function validateAdditionalServices() {
   return [];
 }
@@ -3506,14 +3918,34 @@ function validateAccounts() {
 }
 
 function validatePaymentFlow() {
-  const errors = getSelectedUseCaseEntries().flatMap((entry) => validateUseCaseFlowEntry(entry));
+  const errors = getSelectedUseCaseEntries().flatMap((entry) => [
+    ...validateUseCaseFlowEntry(entry),
+    ...validateUseCasePaymentMethodsEntry(entry),
+  ]);
 
   return errors;
 }
 
+function activateFirstIncompleteUseCaseSection(useCaseValue = "") {
+  const entries = useCaseValue
+    ? getSelectedUseCaseEntries().filter((entry) => entry.value === useCaseValue)
+    : getSelectedUseCaseEntries();
+  const incompleteEntry = entries.find(
+    (entry) => validateUseCaseFlowEntry(entry).length || validateUseCasePaymentMethodsEntry(entry).length
+  );
+
+  if (!incompleteEntry) {
+    return;
+  }
+
+  selectorUiState.activeUseCaseSections[incompleteEntry.value] = validateUseCaseFlowEntry(incompleteEntry).length
+    ? "flow"
+    : "methods";
+}
+
 function validateUseCasePaymentFlow(useCaseValue) {
   const entry = getSelectedUseCaseEntries().find((candidate) => candidate.value === useCaseValue);
-  return entry ? validateUseCaseFlowEntry(entry) : [];
+  return entry ? [...validateUseCaseFlowEntry(entry), ...validateUseCasePaymentMethodsEntry(entry)] : [];
 }
 
 function validateUseCaseFlowEntry({ label, flow }) {
@@ -3568,8 +4000,28 @@ function validateUseCaseFlowEntry({ label, flow }) {
   return errors;
 }
 
+function validateUseCasePaymentMethodsEntry({ label, paymentMethods }) {
+  if (!hasInterestSelection(PAYMENT_METHODS, paymentMethods)) {
+    return [`${label} — payment method interest`];
+  }
+
+  return [];
+}
+
 function hasInterestSelection(items, groupState) {
-  return items.some((item) => groupState[item.key]?.current || groupState[item.key]?.interested);
+  return items.some((item) => groupState?.[item.key]?.current || groupState?.[item.key]?.interested);
+}
+
+function getInterestGroupState(storeKey) {
+  return getValueByPath(state, storeKey);
+}
+
+function getInterestStoreType(storeKey) {
+  if (storeKey === "paymentMethods" || storeKey.startsWith("useCasePaymentMethods.")) {
+    return "paymentMethods";
+  }
+
+  return storeKey;
 }
 
 function isModuleSelected(moduleKey) {
@@ -3608,10 +4060,12 @@ function getUseCaseLabel(value) {
 
 function getSelectedUseCaseEntries() {
   ensureUseCaseFlowsState();
+  ensureUseCasePaymentMethodsState();
   return state.useCase.categories.map((value) => ({
     value,
     label: getUseCaseLabel(value),
     flow: state.useCaseFlows[value],
+    paymentMethods: state.useCasePaymentMethods[value],
   }));
 }
 
@@ -3629,6 +4083,49 @@ function ensureUseCaseFlowsState() {
       delete state.useCaseFlows[value];
     }
   });
+
+  Object.keys(selectorUiState.activeUseCaseSections).forEach((value) => {
+    if (!state.useCase.categories.includes(value)) {
+      delete selectorUiState.activeUseCaseSections[value];
+    }
+  });
+}
+
+function ensureUseCasePaymentMethodsState() {
+  state.useCase.categories.forEach((value) => {
+    if (!state.useCasePaymentMethods[value]) {
+      state.useCasePaymentMethods[value] = buildInterestMap(PAYMENT_METHODS);
+    }
+
+    normalizeInterestGroupState(state.useCasePaymentMethods[value], PAYMENT_METHODS);
+  });
+
+  Object.keys(state.useCasePaymentMethods).forEach((value) => {
+    if (!state.useCase.categories.includes(value)) {
+      delete state.useCasePaymentMethods[value];
+    }
+  });
+}
+
+function normalizeInterestGroupState(groupState, items) {
+  items.forEach((item) => {
+    if (!groupState[item.key]) {
+      groupState[item.key] = { current: false, interested: false };
+      return;
+    }
+
+    groupState[item.key].current = Boolean(groupState[item.key].current);
+    groupState[item.key].interested = Boolean(groupState[item.key].interested);
+  });
+}
+
+function areArraysEqual(left = [], right = []) {
+  if (left.length !== right.length) {
+    return false;
+  }
+
+  const rightSet = new Set(right);
+  return left.every((value) => rightSet.has(value));
 }
 
 function normalizeUseCaseFlowState(flow) {
@@ -4003,8 +4500,22 @@ function focusSelectorInput(path) {
 function updateRangeOutput(name, value, format) {
   const output = document.querySelector(`[data-output="${escapeSelectorValue(name)}"]`);
   if (output) {
-    output.textContent = formatOutput(value, format);
+    output.textContent = value === "" || value === null || value === undefined ? "Not set" : formatOutput(value, format);
   }
+}
+
+function syncRangeControlInputs(name, value, sourceElement) {
+  document.querySelectorAll(`[name="${escapeSelectorValue(name)}"]`).forEach((input) => {
+    if (!(input instanceof HTMLInputElement) || input === sourceElement) {
+      return;
+    }
+    if (input.type === "range" && value !== "") {
+      input.value = String(value);
+    }
+    if (input.dataset.rangeNumber === "true") {
+      input.value = value === "" ? "" : String(value);
+    }
+  });
 }
 
 function formatOutput(value, format) {
@@ -4125,7 +4636,8 @@ function buildSubmissionResponses() {
     },
     financials: state.financials,
     modules: state.modules,
-    paymentMethods: state.paymentMethods,
+    paymentMethods: state.useCasePaymentMethods,
+    useCasePaymentMethods: state.useCasePaymentMethods,
     storedValueAccounts: state.storedValueAccounts,
     additionalServices: state.additionalServices,
     additionalInfo: state.additionalInfo,
@@ -4138,6 +4650,7 @@ function buildSubmissionResponses() {
         {
           label,
           ...flow,
+          paymentMethods: state.useCasePaymentMethods[value],
           highRiskIndustries: state.useCase.highRiskIndustries,
           highRiskIndustryDetails:
             state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails : "",
@@ -4165,7 +4678,7 @@ function buildZapierRawData(submittedAt) {
       : state.role.pricingModel === "wholesale"
         ? "Wholesale pricing"
         : state.role.pricingModel;
-  const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
+  const paymentMethodSummary = getUseCasePaymentMethodSummary();
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
   const storedValueAccountSummary = getUseCaseStoredValueSummary();
   const paymentFlowByUseCaseSummary = getSelectedUseCaseEntries().map((entry) => formatUseCaseFlowSummary(entry)).join(" || ");
@@ -4213,6 +4726,7 @@ function buildZapierRawData(submittedAt) {
     "Product interest summary": productInterestSummary || "",
     "Products": productSummary || "",
     "Payment methods": paymentMethodSummary || "",
+    "Payment methods by use case": paymentMethodSummary || "",
     "Methods": paymentMethodSummary || "",
     "Stored value accounts": storedValueAccountSummary || "",
     "Stored value account options": storedValueAccountSummary || "",
@@ -4227,9 +4741,10 @@ function buildZapierRawData(submittedAt) {
 }
 
 function buildUseCaseFlowRawData() {
-  return getSelectedUseCaseEntries().reduce((rawData, { label, flow }, index) => {
+  return getSelectedUseCaseEntries().reduce((rawData, { value, label, flow }, index) => {
     const prefix = `Use case ${index + 1} - ${label}`;
 
+    rawData[`${prefix} - Payment methods`] = getUseCasePaymentMethodSummaryForValue(value);
     rawData[`${prefix} - User/customer side`] = formatCustomerSides(flow.customerSides);
     rawData[`${prefix} - Payer types`] = flow.senderTypes.map((value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value)).join(", ");
     rawData[`${prefix} - Payer count`] = flow.payerCount || "";
@@ -4255,7 +4770,7 @@ function buildSummary() {
   const entityTypeLabel = getCompanyEntityTypeLabel();
   const useCaseCategoryLabel = getUseCaseCategoryLabel();
   const pricingModelLabel = state.role.pricingModel === "revshare" ? "Revenue share" : state.role.pricingModel === "wholesale" ? "Wholesale pricing" : "N/A";
-  const paymentMethodSummary = summarizeInterestGroup(PAYMENT_METHODS, state.paymentMethods, "paymentMethods");
+  const paymentMethodSummary = getUseCasePaymentMethodSummary();
   const servicesSummary = summarizeInterestGroup(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices");
   const storedValueAccountSummary = getUseCaseStoredValueSummary();
   const productInterestSummary = summarizeProductInterest(
@@ -4287,10 +4802,10 @@ function buildSummary() {
     `Implementation timeline: ${getImplementationTimelineLabel() || "N/A"}`,
     "",
     `Revenue range: ${state.financials.revenueRange || "N/A"}`,
-    `Expected company growth (next 12 months): ${state.financials.companyGrowth}%`,
+    `Expected company growth (next 12 months): ${formatOptionalPercent(state.financials.companyGrowth) || "N/A"}`,
     `Annual volume range: ${state.financials.annualVolumeRange || "N/A"}`,
     `Payment count range: ${state.financials.paymentCountRange || "N/A"}`,
-    `Average ticket size: ${currencyFormatter.format(Number(state.financials.averageTicket || 0))}`,
+    `Average ticket size: ${formatOptionalCurrency(state.financials.averageTicket) || "N/A"}`,
     "",
     `Product interest summary: ${productInterestSummary || "N/A"}`,
     `Payment methods: ${paymentMethodSummary || "N/A"}`,
@@ -4315,9 +4830,14 @@ function buildSummary() {
 }
 
 function summarizeInterestGroup(items, groupState, storeKey = "") {
+  const isPaymentMethodSummary = getInterestStoreType(storeKey) === "paymentMethods";
   return items
     .filter((item) => !isInterestItemDisabled(storeKey, item.key) && (groupState[item.key].current || groupState[item.key].interested))
     .map((item) => {
+      if (isPaymentMethodSummary) {
+        return item.label;
+      }
+
       const entry = groupState[item.key];
       const states = [
         entry.current ? "current" : "",
@@ -4327,6 +4847,25 @@ function summarizeInterestGroup(items, groupState, storeKey = "") {
       return `${item.label} (${states.join(" + ")})`;
     })
     .join(", ");
+}
+
+function getUseCasePaymentMethodSummaryForValue(value) {
+  const groupState = state.useCasePaymentMethods[value];
+  if (!groupState) {
+    return "";
+  }
+
+  return summarizeInterestGroup(PAYMENT_METHODS, groupState, `useCasePaymentMethods.${value}`);
+}
+
+function getUseCasePaymentMethodSummary() {
+  return getSelectedUseCaseEntries()
+    .map(({ value, label }) => {
+      const paymentMethodSummary = getUseCasePaymentMethodSummaryForValue(value);
+      return paymentMethodSummary ? `${label}: ${paymentMethodSummary}` : "";
+    })
+    .filter(Boolean)
+    .join(" | ");
 }
 
 function summarizeProductInterest(paymentMethodSummary, storedValueSummary, servicesSummary) {
@@ -4351,6 +4890,10 @@ function getUseCaseCategoryLabel() {
 }
 
 function isInterestItemDisabled(storeKey, itemKey) {
+  if (isUseCaseSpecificInterestItemDisabled(storeKey, itemKey)) {
+    return true;
+  }
+
   const rule = getInterestAvailabilityRule(storeKey, itemKey);
   if (!rule) {
     return false;
@@ -4362,6 +4905,19 @@ function isInterestItemDisabled(storeKey, itemKey) {
   }
 
   return !rule.availableForModules.some((moduleKey) => selectedModules.includes(moduleKey));
+}
+
+function isInterestItemHidden(storeKey, itemKey) {
+  return itemKey === "rtp" && RTP_HIDDEN_USE_CASE_VALUES.includes(getUseCaseValueFromInterestStore(storeKey));
+}
+
+function isUseCaseSpecificInterestItemDisabled(storeKey, itemKey) {
+  return isInterestItemHidden(storeKey, itemKey);
+}
+
+function getUseCaseValueFromInterestStore(storeKey) {
+  const prefix = "useCasePaymentMethods.";
+  return storeKey.startsWith(prefix) ? storeKey.slice(prefix.length) : "";
 }
 
 function getProductAvailabilityContextModules() {
@@ -4378,11 +4934,13 @@ function getInterestItemDisabledStatus(storeKey, itemKey) {
 }
 
 function getInterestAvailabilityRule(storeKey, itemKey) {
-  if (storeKey === "paymentMethods") {
+  const storeType = getInterestStoreType(storeKey);
+
+  if (storeType === "paymentMethods") {
     return PRODUCT_AVAILABILITY_RULES[itemKey];
   }
 
-  if (storeKey === "additionalServices") {
+  if (storeType === "additionalServices") {
     return ADDITIONAL_SERVICE_AVAILABILITY_RULES[itemKey];
   }
 
@@ -4392,6 +4950,7 @@ function getInterestAvailabilityRule(storeKey, itemKey) {
 function syncProductAvailabilityState() {
   [
     ["paymentMethods", PRODUCT_AVAILABILITY_RULES],
+    ...Object.keys(state.useCasePaymentMethods).map((value) => [`useCasePaymentMethods.${value}`, PRODUCT_AVAILABILITY_RULES]),
     ["additionalServices", ADDITIONAL_SERVICE_AVAILABILITY_RULES],
   ].forEach(([storeKey, rules]) => {
     Object.keys(rules).forEach((key) => {
@@ -4399,7 +4958,7 @@ function syncProductAvailabilityState() {
         return;
       }
 
-      const entry = state[storeKey][key];
+      const entry = getInterestGroupState(storeKey)?.[key];
       if (!entry) {
         return;
       }
@@ -4438,6 +4997,7 @@ function syncUseCaseState(path) {
   }
   if (path === "useCase.categories") {
     ensureUseCaseFlowsState();
+    ensureUseCasePaymentMethodsState();
   }
   if (path === "useCase.isNewUseCaseOrCorridor" && state.useCase.isNewUseCaseOrCorridor !== "no") {
     state.useCase.currentHandling = "";
@@ -4523,8 +5083,10 @@ function formatStoredValueAccountTypes(keys) {
     .join(", ");
 }
 
-function formatUseCaseFlowSummary({ label, flow }) {
+function formatUseCaseFlowSummary({ value, label, flow }) {
+  const paymentMethodSummary = getUseCasePaymentMethodSummaryForValue(value);
   const parts = [
+    paymentMethodSummary ? `Payment methods: ${paymentMethodSummary}` : "",
     flow.customerSides.length ? `User/customer side: ${formatCustomerSides(flow.customerSides)}` : "",
     flow.senderTypes.length ? `Payers: ${formatList(flow.senderTypes.map((value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value)))}` : "",
     flow.payerCount ? `Number of payers: ${flow.payerCount} (${flow.payerCountBasis || "basis not selected"})` : "",
@@ -4590,8 +5152,12 @@ function formatSubmittedAt(value) {
   }).format(date);
 }
 
-function rerenderPreservingPosition() {
+function rerenderPreservingPosition(options = {}) {
+  const shouldRestoreFocus = options.restoreFocus !== false;
   const snapshot = captureUiState();
+  if (!shouldRestoreFocus) {
+    snapshot.activeSelector = null;
+  }
   render();
   restoreUiState(snapshot);
 }

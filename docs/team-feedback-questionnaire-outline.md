@@ -14,16 +14,15 @@ Use this document to review the current partner intake experience. The goal is t
 
 ## Current Experience
 
-The form no longer asks partners to choose separate Collection or Disbursement flows. Partners select one or more use cases, then provide a From and To payment flow for each selected use case.
+The form no longer asks partners to choose separate Collection or Disbursement flows. Partners select one or more use cases, then complete Payment Flow and Payment Methods on a separate page for each selected use case. Each selected use case is independent; there are no shared default methods, inherited stored value selections, or copy/apply controls.
 
 1. Contact Information
 2. Use Case Categories
-3. Payment Flow page for each selected use case
-4. Payment Methods
-5. Additional Services
-6. Business & Financial Profile
-7. Review
-8. Thank You / Available Documents
+3. Payment Flow & Methods
+4. Additional Services
+5. Business & Financial Profile
+6. Review
+7. Thank You / Available Documents
 
 ## 1. Contact Information
 
@@ -95,17 +94,32 @@ Section description:
 Reviewer note:
 Confirm that partners can select multiple use cases without confusion, and that the use case labels are broad enough for common partner scenarios.
 
-## 3. Payment Flow Pages
+## 3. Payment Flow & Methods
 
-One page is created for each selected use case. The page title is the selected use case name, for example `B2B Payments` or `Marketplace / Platform`.
+One page is shown for each selected use case after Use Case Categories. The page title is the selected use case name, and each use case page is independent.
 
-Page eyebrow: `Payment Flow`
+Page eyebrow: `Payment Flow & Methods`
+
+Page title:
+`[Selected use case name]`
 
 Page description:
-`Provide payer, payee, market, currency, and stored value details for this use case.`
+`Complete the payment flow and payment methods for this use case.`
 
 Page footer:
 `Fields marked with * are required.`
+
+### Use Case Page Navigation
+
+- Questionnaire map
+  Control: each selected use case appears as its own step in the left sidebar.
+  Note: the primary step label is the use case name, with `Payment Flow & Methods` as the supporting label.
+- Section toggle
+  Control: two-option toggle for `Payment Flow` and `Payment Methods`
+  Note: only the active section renders, reducing page height.
+- Completion badge
+  Control: the section toggle shows whether `Payment Flow` and `Payment Methods` are complete.
+  Note: `Payment Flow` and `Payment Methods` each count as one section.
 
 ### From
 
@@ -138,34 +152,40 @@ Section description:
 ### Use Case Setup
 
 Section description:
-`Confirm the user role and account preferences for this use case.`
+`Confirm where your user or customer sits in this use case.`
 
 - Who is your user or customer in this use case?
   Options: Payer, Payee
-- Stored Value Account
-  Helper text: `Select any stored value account capabilities needed for this use case. A stored value account lets you receive, hold, and use funds before they are sent or spent.`
+
+### Stored Value Account
+
+Section description:
+`Select any stored value account capabilities needed for this use case. A stored value account lets you receive, hold, and use funds before they are sent or spent.`
+
+- Stored value account capabilities
   Options: Multi-Currency Wallet, Stablecoin Wallet (USDC / USDT), Virtual Card (USD), Virtual Bank Accounts
-  Note: optional per use case
+  Note: optional and independent per use case.
 
 Reviewer note:
-Check whether the From and To language is easy for external partners to understand without using collection/disbursement terminology.
-
-## 4. Payment Methods
-
-Page title: `Select the payment methods.`
-
-Page description:
-`Mark each payment rail as current use, interested in Veem, or both.`
-
-Page footer:
-`Fields marked with * are required.`
+Check whether the From and To language is easy for external partners to understand without using collection/disbursement terminology, and whether separate use case pages make the flow easier to complete.
 
 ### Payment Methods
 
 Section description:
-`Select the payment methods relevant to the From and To flow. Plugins and Paylinks are handled on the next page.`
+`Select the payment methods for this use case. Mark whether your business already uses each method or would like Veem to offer it.`
 
-Required: at least one payment method must be marked as `Current use`, `Interested in Veem`, or both.
+For each payment method:
+
+- We already use this
+- We'd like Veem to offer this
+
+Each payment method group includes shortcuts:
+
+- Mark all as already used
+- Mark all for Veem to offer
+- Clear
+
+Required: each selected use case must have at least one payment method marked as `We already use this`, `We'd like Veem to offer this`, or both.
 
 #### Bank Transfers
 
@@ -202,9 +222,9 @@ Section description:
 - USDT ↔ Fiat
 
 Reviewer note:
-Confirm that payment methods and conversion options are grouped in a way that is easy to scan and does not imply unavailable functionality.
+Confirm that payment methods and conversion options are grouped in a way that is easy to scan and does not imply unavailable functionality. Also confirm that the separate use case pages are clear for partners with multiple use cases.
 
-## 5. Additional Services
+## 4. Additional Services
 
 Page title: `Select any add-on services.`
 
@@ -226,13 +246,13 @@ Section description:
 
 For each service:
 
-- Current use
-- Interested in Veem
+- We already use this
+- We'd like Veem to offer this
 
 Reviewer note:
 This page is optional in the current test version. Confirm whether any service should be required or whether more add-on services should be included.
 
-## 6. Business & Financial Profile
+## 5. Business & Financial Profile
 
 Page title: `Provide financial scale and commercial preferences.`
 
@@ -251,7 +271,9 @@ Section description:
 - Annual volume
 - Payment count
 - Average ticket size
+  Note: starts unset; partner can move the slider or select `I don't know yet`
 - Expected company growth (Next 12 months)
+  Note: starts unset; partner can move the slider or select `I don't know yet`
 
 ### Business Profile
 
@@ -276,7 +298,7 @@ Section description:
 Reviewer note:
 Confirm that the commercial preference questions are enough for routing without making the partner provide implementation detail too early.
 
-## 7. Review
+## 6. Review
 
 Page title: `Review your responses and provide any additional context.`
 
@@ -291,14 +313,17 @@ Page footer:
 Section description:
 `Please review the information provided below.`
 
-The current summary is a grouped question-and-answer table. Groups include:
+The current summary is a collapsible grouped question-and-answer review. Each group includes an inline `Edit` action that returns the user to the relevant step.
 
+- Contact Information
+- Company
 - Use case setup
-- Payment scope
+- Payment Methods
+- Additional Services
 - Commercial profile
 - One group for each selected use case
 
-The table summarizes:
+The review summarizes:
 
 - Selected use cases
 - New use case or corridor status
@@ -309,10 +334,11 @@ The table summarizes:
 - Stored Value Account selections
 - Flow of funds and licensing status
 - Commercial model, annual revenue, and implementation timeline
+- Annual volume, payment count, average ticket size, and expected company growth
 - From / payer details per use case
 - To / payee details per use case
 
-Long country, region, and currency lists are summarized with a selected count and a short preview.
+All review groups are expanded by default so the partner can verify answers inline. Long country, region, and currency lists are summarized with a selected count and a short preview.
 
 ### Additional Information
 
@@ -363,14 +389,14 @@ Annual volume range: $100M - $250M
 Payment count range: 500K - 1M
 Average ticket size: $2,500
 
-Product interest summary: Payment methods: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | Stored value accounts: B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD) | Additional services: Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested)
-Payment methods: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current)
+Product interest summary: Payment methods: B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) | Stored value accounts: B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD) | Additional services: Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested)
+Payment methods: B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested)
 Stored value accounts: B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)
 Additional services: Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested)
 
 Use case payment flows:
-B2B Payments: User/customer side: Payer | Payers: Businesses | Number of payers: 1200 (actual) | Payer regions: North America | Payer countries: United States, Canada | Payer currencies: USD, CAD | Payees: Businesses, Sole proprietors | Number of payees: 3800 (estimated) | Payee regions: North America, Europe | Payee countries: United States, Canada, United Kingdom, Germany | Payee currencies: USD, CAD, GBP, EUR | Stored value: Virtual Bank Accounts, Multi-Currency Wallet
-Marketplace / Platform: User/customer side: Payee | Payers: Consumers, Businesses | Number of payers: 25000 (estimated) | Payer regions: North America, Europe | Payer countries: United States, Canada, United Kingdom, Germany | Payer currencies: USD, CAD, GBP, EUR | Payees: Businesses | Number of payees: 9000 (actual) | Payee regions: North America, Europe | Payee countries: United States, Canada, United Kingdom, Germany | Payee currencies: USD, CAD, GBP, EUR | Stored value: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)
+B2B Payments: Payment methods: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | User/customer side: Payer | Payers: Businesses | Number of payers: 1200 (actual) | Payer regions: North America | Payer countries: United States, Canada | Payer currencies: USD, CAD | Payees: Businesses, Sole proprietors | Number of payees: 3800 (estimated) | Payee regions: North America, Europe | Payee countries: United States, Canada, United Kingdom, Germany | Payee currencies: USD, CAD, GBP, EUR | Stored value: Virtual Bank Accounts, Multi-Currency Wallet
+Marketplace / Platform: Payment methods: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) | User/customer side: Payee | Payers: Consumers, Businesses | Number of payers: 25000 (estimated) | Payer regions: North America, Europe | Payer countries: United States, Canada, United Kingdom, Germany | Payer currencies: USD, CAD, GBP, EUR | Payees: Businesses | Number of payees: 9000 (actual) | Payee regions: North America, Europe | Payee countries: United States, Canada, United Kingdom, Germany | Payee currencies: USD, CAD, GBP, EUR | Stored value: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)
 
 Additional info: Partner wants to launch the B2B flow first, then add marketplace payouts after pilot approval.
 ```
@@ -400,10 +426,12 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
 | Payment count range | 500K - 1M |
 | Expected company growth (next 12 months) | 45 |
 | Average ticket size | 2500 |
-| Payment methods | Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) |
+| Payment methods | B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) \| Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) |
+| Payment methods by use case | B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) \| Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) |
 | Stored value accounts | B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet \| Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD) |
 | Additional services | Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested) |
 | Use case payment flows | B2B Payments: User/customer side: Payer ... \|\| Marketplace / Platform: User/customer side: Payee ... |
+| Use case 1 - B2B Payments - Payment methods | Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) |
 | Use case 1 - B2B Payments - User/customer side | Payer |
 | Use case 1 - B2B Payments - Payer types | Businesses |
 | Use case 1 - B2B Payments - Payer count | 1200 |
@@ -418,6 +446,7 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
 | Use case 1 - B2B Payments - Payee countries | United States, Canada, United Kingdom, Germany |
 | Use case 1 - B2B Payments - Payee currencies | USD, CAD, GBP, EUR |
 | Use case 1 - B2B Payments - Stored value account capabilities | Virtual Bank Accounts, Multi-Currency Wallet |
+| Use case 2 - Marketplace / Platform - Payment methods | Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) |
 | Use case 2 - Marketplace / Platform - User/customer side | Payee |
 | Use case 2 - Marketplace / Platform - Payer types | Consumers, Businesses |
 | Use case 2 - Marketplace / Platform - Payer count | 25000 |
@@ -458,6 +487,7 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
   "rawData": {
     "Company Name": "OrbitPay",
     "Use case categories": "B2B Payments, Marketplace / Platform",
+    "Payment methods": "B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested)",
     "Stored value accounts": "B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)"
   },
   "responses": {
@@ -466,20 +496,42 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
       "isNewUseCaseOrCorridor": "yes",
       "highRiskIndustries": "no"
     },
+    "paymentMethods": {
+      "b2b-payments": {
+        "swiftWire": { "current": true, "interested": true },
+        "sameDayAch": { "current": false, "interested": true },
+        "internationalSwift": { "current": false, "interested": true },
+        "cardAcquiring": { "current": true, "interested": false }
+      }
+    },
     "useCaseFlows": {
       "b2b-payments": {
         "label": "B2B Payments",
+        "paymentMethods": {
+          "swiftWire": { "current": true, "interested": true },
+          "sameDayAch": { "current": false, "interested": true },
+          "internationalSwift": { "current": false, "interested": true },
+          "cardAcquiring": { "current": true, "interested": false }
+        },
         "customerSides": ["payer"],
         "senderTypes": ["businesses"],
         "receiverTypes": ["businesses", "soleProprietors"],
         "storedValueAccountTypes": ["virtualBankAccounts", "multiCurrencyWallets"]
+      }
+    },
+    "useCasePaymentMethods": {
+      "b2b-payments": {
+        "swiftWire": { "current": true, "interested": true },
+        "sameDayAch": { "current": false, "interested": true },
+        "internationalSwift": { "current": false, "interested": true },
+        "cardAcquiring": { "current": true, "interested": false }
       }
     }
   }
 }
 ```
 
-## 8. Thank You / Available Documents
+## 7. Thank You / Available Documents
 
 Page title: `Thank you for your submission`
 
