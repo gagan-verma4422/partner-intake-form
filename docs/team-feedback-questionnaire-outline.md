@@ -57,14 +57,14 @@ Section description:
 
 - Company name
 - Entity type
-  Options: Corporation, LLC, Partnership, Sole proprietorship, Nonprofit, Other
+  Options: Corporation / Limited Company, LLC / Limited Liability Entity, Partnership, Sole trader / Sole proprietorship, Non-profit / Charity, Other
 - Please specify entity type
   Note: only shown when `Other` is selected
 - URL
 
 ## 2. Use Case Categories
 
-Page title: `Choose the commercial framing.`
+Page title: `Select your use case.`
 
 Page description:
 `Your selections will shape the From and To flow details we collect.`
@@ -75,7 +75,7 @@ Page footer:
 ### Use Case Categories
 
 Section description:
-`Choose all commercial framings that apply. The next step will collect the From and To flow for the selected use cases.`
+`Choose all use case categories that apply. The next step will collect the From and To flow for the selected use cases.`
 
 - Use case categories
   Control: multi-select cards
@@ -126,28 +126,30 @@ Page footer:
 Section description:
 `Share who is sending funds and the source countries and currencies.`
 
-- User type
+- Who is sending the funds?
   Options: Consumers, Businesses, Sole proprietors
 - Source regions
 - What specific countries are funds coming from?
 - Which currencies are the funds sent in?
 - Number of sending users
-- Are these users actual or estimated?
-  Options: Actual, Estimated
+- Is this number confirmed, or an estimate?
+  Note: shown as an inline prompt after the number of sending users field
+  Options: Confirmed, Estimate
 
 ### To
 
 Section description:
 `Share who is receiving funds and the destination countries and currencies.`
 
-- User type
+- Who is receiving the funds?
   Options: Consumers, Businesses, Sole proprietors
 - Destination regions
 - What specific countries are funds going to?
 - Which currencies are the funds received in?
 - Number of receiving users
-- Are these users actual or estimated?
-  Options: Actual, Estimated
+- Is this number confirmed, or an estimate?
+  Note: shown as an inline prompt after the number of receiving users field
+  Options: Confirmed, Estimate
 
 ### Use Case Setup
 
@@ -267,10 +269,10 @@ Page footer:
 Section description:
 `Please provide directional ranges for the business supporting the selected flow or flows.`
 
-- Annual company revenue
+- Annual company revenue (USD)
 - Annual volume
 - Payment count
-- Average ticket size
+- Average transaction size
   Note: starts unset; partner can move the slider or select `I don't know yet`
 - Expected company growth (Next 12 months)
   Note: starts unset; partner can move the slider or select `I don't know yet`
@@ -370,7 +372,7 @@ Primary contact is decision maker: Yes
 Decision maker name: N/A
 Decision maker email: N/A
 Company: OrbitPay
-Entity type: Corporation
+Entity type: Corporation / Limited Company
 URL: https://orbitpay.example
 Use case categories: B2B Payments, Marketplace / Platform
 New use case or corridor: Yes
@@ -383,11 +385,11 @@ Licensed in operating countries: No
 Pricing model: Revenue share
 Implementation timeline: 3-6 months
 
-Revenue range: $5M - $10M
+Annual company revenue (USD): $5M - $10M
 Expected company growth (next 12 months): 45%
 Annual volume range: $100M - $250M
 Payment count range: 500K - 1M
-Average ticket size: $2,500
+Average transaction size: $2,500
 
 Product interest summary: Payment methods: B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) | Stored value accounts: B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD) | Additional services: Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested)
 Payment methods: B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested)
@@ -412,7 +414,7 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
 | Whatsapp Number | +1 416 555 0198 |
 | Primary contact is decision maker | Yes |
 | Company Name | OrbitPay |
-| Entity Type | Corporation |
+| Entity Type | Corporation / Limited Company |
 | Url | https://orbitpay.example |
 | Use case categories | B2B Payments, Marketplace / Platform |
 | New use case or corridor | Yes |
@@ -421,11 +423,11 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
 | Licensed in operating countries | No |
 | Pricing model | Revenue share |
 | Implementation timeline | 3-6 months |
-| Annual Revenue range | $5M - $10M |
+| Annual company revenue (USD) | $5M - $10M |
 | Annual volume range | $100M - $250M |
 | Payment count range | 500K - 1M |
 | Expected company growth (next 12 months) | 45 |
-| Average ticket size | 2500 |
+| Average transaction size | 2500 |
 | Payment methods | B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) \| Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) |
 | Payment methods by use case | B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) \| Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) |
 | Stored value accounts | B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet \| Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD) |

@@ -94,11 +94,11 @@ Use case categories are multi-select. Each selected use case receives its own pa
 
 | Item | Definition |
 | --- | --- |
-| Corporation | Incorporated legal entity. |
-| LLC | Limited liability company or equivalent limited-liability entity. |
+| Corporation / Limited Company | Incorporated legal entity, including limited companies in non-US markets. |
+| LLC / Limited Liability Entity | Limited liability company or equivalent limited-liability entity. |
 | Partnership | Business owned and operated by two or more parties. |
-| Sole proprietorship | Business owned by one individual without a separate corporate entity. |
-| Nonprofit | Organization formed for nonprofit, charitable, educational, social, or similar purposes. |
+| Sole trader / Sole proprietorship | Business owned by one individual without a separate corporate entity. |
+| Non-profit / Charity | Organization formed for nonprofit, charitable, educational, social, or similar purposes. |
 | Other | Entity type not represented by the listed options. |
 
 ## Commercial and Operational Options
@@ -141,11 +141,11 @@ Each selected use case has a separate page that asks for:
 | From user type | Select the sending user types: consumers, businesses, and/or sole proprietors. |
 | Payer regions, countries, and currencies | Identify where payers are located and which currencies they send. |
 | Number of payers | Approximate number of payer users for the selected use case. |
-| Payer count basis | Indicates whether the payer count is actual or estimated. |
+| Payer count confirmation | Indicates whether the payer count is confirmed or estimated. |
 | To user type | Select the receiving user types: consumers, businesses, and/or sole proprietors. |
 | Payee regions, countries, and currencies | Identify where payees are located and which currencies they receive. |
 | Number of payees | Approximate number of payee users for the selected use case. |
-| Payee count basis | Indicates whether the payee count is actual or estimated. |
+| Payee count confirmation | Indicates whether the payee count is confirmed or estimated. |
 | Stored Value Account | Optional stored value account capabilities needed for the selected use case, such as wallets, virtual accounts, stablecoin wallets, or virtual cards. A stored value account lets the partner receive, hold, and use funds before they are sent or spent. |
 
 ## Review Summary Format
@@ -156,7 +156,7 @@ The Review page uses a grouped question-and-answer table. Groups include use cas
 
 | Field | Options |
 | --- | --- |
-| Annual revenue range | < $1M; $1M - $5M; $5M - $10M; $10M - $25M; $25M - $100M; $100M+ |
+| Annual company revenue (USD) | < $1M; $1M - $5M; $5M - $10M; $10M - $25M; $25M - $100M; $100M+ |
 | Annual volume range | < $5M; $5M - $25M; $25M - $100M; $100M - $250M; $250M - $1B; $1B+ |
 | Payment count range | < 10K; 10K - 100K; 100K - 500K; 500K - 1M; 1M - 10M; 10M+ |
 

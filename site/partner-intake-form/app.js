@@ -219,11 +219,11 @@ const TRANSACTION_TYPES = [
 ];
 
 const ENTITY_TYPES = [
-  { value: "corporation", label: "Corporation" },
-  { value: "llc", label: "LLC" },
+  { value: "corporation", label: "Corporation / Limited Company" },
+  { value: "llc", label: "LLC / Limited Liability Entity" },
   { value: "partnership", label: "Partnership" },
-  { value: "sole-proprietorship", label: "Sole proprietorship" },
-  { value: "nonprofit", label: "Nonprofit" },
+  { value: "sole-proprietorship", label: "Sole trader / Sole proprietorship" },
+  { value: "nonprofit", label: "Non-profit / Charity" },
   { value: "other", label: "Other" },
 ];
 
@@ -642,7 +642,7 @@ const STEP_CONTENT = {
   },
   useCase: {
     eyebrow: "Use Case Categories",
-    title: "Choose the commercial framing.",
+    title: "Select your use case.",
     description:
       "Your selections will shape the From and To flow details we collect.",
     footer:
@@ -1231,16 +1231,26 @@ function render() {
           : ""
       }
       <button class="button" type="button" data-action="next-step" ${submissionState.status === "submitting" ? "disabled" : ""}>
-        ${
-          submissionState.status === "submitting"
-            ? "Submitting..."
-            : currentStep.id === "review"
-              ? "Submit and continue"
-              : "Continue"
-        }
+        ${getPrimaryActionLabel(currentStep)}
       </button>
     </div>
   `;
+}
+
+function getPrimaryActionLabel(currentStep) {
+  if (submissionState.status === "submitting") {
+    return "Submitting...";
+  }
+
+  if (currentStep.id === "review") {
+    return "Submit and continue";
+  }
+
+  if (currentStep.id.startsWith("paymentFlow:") && getActiveUseCaseSection(currentStep.useCaseValue) === "flow") {
+    return "Continue to Payment Methods";
+  }
+
+  return "Continue";
 }
 
 function getStepContent(step) {
@@ -1362,7 +1372,7 @@ function renderUseCaseStep() {
     <div class="section-stack">
       <section class="section-card">
         <h3>Use case categories <span class="required-star">*</span></h3>
-        <p class="section-card__intro">Choose all commercial framings that apply. The next step will collect the From and To flow for the selected use cases.</p>
+        <p class="section-card__intro">Choose all use case categories that apply. The next step will collect the From and To flow for the selected use cases.</p>
         ${renderMultiChoiceCards("useCase.categories", state.useCase.categories, USE_CASE_CATEGORIES)}
         ${
           state.useCase.categories.includes("other")
@@ -1436,14 +1446,14 @@ function renderFinancialsStep() {
       <section class="section-card">
         <h3>Company financials</h3>
         <p class="section-card__intro">Please provide directional ranges for the business supporting ${escapeHtml(selectedFlowPhrase)}.</p>
-        <div class="field-grid">
+        <div class="financial-layout-grid">
           ${renderSelectField(
-            "Annual company revenue *",
+            "Annual company revenue (USD) *",
             "financials.revenueRange",
             state.financials.revenueRange,
             RANGE_OPTIONS.revenue.map((option) => ({ value: option, label: option })),
             "Select a range",
-            "is-half"
+            "financial-grid-field"
           )}
           ${renderSelectField(
             "Annual volume *",
@@ -1451,7 +1461,7 @@ function renderFinancialsStep() {
             state.financials.annualVolumeRange,
             RANGE_OPTIONS.volume.map((option) => ({ value: option, label: option })),
             "Select a range",
-            "is-half"
+            "financial-grid-field"
           )}
           ${renderSelectField(
             "Payment count *",
@@ -1459,32 +1469,34 @@ function renderFinancialsStep() {
             state.financials.paymentCountRange,
             RANGE_OPTIONS.payments.map((option) => ({ value: option, label: option })),
             "Select a range",
-            "is-half"
+            "financial-grid-field"
           )}
-          <div class="field is-half">
+          <div class="field financial-grid-field financial-slider-cell">
             ${renderRangeCard(
-              "Average ticket size",
+              "Average transaction size",
               "financials.averageTicket",
               state.financials.averageTicket,
               0,
               25000,
               250,
               "currency",
-              "Please provide an approximate value."
+              "Please provide an approximate value.",
+              { optional: true, compact: true }
             )}
           </div>
-        </div>
-
-        <div class="range-group">
-          ${renderRangeCard(
-            "Expected company growth (Next 12 months)",
-            "financials.companyGrowth",
-            state.financials.companyGrowth,
-            0,
-            200,
-            5,
-            "percent"
-          )}
+          <div class="field financial-grid-field financial-slider-cell financial-slider-cell--wide">
+            ${renderRangeCard(
+              "Expected company growth (Next 12 months)",
+              "financials.companyGrowth",
+              state.financials.companyGrowth,
+              0,
+              200,
+              5,
+              "percent",
+              "",
+              { optional: true, compact: true }
+            )}
+          </div>
         </div>
       </section>
 
@@ -1503,6 +1515,7 @@ function renderFinancialsStep() {
 
           <div class="field is-half">
             <label>${renderLabelText("Are you licensed in your operating countries? *")}</label>
+            <span class="inline-info-note-placeholder" aria-hidden="true"></span>
             ${renderSegmentedButtons("role.licensed", state.role.licensed, [
               { value: "yes", label: "Yes" },
               { value: "no", label: "No" },
@@ -1517,7 +1530,7 @@ function renderFinancialsStep() {
         <div class="field-grid">
           <div class="field commercial-model-field">
             <label>${renderLabelText("Which commercial model do you prefer? *")}</label>
-            <small>Choose Wholesale pricing to pay a flat fee, or Revenue share to earn a percentage of interchange instead.</small>
+            ${renderInlineInfo("What is the commercial model?", "Choose Wholesale pricing to pay a flat fee, or Revenue share to earn a percentage of interchange instead.")}
             ${renderSegmentedButtons("role.pricingModel", state.role.pricingModel, [
               { value: "wholesale", label: "Wholesale pricing" },
               { value: "revshare", label: "Revenue share" },
@@ -1660,8 +1673,10 @@ function renderUseCaseSectionToggle(entry, activeSection) {
               data-section="${escapeHtml(option.value)}"
               aria-pressed="${isActive ? "true" : "false"}"
             >
-              <span>${escapeHtml(option.label)}</span>
-              <em>${option.complete ? "Complete" : "Needs info"}</em>
+              <span class="use-case-section-toggle__copy">
+                <span class="use-case-section-toggle__status" aria-hidden="true"></span>
+                <span class="use-case-section-toggle__label">${escapeHtml(option.label)}</span>
+              </span>
             </button>
           `;
         })
@@ -1683,10 +1698,9 @@ function getUseCaseCompletion(entry) {
 
 function renderUseCasePaymentMethodsSection(entry) {
   return `
-    <section class="section-card" id="payment-method-${toId(entry.value)}">
+    <section class="section-card payment-method-section" id="payment-method-${toId(entry.value)}">
       <div class="flow-preferences-section__copy">
         <h3>Payment Methods</h3>
-        <p>Select the payment methods relevant to ${escapeHtml(entry.label)}.</p>
       </div>
       ${renderPaymentMethodMatrix(`useCasePaymentMethods.${entry.value}`)}
     </section>
@@ -1705,7 +1719,6 @@ function renderUseCaseStoredValueSection(entry) {
       </div>
 
       <div class="field stored-value-flow-field">
-        <label>${renderLabelText("Stored value account capabilities")}</label>
         ${renderStoredValueAccountSelector(`useCaseFlows.${entry.value}.storedValueAccountTypes`, entry.flow.storedValueAccountTypes)}
       </div>
     </section>
@@ -1751,8 +1764,9 @@ function renderUseCasePaymentFlow(entry, options = {}) {
 
           <div class="flow-detail-grid">
             <div class="flow-field-box">
+              <span class="flow-field-group-caption">Who &amp; Where</span>
               <div class="field">
-                <label>${renderLabelText("User type *")}</label>
+                <label>${renderLabelText("Who is sending the funds? *")}</label>
                 ${renderMultiSelectBubbles(`${basePath}.senderTypes`, flow.senderTypes, FLOW_USER_TYPE_OPTIONS)}
               </div>
             </div>
@@ -1774,6 +1788,7 @@ function renderUseCasePaymentFlow(entry, options = {}) {
             </div>
 
             <div class="flow-field-box">
+              <span class="flow-field-group-caption flow-field-group-caption--separated">Volume &amp; Currency</span>
               ${renderSearchMultiSelect(
                 `${basePath}.senderCurrencies`,
                 flow.senderCurrencies,
@@ -1784,24 +1799,14 @@ function renderUseCasePaymentFlow(entry, options = {}) {
             </div>
 
             <div class="flow-field-box">
-              ${renderTextField(
+              ${renderCountWithBasisField(
                 "Number of sending users *",
                 `${basePath}.payerCount`,
                 flow.payerCount,
-                "number",
-                "",
-                ""
+                `${basePath}.payerCountBasis`,
+                flow.payerCountBasis,
+                `${entry.label} — payer count confirmation`
               )}
-            </div>
-
-            <div class="flow-field-box">
-              <div class="field">
-                <label>${renderLabelText("Are these users actual or estimated? *")}</label>
-                ${renderSegmentedButtons(`${basePath}.payerCountBasis`, flow.payerCountBasis, [
-                  { value: "actual", label: "Actual" },
-                  { value: "estimated", label: "Estimated" },
-                ])}
-              </div>
             </div>
           </div>
         </section>
@@ -1814,8 +1819,9 @@ function renderUseCasePaymentFlow(entry, options = {}) {
 
           <div class="flow-detail-grid">
             <div class="flow-field-box">
+              <span class="flow-field-group-caption">Who &amp; Where</span>
               <div class="field">
-                <label>${renderLabelText("User type *")}</label>
+                <label>${renderLabelText("Who is receiving the funds? *")}</label>
                 ${renderMultiSelectBubbles(`${basePath}.receiverTypes`, flow.receiverTypes, FLOW_USER_TYPE_OPTIONS)}
               </div>
             </div>
@@ -1837,6 +1843,7 @@ function renderUseCasePaymentFlow(entry, options = {}) {
             </div>
 
             <div class="flow-field-box">
+              <span class="flow-field-group-caption flow-field-group-caption--separated">Volume &amp; Currency</span>
               ${renderSearchMultiSelect(
                 `${basePath}.receiverCurrencies`,
                 flow.receiverCurrencies,
@@ -1847,24 +1854,14 @@ function renderUseCasePaymentFlow(entry, options = {}) {
             </div>
 
             <div class="flow-field-box">
-              ${renderTextField(
+              ${renderCountWithBasisField(
                 "Number of receiving users *",
                 `${basePath}.payeeCount`,
                 flow.payeeCount,
-                "number",
-                "",
-                ""
+                `${basePath}.payeeCountBasis`,
+                flow.payeeCountBasis,
+                `${entry.label} — payee count confirmation`
               )}
-            </div>
-
-            <div class="flow-field-box">
-              <div class="field">
-                <label>${renderLabelText("Are these users actual or estimated? *")}</label>
-                ${renderSegmentedButtons(`${basePath}.payeeCountBasis`, flow.payeeCountBasis, [
-                  { value: "actual", label: "Actual" },
-                  { value: "estimated", label: "Estimated" },
-                ])}
-              </div>
             </div>
           </div>
         </section>
@@ -1978,8 +1975,8 @@ function renderPaymentMethodMatrix(storeKey) {
   return `
     <div class="payment-method-matrix">
       ${renderPaymentMethodGroups(storeKey)}
-      <section class="method-group method-group--conversion" aria-labelledby="conversion-group-${toId(storeKey)}">
-        <div class="method-group__header">
+      <section class="conversion-section" aria-labelledby="conversion-group-${toId(storeKey)}">
+        <div class="conversion-section__header">
           <div>
             <h4 id="conversion-group-${toId(storeKey)}">${escapeHtml(FIAT_DIGITAL_CURRENCY_CONVERSIONS.label)}</h4>
             <p>${escapeHtml(FIAT_DIGITAL_CURRENCY_CONVERSIONS.description)}</p>
@@ -2002,15 +1999,19 @@ function renderPaymentMethodGroups(storeKey = "paymentMethods") {
           }
           const titleId = `method-group-${toId(`${storeKey}-${group.key}`)}`;
           return `
-            <section class="method-group" aria-labelledby="${titleId}">
-              <div class="method-group__header">
-                <div>
-                  <h4 id="${titleId}">${escapeHtml(group.label)}</h4>
-                  <p>${escapeHtml(group.description)}</p>
+            <details class="method-group method-group--accordion" aria-labelledby="${titleId}" open>
+              <summary class="method-group__summary">
+                <div class="method-group__header">
+                  <div>
+                    <h4 id="${titleId}">${escapeHtml(group.label)}</h4>
+                    <p>${escapeHtml(group.description)}</p>
+                  </div>
                 </div>
+              </summary>
+              <div class="method-group__body">
+                ${renderInterestGrid(items, storeKey, { compact: true, showCategory: false, selectOnly: true })}
               </div>
-              ${renderInterestGrid(items, storeKey, { compact: true, showCategory: false, selectOnly: true })}
-            </section>
+            </details>
           `;
         })
         .join("")}
@@ -2020,7 +2021,7 @@ function renderPaymentMethodGroups(storeKey = "paymentMethods") {
 
 function renderFiatDigitalCurrencyConversionGroups(storeKey = "paymentMethods") {
   return `
-    <div class="method-group-stack">
+    <div class="conversion-subsections">
       ${FIAT_DIGITAL_CURRENCY_CONVERSIONS.groups
         .map((group) => {
           const items = getVisiblePaymentMethodItems(group.itemKeys, storeKey);
@@ -2029,12 +2030,10 @@ function renderFiatDigitalCurrencyConversionGroups(storeKey = "paymentMethods") 
           }
           const titleId = `conversion-group-${toId(`${storeKey}-${group.key}`)}`;
           return `
-            <section class="method-group" aria-labelledby="${titleId}">
-              <div class="method-group__header">
-                <div>
-                  <h4 id="${titleId}">${escapeHtml(group.label)}</h4>
-                  <p>${escapeHtml(group.description)}</p>
-                </div>
+            <section class="conversion-subsection" aria-labelledby="${titleId}">
+              <div class="conversion-subsection__header">
+                <h4 id="${titleId}">${escapeHtml(group.label)}</h4>
+                <p>${escapeHtml(group.description)}</p>
               </div>
               ${renderConversionGroupDetails(group, items)}
               ${renderInterestGrid(items, storeKey, { compact: true, showCategory: false, selectOnly: true })}
@@ -2090,9 +2089,12 @@ function renderAdditionalServicesStep() {
   return `
     <div class="section-stack">
       <section class="section-card">
-        <h3>Additional services</h3>
+        <div class="section-card__heading-row">
+          <h3>Additional services</h3>
+          <span class="optional-tag">Optional</span>
+        </div>
         <p class="section-card__intro">${escapeHtml(servicesIntro)}</p>
-        ${renderInterestGrid(ADDITIONAL_SERVICES, "additionalServices")}
+        ${renderInterestGrid(ADDITIONAL_SERVICES, "additionalServices", { selectOnly: true })}
       </section>
     </div>
   `;
@@ -2131,7 +2133,7 @@ function renderReviewStep() {
           "Additional context",
           "additionalInfo",
           state.additionalInfo,
-          "Please provide any relevant context, implementation considerations, launch timing, priorities, or other information."
+          "e.g. specific compliance requirements, target launch date, or special integration needs."
         )}
       </section>
     </div>
@@ -2193,30 +2195,11 @@ function renderReviewQuestionAnswerSummary({
     "High-risk details",
     state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails.trim() : ""
   );
-  addRow("Payment Methods", "Selections by use case", formatReviewDelimitedSummary(getUseCasePaymentMethodSummary(), " | ", 2));
-  addRow("Additional Services", "Selected services", formatReviewDelimitedSummary(servicesSummary, ", ", 3));
-  addRow(
-    "Commercial profile",
-    "Flow of funds business?",
-    state.role.inFlowOfFundsBusiness ? formatYesNo(state.role.inFlowOfFundsBusiness) : ""
-  );
-  addRow("Commercial profile", "Licensed in operating countries?", state.role.licensed ? formatYesNo(state.role.licensed) : "");
-  addRow("Commercial profile", "Preferred commercial model", pricingModelLabel);
-  addRow("Commercial profile", "Annual revenue", state.financials.revenueRange);
-  // UX fix: Review now includes every financial field collected in step 6.
-  addRow("Commercial profile", "Annual volume", state.financials.annualVolumeRange);
-  addRow("Commercial profile", "Payment count", state.financials.paymentCountRange);
-  addRow("Commercial profile", "Average ticket size", formatOptionalCurrency(state.financials.averageTicket), {
-    showEmpty: true,
-    fallback: "Not provided",
-  });
-  addRow("Commercial profile", "Expected company growth", formatOptionalPercent(state.financials.companyGrowth), {
-    showEmpty: true,
-    fallback: "Not provided",
-  });
-  addRow("Commercial profile", "Implementation timeline", implementationTimelineLabel);
 
   getSelectedUseCaseEntries().forEach(({ value, label, flow }) => {
+    // Changelog: Review ties payment-method selections to each use case instead of showing one detached global row.
+    addRow(label, "Payment methods", formatReviewDelimitedSummary(getUseCasePaymentMethodSummaryForValue(value), ", ", 4));
+
     const rowCountBeforeFlow = rows.length;
     addRow(label, "User/customer side", formatCustomerSides(flow.customerSides));
     addRow(
@@ -2240,9 +2223,32 @@ function renderReviewQuestionAnswerSummary({
     addRow(label, "Stored Value Account", formatStoredValueAccountTypes(flow.storedValueAccountTypes));
 
     if (rows.length === rowCountBeforeFlow) {
-      addRow(label, "Payment flow", "No flow details indicated", { showEmpty: true });
+      // Changelog: only show the flow empty-state when no individual payment-flow answers were provided.
+      addRow(label, "Payment flow", "No payment flow details entered yet", { showEmpty: true });
     }
   });
+
+  addRow("Additional Services", "Selected services", formatReviewDelimitedSummary(servicesSummary, ", ", 3));
+  addRow(
+    "Commercial profile",
+    "Flow of funds business?",
+    state.role.inFlowOfFundsBusiness ? formatYesNo(state.role.inFlowOfFundsBusiness) : ""
+  );
+  addRow("Commercial profile", "Licensed in operating countries?", state.role.licensed ? formatYesNo(state.role.licensed) : "");
+  addRow("Commercial profile", "Preferred commercial model", pricingModelLabel);
+  addRow("Commercial profile", "Annual company revenue (USD)", state.financials.revenueRange);
+  // UX fix: Review now includes every financial field collected in step 6.
+  addRow("Commercial profile", "Annual volume", state.financials.annualVolumeRange);
+  addRow("Commercial profile", "Payment count", state.financials.paymentCountRange);
+  addRow("Commercial profile", "Average transaction size", formatOptionalCurrency(state.financials.averageTicket), {
+    showEmpty: true,
+    fallback: "Not provided",
+  });
+  addRow("Commercial profile", "Expected company growth", formatOptionalPercent(state.financials.companyGrowth), {
+    showEmpty: true,
+    fallback: "Not provided",
+  });
+  addRow("Commercial profile", "Implementation timeline", implementationTimelineLabel);
 
   const groupedRows = rows.reduce((groups, row) => {
     const currentGroup = groups.at(-1);
@@ -2348,7 +2354,14 @@ function formatOptionalPercent(value) {
 }
 
 function formatReviewCount(value, basis) {
-  return value ? `${value} (${basis || "basis not selected"})` : "";
+  const basisLabel = formatCountBasisLabel(basis);
+  return value ? `${value} (${basisLabel})` : "";
+}
+
+function formatCountBasisLabel(basis) {
+  if (basis === "actual") return "confirmed";
+  if (basis === "estimated") return "estimated";
+  return "confirmation not selected";
 }
 
 function formatReviewCountryList(codes, otherDetail = "") {
@@ -2467,6 +2480,38 @@ function renderTextField(label, name, value, type = "text", placeholder = "", cl
         aria-invalid="${inlineError ? "true" : "false"}"
       />
       ${inlineError ? `<span class="field-inline-error">${escapeHtml(inlineError)}</span>` : ""}
+    </div>
+  `;
+}
+
+function renderCountWithBasisField(label, countName, countValue, basisName, basisValue, basisErrorKey) {
+  const inlineError = getInlineFieldError(countName);
+  const basisError = activeErrors.includes(basisErrorKey);
+  const inputClassName = `text-input ${inlineError ? "is-invalid" : ""}`.trim();
+  const shouldShowPrompt = Boolean(countValue || basisValue || basisError);
+
+  return `
+    <div class="field count-basis-field ${shouldShowPrompt ? "has-count" : ""}">
+      <label for="${toId(countName)}">${renderLabelText(label)}</label>
+      <input
+        class="${inputClassName}"
+        id="${toId(countName)}"
+        name="${countName}"
+        type="number"
+        min="0"
+        inputmode="numeric"
+        value="${escapeHtml(String(countValue || ""))}"
+        aria-invalid="${inlineError ? "true" : "false"}"
+        aria-describedby="${toId(basisName)}-prompt"
+      />
+      ${inlineError ? `<span class="field-inline-error">${escapeHtml(inlineError)}</span>` : ""}
+      <div class="count-basis-popover ${basisError ? "is-invalid" : ""}" id="${toId(basisName)}-prompt">
+        <span class="count-basis-popover__question">${renderLabelText("Is this number confirmed, or an estimate? *")}</span>
+        ${renderSegmentedButtons(basisName, basisValue, [
+          { value: "actual", label: "Confirmed" },
+          { value: "estimated", label: "Estimate" },
+        ])}
+      </div>
     </div>
   `;
 }
@@ -2824,7 +2869,7 @@ function renderCountryMultiSelect(path, selectedValues, title = "") {
   const summaryTextClassName = `country-dropdown__summary-text ${selectedTotal ? "" : "is-placeholder"}`.trim();
 
   return `
-    <div class="country-select country-select--countries">
+    <div class="country-select country-select--countries ${definition.disabled ? "is-disabled" : ""}">
       <div class="country-select__header">
         <label class="country-select__label">${renderLabelText(title)}</label>
       </div>
@@ -3005,6 +3050,7 @@ function renderSearchMultiSelect(path, selectedValues, title = "", intro = "", p
   const inputId = selectorInputId(path);
   const descriptionId = intro ? `${inputId}-description` : "";
   const isDisabled = Boolean(definition.disabled);
+  const alreadySelectedMatch = getAlreadySelectedSearchMatch(path, query, selectedValues);
 
   return `
     <div class="search-select">
@@ -3058,7 +3104,7 @@ function renderSearchMultiSelect(path, selectedValues, title = "", intro = "", p
                           `
                         )
                         .join("")
-                    : `<div class="search-select__empty">No matches found.</div>`
+                    : `<div class="search-select__empty">${escapeHtml(alreadySelectedMatch ? `${alreadySelectedMatch.label} is already selected.` : "No matches found.")}</div>`
                 }
               </div>
             `
@@ -3087,10 +3133,11 @@ function renderSearchSelectedValues(path, selectedValues, definition) {
       <div class="search-select__selected-summary">
         <span>${escapeHtml(`${selectedValues.length} selected: ${previewLabels.join(", ")} + ${extraCount} more`)}</span>
         <button
-          class="text-button text-button--compact"
+          class="text-button text-button--compact search-select__summary-action"
           type="button"
           data-action="toggle-selected-values"
           data-path="${escapeHtml(path)}"
+          aria-label="${escapeHtml(`Show all ${selectedValues.length} selected values`)}"
         >
           Show all
         </button>
@@ -3146,49 +3193,57 @@ function renderRichText(text) {
     .replace(/\*/g, '<span class="required-star">*</span>');
 }
 
-function renderRangeCard(label, name, value, min, max, step, format, help = "") {
+function renderRangeCard(label, name, value, min, max, step, format, help = "", options = {}) {
   const inputId = toId(name);
   const tickListId = `${inputId}-ticks`;
   const numberInputId = `${inputId}-number`;
   const isUnset = value === "" || value === null || value === undefined;
   const inputValue = isUnset ? min : value;
   const midpoint = min + (max - min) / 2;
+  const rangePercent = getRangePercent(inputValue, min, max);
   return `
-    <div class="range-card ${isUnset ? "is-unset" : ""}">
+    <div class="range-card ${options.compact ? "range-card--compact" : ""} ${isUnset ? "is-unset" : ""}" style="--range-position: ${rangePercent}%;">
       <div class="range-card__header">
-        <label class="range-card__label" for="${inputId}">${escapeHtml(label)}</label>
-        <div class="range-card__controls">
-          <span class="range-card__value" data-output="${name}" data-format="${format}">
-            ${escapeHtml(isUnset ? "Not set" : formatOutput(value, format))}
-          </span>
-          <input
-            class="text-input range-number-input"
-            id="${numberInputId}"
-            type="number"
-            name="${name}"
-            min="${min}"
-            max="${max}"
-            step="${step}"
-            value="${escapeHtml(isUnset ? "" : value)}"
-            data-format="${format}"
-            data-range-number="true"
-            placeholder="${escapeHtml(formatOutput(midpoint, format))}"
-            aria-label="${escapeHtml(`${label} exact value`)}"
-          />
+        <div class="range-card__title-row">
+          <label class="range-card__label" for="${inputId}">${escapeHtml(label)}</label>
+          ${options.optional ? '<span class="range-card__optional">Optional</span>' : ""}
         </div>
       </div>
-      <input
-        class="range-input"
-        id="${inputId}"
-        type="range"
-        name="${name}"
-        min="${min}"
-        max="${max}"
-        step="${step}"
-        value="${inputValue}"
-        list="${tickListId}"
-        data-format="${format}"
-      />
+      <div class="range-card__track-area">
+        <div class="range-card__bubble">
+          <div class="range-card__controls">
+            <span class="range-card__value" data-output="${name}" data-format="${format}">
+              ${escapeHtml(isUnset ? "Not set" : formatOutput(value, format))}
+            </span>
+            <input
+              class="text-input range-number-input"
+              id="${numberInputId}"
+              type="number"
+              name="${name}"
+              min="${min}"
+              max="${max}"
+              step="${step}"
+              value="${escapeHtml(isUnset ? "" : value)}"
+              data-format="${format}"
+              data-range-number="true"
+              placeholder="${escapeHtml(formatOutput(midpoint, format))}"
+              aria-label="${escapeHtml(`${label} exact value`)}"
+            />
+          </div>
+        </div>
+        <input
+          class="range-input"
+          id="${inputId}"
+          type="range"
+          name="${name}"
+          min="${min}"
+          max="${max}"
+          step="${step}"
+          value="${inputValue}"
+          list="${tickListId}"
+          data-format="${format}"
+        />
+      </div>
       <datalist id="${tickListId}">
         <option value="${min}"></option>
         <option value="${midpoint}"></option>
@@ -3212,6 +3267,16 @@ function renderRangeCard(label, name, value, min, max, step, format, help = "") 
       </div>
     </div>
   `;
+}
+
+function getRangePercent(value, min, max) {
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue) || max === min) {
+    return 0;
+  }
+
+  return Math.min(100, Math.max(0, ((numericValue - min) / (max - min)) * 100));
 }
 
 function renderInterestGrid(items, storeKey, options = {}) {
@@ -3239,7 +3304,7 @@ function renderInterestGrid(items, storeKey, options = {}) {
               <button
                 class="option-card option-card--button option-card--select-only ${options.compact ? "option-card--compact" : ""} ${selected ? "is-selected" : ""} ${disabled ? "is-disabled" : ""}"
                 type="button"
-                data-action="toggle-payment-method-selection"
+                data-action="toggle-interest-selection"
                 data-store="${escapeHtml(storeKey)}"
                 data-key="${escapeHtml(item.key)}"
                 aria-pressed="${selected ? "true" : "false"}"
@@ -3355,6 +3420,26 @@ async function handleClick(event) {
   if (action === "next-step") {
     const steps = buildSteps();
     const currentStep = steps[currentStepIndex];
+
+    if (currentStep.id.startsWith("paymentFlow:") && getActiveUseCaseSection(currentStep.useCaseValue) === "flow") {
+      const currentEntry = getSelectedUseCaseEntries().find((entry) => entry.value === currentStep.useCaseValue);
+      const flowErrors = shouldBypassRequiredFields() || !currentEntry ? [] : validateUseCaseFlowEntry(currentEntry);
+
+      if (flowErrors.length) {
+        selectorUiState.activeUseCaseSections[currentStep.useCaseValue] = "flow";
+        activeErrors = flowErrors;
+        render();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        return;
+      }
+
+      selectorUiState.activeUseCaseSections[currentStep.useCaseValue] = "methods";
+      activeErrors = [];
+      render();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
     const errors = shouldBypassRequiredFields() ? [] : currentStep.validate();
 
     if (errors.length) {
@@ -3462,7 +3547,7 @@ async function handleClick(event) {
     return;
   }
 
-  if (action === "toggle-payment-method-selection") {
+  if (action === "toggle-interest-selection") {
     const { store, key } = button.dataset;
     if (isInterestItemDisabled(store, key)) {
       return;
@@ -3587,6 +3672,10 @@ function handleInput(event) {
   if (target.type === "range" || target.type === "number") {
     value = target.value === "" ? "" : Number(target.value);
   }
+  if (isUserCountPath(target.name) && value !== "" && Number(value) < 0) {
+    value = 0;
+    target.value = "0";
+  }
   if (target.name === "contact.whatsapp") {
     value = target.value.replace(/[^\d+\s\-().]/g, "");
     target.value = value;
@@ -3621,6 +3710,10 @@ function handleInput(event) {
   }
 
   activeErrors = [];
+}
+
+function isUserCountPath(path) {
+  return path.endsWith(".payerCount") || path.endsWith(".payeeCount");
 }
 
 function handleKeyDown(event) {
@@ -3866,7 +3959,7 @@ function validateFinancials() {
   const errors = [];
 
   if (!state.financials.revenueRange) {
-    errors.push("Annual company revenue");
+    errors.push("Annual company revenue (USD)");
   }
   if (!state.financials.annualVolumeRange) {
     errors.push("Annual volume");
@@ -3962,15 +4055,13 @@ function validateUseCaseFlowEntry({ label, flow }) {
   }
   if (!flow.payerCount) {
     errors.push(`${label} — number of payers`);
-  }
-  if (!flow.payerCountBasis) {
-    errors.push(`${label} — payer count basis`);
+  } else if (!flow.payerCountBasis) {
+    errors.push(`${label} — payer count confirmation`);
   }
   if (!flow.payeeCount) {
     errors.push(`${label} — number of payees`);
-  }
-  if (!flow.payeeCountBasis) {
-    errors.push(`${label} — payee count basis`);
+  } else if (!flow.payeeCountBasis) {
+    errors.push(`${label} — payee count confirmation`);
   }
   if (!flow.senderRegion.length) {
     errors.push(`${label} — payer regions`);
@@ -4052,10 +4143,43 @@ function getSelectedUseCaseLabels() {
 function getUseCaseLabel(value) {
   const label = labelForOption(USE_CASE_CATEGORIES, value) || value;
   if (value === "other") {
-    return state.useCase.other.trim() || "Custom Use Case";
+    return formatCustomUseCaseLabel(state.useCase.other) || "Custom Use Case";
   }
 
   return label;
+}
+
+function formatCustomUseCaseLabel(value) {
+  const normalized = String(value || "").trim().replace(/\s+/g, " ");
+  if (!normalized) {
+    return "";
+  }
+
+  // Changelog: display custom use case names as professional title labels in generated page titles.
+  const acronymMap = {
+    api: "API",
+    b2b: "B2B",
+    b2c: "B2C",
+    fx: "FX",
+    ach: "ACH",
+    iban: "IBAN",
+    swift: "SWIFT",
+    usd: "USD",
+    eur: "EUR",
+    gbp: "GBP",
+    usdc: "USDC",
+    usdt: "USDT",
+  };
+
+  return normalized.replace(/\b[A-Za-z0-9][A-Za-z0-9'&-]*\b/g, (word) =>
+    word
+      .split("-")
+      .map((part) => {
+        const lower = part.toLowerCase();
+        return acronymMap[lower] || `${lower.charAt(0).toUpperCase()}${lower.slice(1)}`;
+      })
+      .join("-")
+  );
 }
 
 function getSelectedUseCaseEntries() {
@@ -4481,6 +4605,24 @@ function getSearchSuggestions(path, query, selectedValues) {
     .slice(0, 8);
 }
 
+function getAlreadySelectedSearchMatch(path, query, selectedValues) {
+  const trimmedQuery = query.trim().toLowerCase();
+
+  if (!trimmedQuery || !selectedValues.length) {
+    return null;
+  }
+
+  const selectedValueSet = new Set(selectedValues);
+  return getSearchSelectorDefinition(path).options.find((option) => {
+    if (!selectedValueSet.has(option.value)) {
+      return false;
+    }
+
+    const haystack = String(option.keywords || option.label || option.value).toLowerCase();
+    return haystack.includes(trimmedQuery);
+  }) || null;
+}
+
 function labelForSearchValue(path, value) {
   return (
     getSearchSelectorDefinition(path).options.find((option) => option.value === value)?.label || value
@@ -4502,6 +4644,21 @@ function updateRangeOutput(name, value, format) {
   if (output) {
     output.textContent = value === "" || value === null || value === undefined ? "Not set" : formatOutput(value, format);
   }
+
+  const rangeInput = document.querySelector(`input[type="range"][name="${escapeSelectorValue(name)}"]`);
+  if (!(rangeInput instanceof HTMLInputElement)) {
+    return;
+  }
+
+  const min = Number(rangeInput.min || 0);
+  const max = Number(rangeInput.max || 100);
+  const activeValue = value === "" || value === null || value === undefined ? min : Number(value);
+  const rangeCard = rangeInput.closest(".range-card");
+
+  if (rangeCard) {
+    rangeCard.style.setProperty("--range-position", `${getRangePercent(activeValue, min, max)}%`);
+    rangeCard.classList.toggle("is-unset", value === "" || value === null || value === undefined);
+  }
 }
 
 function syncRangeControlInputs(name, value, sourceElement) {
@@ -4509,8 +4666,8 @@ function syncRangeControlInputs(name, value, sourceElement) {
     if (!(input instanceof HTMLInputElement) || input === sourceElement) {
       return;
     }
-    if (input.type === "range" && value !== "") {
-      input.value = String(value);
+    if (input.type === "range") {
+      input.value = value === "" ? input.min || "0" : String(value);
     }
     if (input.dataset.rangeNumber === "true") {
       input.value = value === "" ? "" : String(value);
@@ -4718,11 +4875,11 @@ function buildZapierRawData(submittedAt) {
     "Licensed in operating countries": formatYesNo(state.role.licensed),
     "Pricing model": pricingModelLabel || "",
     "Implementation timeline": getImplementationTimelineLabel() || "",
-    "Annual Revenue range": state.financials.revenueRange || "",
+    "Annual company revenue (USD)": state.financials.revenueRange || "",
     "Annual volume range": state.financials.annualVolumeRange || "",
     "Payment count range": state.financials.paymentCountRange || "",
     "Expected company growth (next 12 months)": String(state.financials.companyGrowth ?? ""),
-    "Average ticket size": String(state.financials.averageTicket ?? ""),
+    "Average transaction size": String(state.financials.averageTicket ?? ""),
     "Product interest summary": productInterestSummary || "",
     "Products": productSummary || "",
     "Payment methods": paymentMethodSummary || "",
@@ -4801,11 +4958,11 @@ function buildSummary() {
     `Pricing model: ${pricingModelLabel}`,
     `Implementation timeline: ${getImplementationTimelineLabel() || "N/A"}`,
     "",
-    `Revenue range: ${state.financials.revenueRange || "N/A"}`,
+    `Annual company revenue (USD): ${state.financials.revenueRange || "N/A"}`,
     `Expected company growth (next 12 months): ${formatOptionalPercent(state.financials.companyGrowth) || "N/A"}`,
     `Annual volume range: ${state.financials.annualVolumeRange || "N/A"}`,
     `Payment count range: ${state.financials.paymentCountRange || "N/A"}`,
-    `Average ticket size: ${formatOptionalCurrency(state.financials.averageTicket) || "N/A"}`,
+    `Average transaction size: ${formatOptionalCurrency(state.financials.averageTicket) || "N/A"}`,
     "",
     `Product interest summary: ${productInterestSummary || "N/A"}`,
     `Payment methods: ${paymentMethodSummary || "N/A"}`,
@@ -4831,10 +4988,11 @@ function buildSummary() {
 
 function summarizeInterestGroup(items, groupState, storeKey = "") {
   const isPaymentMethodSummary = getInterestStoreType(storeKey) === "paymentMethods";
+  const isSimpleSelectionSummary = isPaymentMethodSummary || getInterestStoreType(storeKey) === "additionalServices";
   return items
     .filter((item) => !isInterestItemDisabled(storeKey, item.key) && (groupState[item.key].current || groupState[item.key].interested))
     .map((item) => {
-      if (isPaymentMethodSummary) {
+      if (isSimpleSelectionSummary) {
         return item.label;
       }
 
@@ -5089,19 +5247,19 @@ function formatUseCaseFlowSummary({ value, label, flow }) {
     paymentMethodSummary ? `Payment methods: ${paymentMethodSummary}` : "",
     flow.customerSides.length ? `User/customer side: ${formatCustomerSides(flow.customerSides)}` : "",
     flow.senderTypes.length ? `Payers: ${formatList(flow.senderTypes.map((value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value)))}` : "",
-    flow.payerCount ? `Number of payers: ${flow.payerCount} (${flow.payerCountBasis || "basis not selected"})` : "",
+    flow.payerCount ? `Number of payers: ${flow.payerCount} (${formatCountBasisLabel(flow.payerCountBasis)})` : "",
     flow.senderRegion.length ? `Payer regions: ${formatRegionList(flow.senderRegion)}` : "",
     flow.senderCountries.length ? `Payer countries: ${formatCountryList(flow.senderCountries, flow.senderCountriesOther)}` : "",
     flow.senderCurrencies.length ? `Payer currencies: ${flow.senderCurrencies.join(", ")}` : "",
     flow.receiverTypes.length ? `Payees: ${formatList(flow.receiverTypes.map((value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value)))}` : "",
-    flow.payeeCount ? `Number of payees: ${flow.payeeCount} (${flow.payeeCountBasis || "basis not selected"})` : "",
+    flow.payeeCount ? `Number of payees: ${flow.payeeCount} (${formatCountBasisLabel(flow.payeeCountBasis)})` : "",
     flow.receiverRegion.length ? `Payee regions: ${formatRegionList(flow.receiverRegion)}` : "",
     flow.receiverCountries.length ? `Payee countries: ${formatCountryList(flow.receiverCountries, flow.receiverCountriesOther)}` : "",
     flow.receiverCurrencies.length ? `Payee currencies: ${flow.receiverCurrencies.join(", ")}` : "",
     flow.storedValueAccountTypes.length ? `Stored value: ${formatStoredValueAccountTypes(flow.storedValueAccountTypes)}` : "",
   ].filter(Boolean);
 
-  return `${label}: ${parts.join(" | ") || "No flow details indicated"}`;
+  return `${label}: ${parts.join(" | ") || "No payment flow details entered yet"}`;
 }
 
 function getUseCaseStoredValueSummary() {

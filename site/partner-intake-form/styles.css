@@ -587,11 +587,12 @@ button {
   justify-self: stretch;
   width: 100%;
   min-width: 0;
-  padding: 24px;
-  border-radius: 24px;
-  background: #ffffff;
-  border: 1px solid rgba(15, 36, 56, 0.07);
-  box-shadow: 0 16px 36px rgba(16, 38, 61, 0.05);
+  /* Changelog: remove the extra empty band under the From/To cards on Payment Flow pages. */
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .flow-preferences-section {
@@ -601,11 +602,12 @@ button {
   align-items: start;
   width: 100%;
   min-width: 0;
+  /* Changelog: give Use Case Setup the same visual weight as the payment-flow panels. */
   padding: 24px;
-  border-radius: 24px;
-  background: #ffffff;
-  border: 1px solid rgba(15, 36, 56, 0.07);
-  box-shadow: 0 16px 36px rgba(16, 38, 61, 0.05);
+  border: 1px solid #cfe3fb;
+  border-radius: 14px;
+  background: #f0f7ff;
+  box-shadow: none;
 }
 
 .flow-preferences-section__copy {
@@ -683,12 +685,12 @@ button {
   min-width: 0;
   min-height: 112px;
   padding: 14px;
-  border: 1px solid rgba(15, 36, 56, 0.08);
+  border: 1px solid transparent;
   border-radius: 16px;
-  background: rgba(246, 250, 251, 0.88);
+  background: rgba(246, 250, 251, 0.74);
   color: var(--ink);
   text-align: left;
-  box-shadow: 0 10px 24px rgba(16, 38, 61, 0.04);
+  box-shadow: none;
   transition:
     border-color 160ms ease,
     background 160ms ease,
@@ -779,11 +781,11 @@ button {
   gap: 24px;
   min-width: 0;
   padding: 28px;
+  border: 1px solid rgba(15, 36, 56, 0.08);
   border-radius: 28px;
   background:
     radial-gradient(circle at top right, rgba(34, 196, 216, 0.08), transparent 34%),
     linear-gradient(180deg, rgba(249, 252, 253, 0.96), rgba(255, 255, 255, 1));
-  border: 1px solid rgba(15, 36, 56, 0.08);
   box-shadow: none;
   overflow: visible;
 }
@@ -909,14 +911,43 @@ button {
   min-width: 0;
   min-height: 0;
   padding: 16px;
+  border: 1px solid rgba(20, 37, 50, 0.075);
   border-radius: 16px;
   background: #ffffff;
-  border: 1px solid rgba(20, 37, 50, 0.075);
   overflow: visible;
 }
 
+.flow-field-group-caption {
+  /* Changelog: sub-group From/To fields into scannable business sections. */
+  display: block;
+  margin: 0 0 10px;
+  color: var(--blue-deep);
+  font-size: 11px;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.06em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.flow-field-group-caption--separated {
+  margin-top: 2px;
+  padding-top: 12px;
+  border-top: 1px dashed rgba(15, 121, 214, 0.32);
+}
+
 .flow-field-box .search-select {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   margin-top: 0;
+}
+
+.flow-field-box .search-select__input-wrap,
+.flow-field-box .search-select__input,
+.flow-field-box .search-select__selected-summary {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .flow-field-box .country-select {
@@ -925,7 +956,7 @@ button {
 
 .flow-field-box .field {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   min-width: 0;
 }
 
@@ -939,7 +970,7 @@ button {
 }
 
 .flow-field-box .field label {
-  margin-bottom: 0;
+  margin-bottom: 4px;
 }
 
 .flow-field-box .chip-cloud {
@@ -991,6 +1022,27 @@ button {
   background: #ffffff;
 }
 
+/* Changelog: keep matching From/To field cards visually aligned when labels wrap differently. */
+.payment-flow-box .flow-detail-grid > .flow-field-box:nth-child(1) {
+  min-height: 150px;
+}
+
+.payment-flow-box .flow-detail-grid > .flow-field-box:nth-child(2) {
+  min-height: 126px;
+}
+
+.payment-flow-box .flow-detail-grid > .flow-field-box:nth-child(3) {
+  min-height: 166px;
+}
+
+.payment-flow-box .flow-detail-grid > .flow-field-box:nth-child(4) {
+  min-height: 150px;
+}
+
+.payment-flow-box .flow-detail-grid > .flow-field-box:nth-child(5) {
+  min-height: 190px;
+}
+
 .payment-flow-box .flow-field-box .field {
   grid-column: auto;
 }
@@ -1016,10 +1068,13 @@ button {
 }
 
 .payment-flow-box .flow-field-box .segmented--multi .segment {
-  min-height: 36px;
-  padding: 7px 10px;
-  font-size: 0.86rem;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1.5px solid #e4e7ec;
+  border-radius: 14px;
+  font-size: 13px;
   line-height: 1.15;
+  white-space: nowrap;
 }
 
 .payment-flow-box .flow-field-box .segment {
@@ -1027,6 +1082,69 @@ button {
   min-width: 0;
   min-height: 46px;
   padding: 10px 12px;
+}
+
+/* Changelog: make locked country fields visibly disabled until a region is selected. */
+.payment-flow-box .flow-field-box:has(.country-select.is-disabled) {
+  opacity: 0.54;
+  filter: saturate(0.35);
+  background: #f8fafc;
+}
+
+.payment-flow-box .country-select.is-disabled .country-select__placeholder {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 12px 15px;
+  border: 1px dashed rgba(20, 37, 50, 0.18);
+  border-radius: 16px;
+  background: rgba(241, 245, 249, 0.9);
+  color: #6b7f91;
+}
+
+/* Changelog: count confirmation now opens as an inline popover tied to the user count field. */
+.count-basis-field {
+  position: relative;
+}
+
+.count-basis-popover {
+  display: none;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid rgba(34, 196, 216, 0.22);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(244, 252, 254, 0.98), rgba(255, 255, 255, 0.98));
+  box-shadow: 0 12px 26px rgba(16, 38, 61, 0.08);
+}
+
+.count-basis-field:focus-within .count-basis-popover,
+.count-basis-field.has-count .count-basis-popover {
+  display: block;
+}
+
+.count-basis-popover.is-invalid {
+  border-color: rgba(220, 38, 38, 0.28);
+  background: linear-gradient(180deg, rgba(255, 247, 247, 0.98), rgba(255, 255, 255, 0.98));
+}
+
+.count-basis-popover__question {
+  display: block;
+  color: var(--ink-strong);
+  font-size: 0.86rem;
+  font-weight: var(--weight-semibold);
+  line-height: 1.3;
+}
+
+.payment-flow-box .count-basis-popover .segmented {
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.payment-flow-box .count-basis-popover .segment {
+  min-height: 40px;
+  padding: 8px 10px;
+  font-size: 0.9rem;
 }
 
 .payment-flow-box .country-dropdown,
@@ -1071,6 +1189,12 @@ button {
   gap: 16px;
   width: 100%;
   min-width: 0;
+  padding: 0 0 24px;
+  border: 0;
+  border-bottom: 1px solid rgba(15, 36, 56, 0.08);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .stored-value-default-section > * {
@@ -1140,6 +1264,27 @@ button {
   font-weight: var(--weight-semibold);
 }
 
+.section-card__heading-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.optional-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(105, 125, 148, 0.12);
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
 .section-card__title-muted {
   font-weight: var(--weight-medium);
 }
@@ -1157,71 +1302,125 @@ button {
 
 /* UX compact: keep the per-use-case section switcher from becoming a second page header. */
 .use-case-workspace-card--compact {
-  padding: 12px;
-  border-radius: 20px;
-  box-shadow: 0 10px 24px rgba(16, 38, 61, 0.04);
+  padding: 0 0 12px;
+  border: 0;
+  border-bottom: 1px solid rgba(15, 36, 56, 0.08);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .use-case-section-toggle {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 8px;
-  padding: 8px;
-  border: 1px solid rgba(15, 36, 56, 0.08);
-  border-radius: 18px;
-  background: rgba(246, 250, 252, 0.86);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  max-width: 100%;
+  padding: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: #eef1f5;
+  box-shadow: none;
+}
+
+.use-case-section-toggle::before {
+  content: none;
 }
 
 .use-case-workspace-card--compact .use-case-section-toggle {
-  padding: 6px;
+  padding: 4px;
+}
+
+.payment-method-section {
+  padding: 0 0 24px;
+  border: 0;
+  border-bottom: 1px solid rgba(15, 36, 56, 0.08);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
 }
 
 .use-case-section-toggle__button {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 54px;
-  padding: 12px 14px;
-  border: 1px solid rgba(15, 36, 56, 0.08);
-  border-radius: 14px;
-  background: #ffffff;
+  justify-content: center;
+  flex: 1 1 0;
+  min-height: auto;
+  padding: 8px 20px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
   color: var(--ink);
   line-height: 1.2;
-  text-align: left;
+  text-align: center;
+  box-shadow: none;
 }
 
 .use-case-workspace-card--compact .use-case-section-toggle__button {
-  min-height: 46px;
-  padding: 10px 12px;
+  min-height: auto;
+  padding: 8px 20px;
 }
 
-.use-case-section-toggle__button span {
-  color: var(--ink-strong);
-  font-weight: var(--weight-semibold);
+.use-case-section-toggle__copy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0;
 }
 
-.use-case-section-toggle__button em {
+.use-case-section-toggle__status {
+  /* Changelog: show section completion directly on Payment Flow / Payment Methods tabs. */
+  position: relative;
   flex: 0 0 auto;
-  padding: 4px 9px;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #98a2b3;
   border-radius: 999px;
-  background: rgba(15, 36, 56, 0.05);
-  color: var(--ink-soft);
-  font-size: 0.74rem;
-  font-style: normal;
-  font-weight: var(--weight-semibold);
+  background: transparent;
+}
+
+.use-case-section-toggle__button.is-complete .use-case-section-toggle__status {
+  border-color: #12b76a;
+  background: #12b76a;
+}
+
+.use-case-section-toggle__button.is-complete .use-case-section-toggle__status::after {
+  content: "";
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 5px;
+  height: 9px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.use-case-section-toggle__label {
+  color: #667085;
+  font-size: 0.95rem;
+  font-weight: 500;
   white-space: nowrap;
 }
 
 .use-case-section-toggle__button.is-active {
-  border-color: rgba(34, 196, 216, 0.3);
-  background: linear-gradient(135deg, #dff4ff, #ffffff);
-  box-shadow: 0 12px 20px rgba(34, 196, 216, 0.12);
+  background: #ffffff;
+  box-shadow: 0 2px 6px rgba(16, 24, 40, 0.12);
 }
 
-.use-case-section-toggle__button.is-complete em {
-  background: rgba(34, 196, 216, 0.14);
-  color: var(--teal-deep);
+.use-case-section-toggle__button.is-active .use-case-section-toggle__label {
+  color: #101828;
+  font-weight: 700;
+}
+
+.use-case-section-toggle__button:not(.is-active):hover {
+  background: rgba(255, 255, 255, 0.46);
+}
+
+.use-case-section-toggle__button:not(.is-active):hover .use-case-section-toggle__label {
+  color: #475467;
 }
 
 .utility-action-card {
@@ -1276,8 +1475,25 @@ button {
 }
 
 .business-status-grid label {
-  min-height: 42px;
+  min-height: 28px;
+  margin-bottom: 3px;
   line-height: 1.35;
+}
+
+.business-status-grid .inline-info-note,
+.business-status-grid .inline-info-note-placeholder {
+  /* Changelog: reserve the same info-note row in both Business profile columns so Yes/No controls align. */
+  display: block;
+  min-height: 20px;
+  margin: 0 0 8px;
+}
+
+.business-status-grid .inline-info-note summary {
+  min-height: 22px;
+}
+
+.business-status-grid .segmented {
+  margin-top: 0;
 }
 
 .use-case-detail-grid {
@@ -1358,8 +1574,13 @@ button {
   margin-bottom: 4px;
 }
 
+.commercial-model-field .inline-info-note {
+  /* Changelog: commercial model helper now uses the same collapsible info-note pattern as Business profile. */
+  margin: 0 0 14px;
+}
+
 .commercial-model-field .segmented {
-  margin-top: 14px;
+  margin-top: 0;
 }
 
 .field label.checkbox-field {
@@ -1489,27 +1710,94 @@ button {
   margin-top: 32px;
 }
 
+.financial-layout-grid {
+  /* Changelog: keep Company financials as one compact grid with dropdowns and sliders in the same visual rhythm. */
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+  margin-top: 22px;
+}
+
+.financial-layout-grid .field {
+  grid-column: auto;
+  min-width: 0;
+}
+
+.financial-slider-cell {
+  align-self: end;
+}
+
+.financial-slider-cell--wide {
+  grid-column: 1 / -1;
+}
+
 .range-card {
   padding: 0;
   border-radius: 0;
   background: transparent;
   border: 0;
   box-shadow: none;
+  --range-position: 0%;
 }
 
 .range-card__header {
+  display: block;
+}
+
+.range-card__title-row {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  align-items: baseline;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.range-card__optional {
+  display: inline-flex;
+  align-items: center;
+  min-height: 22px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(105, 125, 148, 0.12);
+  color: var(--ink-soft);
+  font-size: 0.72rem;
+  font-weight: var(--weight-semibold);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.range-card__track-area {
+  position: relative;
+  padding-top: 58px;
+}
+
+.range-card__bubble {
+  position: absolute;
+  top: 0;
+  left: var(--range-position);
+  transform: translateX(-50%);
+  z-index: 1;
+  display: inline-flex;
+  max-width: min(320px, 100%);
+  padding: 7px 9px;
+  border: 1px solid rgba(34, 196, 216, 0.2);
+  border-radius: 999px;
+  background: #ffffff;
+  box-shadow: 0 10px 22px rgba(16, 38, 61, 0.08);
+}
+
+.range-card.is-unset .range-card__bubble {
+  left: 0;
+  transform: translateX(0);
+  border-color: rgba(15, 36, 56, 0.1);
+  box-shadow: 0 8px 18px rgba(16, 38, 61, 0.05);
 }
 
 .range-card__controls {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: center;
+  gap: 8px;
 }
 
 .range-card__label {
@@ -1520,8 +1808,9 @@ button {
 
 .range-card__value {
   color: var(--teal-deep);
-  font-size: 1.1rem;
+  font-size: 0.9rem;
   font-weight: var(--weight-semibold);
+  white-space: nowrap;
 }
 
 .range-card.is-unset .range-card__value {
@@ -1529,18 +1818,68 @@ button {
   color: var(--ink-soft);
 }
 
+.range-card--compact .range-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.range-card--compact .range-card__title-row {
+  min-width: 0;
+}
+
+.range-card--compact .range-card__optional {
+  display: none;
+}
+
+.range-card--compact .range-card__track-area {
+  padding-top: 16px;
+}
+
+.range-card--compact .range-card__bubble,
+.range-card--compact.is-unset .range-card__bubble {
+  position: static;
+  display: flex;
+  flex: 0 0 auto;
+  max-width: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.range-card--compact .range-card__value {
+  color: var(--blue-deep);
+  font-size: 0.98rem;
+  font-weight: var(--weight-semibold);
+}
+
+.range-card--compact .range-number-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 .range-input {
   width: 100%;
-  margin-top: 14px;
+  margin-top: 0;
   accent-color: var(--teal-deep);
 }
 
 .range-number-input {
-  width: 150px;
-  min-height: 42px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  font-size: 0.95rem;
+  width: 112px;
+  min-height: 34px;
+  padding: 6px 9px;
+  border-radius: 12px;
+  font-size: 0.86rem;
 }
 
 .range-card__scale {
@@ -1579,7 +1918,7 @@ button {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: stretch;
-  grid-auto-rows: 1fr;
+  grid-auto-rows: auto;
   gap: 16px;
   margin-top: 18px;
 }
@@ -1593,26 +1932,81 @@ button {
   height: 100%;
   padding: 18px;
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.96);
-  border: 1px solid rgba(15, 36, 56, 0.07);
-  box-shadow: var(--shadow-sm);
+  background: rgba(246, 250, 252, 0.72);
+  border: 1px solid transparent;
+  box-shadow: none;
   color: var(--ink);
 }
 
 .method-group-stack {
   display: grid;
-  gap: 16px;
+  gap: 12px;
   margin-top: 18px;
 }
 
 .payment-method-matrix {
   display: grid;
-  gap: 22px;
+  gap: 18px;
   margin-top: 20px;
 }
 
 .payment-method-matrix > .method-group-stack {
   margin-top: 0;
+}
+
+.conversion-section {
+  display: grid;
+  gap: 16px;
+  padding: 22px 24px;
+  border: 1px solid rgba(15, 36, 56, 0.08);
+  border-radius: 24px;
+  background: rgba(246, 250, 252, 0.54);
+  box-shadow: none;
+}
+
+.conversion-section__header {
+  display: grid;
+  gap: 4px;
+}
+
+.conversion-section__header h4,
+.conversion-subsection__header h4 {
+  margin: 0;
+  color: var(--ink-strong);
+  font-family: var(--body-font);
+  font-size: var(--text-title);
+  font-weight: var(--weight-semibold);
+  line-height: 1.3;
+}
+
+.conversion-section__header p,
+.conversion-subsection__header p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.conversion-subsections {
+  display: grid;
+  gap: 18px;
+}
+
+.conversion-subsection {
+  display: grid;
+  gap: 10px;
+  padding: 0 0 16px;
+  border-bottom: 1px solid rgba(15, 36, 56, 0.07);
+  background: transparent;
+}
+
+.conversion-subsection:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.conversion-subsection .option-grid--compact {
+  margin-top: 2px;
 }
 
 .use-case-method-stack {
@@ -1624,10 +2018,60 @@ button {
 .method-group {
   display: grid;
   gap: 12px;
-  padding: 15px;
-  border-radius: 18px;
-  background: rgba(246, 250, 252, 0.78);
-  border: 1px solid rgba(15, 36, 56, 0.07);
+  padding: 0 0 18px;
+  border: 0;
+  border-bottom: 1px solid rgba(15, 36, 56, 0.08);
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.method-group:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.method-group--conversion {
+  padding-top: 4px;
+}
+
+.method-group__summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 4px 0 10px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.method-group__summary::-webkit-details-marker {
+  display: none;
+}
+
+.method-group__summary::marker {
+  content: "";
+}
+
+.method-group__body {
+  display: grid;
+  gap: 12px;
+}
+
+.method-group__chevron {
+  position: relative;
+  flex: 0 0 auto;
+  width: 12px;
+  height: 12px;
+  margin-top: 8px;
+  border-right: 2px solid #8fa0ad;
+  border-bottom: 2px solid #8fa0ad;
+  transform: rotate(45deg);
+  transition: transform 160ms ease;
+}
+
+.method-group[open] .method-group__chevron {
+  transform: translateY(4px) rotate(225deg);
 }
 
 .method-group__header {
@@ -1663,16 +2107,16 @@ button {
 .option-grid--compact {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   align-items: stretch;
-  grid-auto-rows: 1fr;
-  gap: 10px;
+  grid-auto-rows: auto;
+  gap: 12px;
   margin-top: 0;
 }
 
 .option-card--compact {
   height: 100%;
-  min-height: 0;
-  padding: 14px;
-  border-radius: 16px;
+  min-height: 136px;
+  padding: 16px;
+  border-radius: 18px;
   box-shadow: none;
 }
 
@@ -1799,9 +2243,9 @@ button {
   width: 100%;
   min-height: 112px;
   padding: 18px 20px;
-  border: 1px solid rgba(15, 36, 56, 0.08);
+  border: 1px solid transparent;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(246, 250, 252, 0.72);
   color: inherit;
   text-align: left;
   appearance: none;
@@ -1811,6 +2255,7 @@ button {
 .flow-option-card:hover {
   transform: translateY(-1px);
   border-color: rgba(15, 121, 214, 0.2);
+  background: #ffffff;
   box-shadow: 0 14px 24px rgba(20, 37, 50, 0.08);
 }
 
@@ -1820,8 +2265,9 @@ button {
 }
 
 .flow-option-card.is-selected {
-  border-color: rgba(34, 196, 216, 0.34);
+  border-color: rgba(34, 196, 216, 0.48);
   background: linear-gradient(180deg, rgba(223, 247, 251, 0.92), rgba(255, 255, 255, 1));
+  box-shadow: 0 14px 24px rgba(34, 196, 216, 0.12);
 }
 
 .flow-option-card__check {
@@ -1886,13 +2332,17 @@ button {
   appearance: none;
   font: inherit;
   color: inherit;
-  background: rgba(255, 255, 255, 1);
-  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+  background: rgba(246, 250, 252, 0.72);
+  border-color: transparent;
+  box-shadow: none;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
 }
 
 .option-card--button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 18px 26px rgba(20, 37, 50, 0.1);
+  transform: translateY(-1px);
+  border-color: rgba(15, 121, 214, 0.18);
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 14px 24px rgba(20, 37, 50, 0.08);
 }
 
 .option-card--button:focus-visible {
@@ -1905,6 +2355,7 @@ button {
   grid-template-columns: 24px minmax(0, 1fr);
   align-items: flex-start;
   gap: 12px;
+  min-height: 136px;
 }
 
 .option-card__checkbox {
@@ -1954,9 +2405,9 @@ button {
 }
 
 .option-card.is-selected {
-  border-color: rgba(34, 196, 216, 0.3);
-  background: linear-gradient(180deg, rgba(223, 247, 251, 1), rgba(255, 255, 255, 1));
-  box-shadow: 0 20px 28px rgba(34, 196, 216, 0.12);
+  border-color: rgba(34, 196, 216, 0.46);
+  background: linear-gradient(180deg, rgba(223, 247, 251, 0.95), rgba(255, 255, 255, 1));
+  box-shadow: 0 16px 26px rgba(34, 196, 216, 0.14);
 }
 
 .option-card--button.is-selected::after {
@@ -2132,11 +2583,13 @@ button {
 
 .option-grid--compact {
   align-items: stretch;
+  grid-auto-rows: auto;
 }
 
 .option-card.option-card--compact {
   align-self: stretch;
   height: 100%;
+  min-height: 136px;
 }
 
 .option-card.option-card--compact h4 {
@@ -2162,6 +2615,85 @@ button {
   min-height: 48px;
   padding: 12px 16px;
   font-size: 0.84rem;
+}
+
+/* UX refinement: keep one large category frame while the selections inside read as rows. */
+.payment-method-matrix .method-group--conversion {
+  gap: 14px;
+  padding: 22px 0 0;
+  border-top: 1px solid rgba(15, 36, 56, 0.08);
+  border-bottom: 0;
+}
+
+.payment-method-matrix .method-group--conversion > .method-group__header {
+  padding: 0;
+}
+
+.payment-method-matrix .method-group--conversion > .method-group__header h4 {
+  font-size: 1.12rem;
+}
+
+.payment-method-matrix .method-group--conversion > .method-group__header p {
+  max-width: none;
+}
+
+.payment-method-matrix .method-group--accordion {
+  padding: 22px 24px;
+  border: 1px solid rgba(15, 36, 56, 0.08);
+  border-radius: 24px;
+  background: rgba(246, 250, 252, 0.54);
+  box-shadow: none;
+}
+
+.payment-method-matrix .method-group__summary {
+  padding: 0 0 12px;
+}
+
+.payment-method-matrix .method-group__body {
+  gap: 10px;
+  padding: 0;
+}
+
+.payment-method-matrix .option-grid--compact {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.payment-method-matrix .option-card.option-card--compact,
+.payment-method-matrix .option-card--select-only {
+  min-height: 138px !important;
+  height: 100% !important;
+  padding: 16px !important;
+  border: 1px solid rgba(15, 36, 56, 0.08) !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  box-shadow: none !important;
+}
+
+.payment-method-matrix .option-card--button:hover {
+  transform: translateY(-1px) !important;
+  border-color: rgba(15, 121, 214, 0.22) !important;
+  border-radius: 18px !important;
+  background: #ffffff !important;
+  box-shadow: 0 12px 22px rgba(20, 37, 50, 0.07) !important;
+}
+
+.payment-method-matrix .option-card.is-selected {
+  border: 1px solid rgba(34, 196, 216, 0.5) !important;
+  border-radius: 18px !important;
+  background: linear-gradient(180deg, rgba(223, 247, 251, 0.9), rgba(255, 255, 255, 1)) !important;
+  box-shadow: 0 14px 24px rgba(34, 196, 216, 0.12) !important;
+  padding-left: 16px !important;
+}
+
+.payment-method-matrix .option-card--select-only .option-card__title {
+  font-size: 0.98rem;
+}
+
+.payment-method-matrix .option-card--select-only .option-card__description {
+  font-size: 0.88rem;
+  line-height: 1.38;
 }
 
 .subcard {
@@ -2695,21 +3227,39 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 12px;
+  min-height: 58px;
+  padding: 12px 14px;
   border: 1px solid rgba(34, 196, 216, 0.18);
   border-radius: 14px;
   background: rgba(223, 247, 251, 0.55);
   color: #0f4f77;
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: var(--weight-semibold);
 }
 
 .search-select__selected-summary span {
+  flex: 1 1 auto;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.search-select__summary-action {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.payment-flow-box .search-select__selected-summary {
+  min-height: 46px;
+  padding: 9px 11px;
+  gap: 8px;
+  font-size: 0.78rem;
+}
+
+.payment-flow-box .search-select__summary-action {
+  font-size: 0.78rem;
 }
 
 .search-select__collapse {
@@ -3270,7 +3820,26 @@ button {
     grid-column: span 12;
   }
 
+  .use-case-section-toggle {
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+  }
+
+  .use-case-section-toggle::before {
+    display: none;
+  }
+
+  .use-case-section-toggle__button {
+    padding: 8px 10px;
+  }
+
   .use-case-toggle-row {
+    grid-template-columns: 1fr;
+  }
+
+  .financial-layout-grid {
     grid-template-columns: 1fr;
   }
 
@@ -3296,8 +3865,29 @@ button {
     flex-direction: column;
   }
 
-  .range-number-input {
+  .range-card__track-area {
+    padding-top: 76px;
+  }
+
+  .range-card__bubble {
+    left: 0;
+    transform: none;
     width: 100%;
+  }
+
+  .range-card--compact .range-card__bubble,
+  .range-card--compact.is-unset .range-card__bubble {
+    width: auto;
+  }
+
+  .range-card__controls {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .range-number-input {
+    width: 118px;
   }
 
   .stored-value-default-section__header,
