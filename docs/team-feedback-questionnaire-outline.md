@@ -128,6 +128,7 @@ Section description:
 
 - Who is sending the funds?
   Options: Consumers, Businesses, Sole proprietors
+  For Personal Remittance, auto-select Consumers and hide the other options.
 - Source regions
 - What specific countries are funds coming from?
 - Which currencies are the funds sent in?
@@ -143,6 +144,7 @@ Section description:
 
 - Who is receiving the funds?
   Options: Consumers, Businesses, Sole proprietors
+  For Personal Remittance, auto-select Consumers and hide the other options.
 - Destination regions
 - What specific countries are funds going to?
 - Which currencies are the funds received in?
@@ -174,27 +176,23 @@ Check whether the From and To language is easy for external partners to understa
 ### Payment Methods
 
 Section description:
-`Select the payment methods for this use case. Mark whether your business already uses each method or would like Veem to offer it.`
+`Select the payment methods for this use case.`
 
 For each payment method:
 
-- We already use this
-- We'd like Veem to offer this
+- Checkbox-style card selection
+- Soft `Pay-in` or `Payout` tag, when helpful
 
-Each payment method group includes shortcuts:
-
-- Mark all as already used
-- Mark all for Veem to offer
-- Clear
-
-Required: each selected use case must have at least one payment method marked as `We already use this`, `We'd like Veem to offer this`, or both.
+Required: each selected use case must have at least one payment method selected.
 
 #### Bank Transfers
 
 - Local Bank Transfers
 - Same Day ACH (US only)
 - IBT (Instant Bank Transfer)
+  Note: shows a `Pay-in` tag.
 - RTP (US only)
+  Note: shows a `Payout` tag.
 
 #### Bank Wires
 
@@ -204,8 +202,11 @@ Required: each selected use case must have at least one payment method marked as
 #### Cards
 
 - Card Acceptance (Debit & Credit)
+  Note: shows a `Pay-in` tag.
 - Push to Cards
+  Note: shows a `Payout` tag.
 - Instant Card Issuance
+  Note: shows a `Payout` tag.
 
 ### Fiat and Digital Currency Conversions
 
@@ -360,6 +361,8 @@ The form submits a JSON payload to Zapier with three useful areas:
 - `rawData`: flat key/value fields that are easier to map in Zapier.
 - `responses`: nested structured data for more detailed automation or storage.
 
+Use `docs/zapier-test-sample-payload.json` as the current copy/paste test payload for Zapier. It includes the full `summary`, `rawData`, and nested `responses` object using the current per-use-case Payment Flow & Methods structure.
+
 ### Example Summary
 
 ```text
@@ -391,14 +394,14 @@ Annual volume range: $100M - $250M
 Payment count range: 500K - 1M
 Average transaction size: $2,500
 
-Product interest summary: Payment methods: B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) | Stored value accounts: B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD) | Additional services: Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested)
-Payment methods: B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested)
+Product interest summary: Payment methods: B2B Payments: Local Bank Transfers, Same Day ACH (US only), International Swift, Card Acceptance (Debit & Credit) | Marketplace / Platform: Local Bank Transfers, Push to Cards, USDC ↔ Fiat | Stored value accounts: B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD) | Additional services: Payer Plugin / Paylinks, Plaid Bank Account Verification, Risk Services
+Payment methods: B2B Payments: Local Bank Transfers, Same Day ACH (US only), International Swift, Card Acceptance (Debit & Credit) | Marketplace / Platform: Local Bank Transfers, Push to Cards, USDC ↔ Fiat
 Stored value accounts: B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)
-Additional services: Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested)
+Additional services: Payer Plugin / Paylinks, Plaid Bank Account Verification, Risk Services
 
 Use case payment flows:
-B2B Payments: Payment methods: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | User/customer side: Payer | Payers: Businesses | Number of payers: 1200 (actual) | Payer regions: North America | Payer countries: United States, Canada | Payer currencies: USD, CAD | Payees: Businesses, Sole proprietors | Number of payees: 3800 (estimated) | Payee regions: North America, Europe | Payee countries: United States, Canada, United Kingdom, Germany | Payee currencies: USD, CAD, GBP, EUR | Stored value: Virtual Bank Accounts, Multi-Currency Wallet
-Marketplace / Platform: Payment methods: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) | User/customer side: Payee | Payers: Consumers, Businesses | Number of payers: 25000 (estimated) | Payer regions: North America, Europe | Payer countries: United States, Canada, United Kingdom, Germany | Payer currencies: USD, CAD, GBP, EUR | Payees: Businesses | Number of payees: 9000 (actual) | Payee regions: North America, Europe | Payee countries: United States, Canada, United Kingdom, Germany | Payee currencies: USD, CAD, GBP, EUR | Stored value: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)
+B2B Payments: Payment methods: Local Bank Transfers, Same Day ACH (US only), International Swift, Card Acceptance (Debit & Credit) | User/customer side: Payer | Payers: Businesses | Number of payers: 1200 (confirmed) | Payer regions: North America | Payer countries: United States, Canada | Payer currencies: USD, CAD | Payees: Businesses, Sole proprietors | Number of payees: 3800 (estimated) | Payee regions: North America, Europe | Payee countries: United States, Canada, United Kingdom, Germany | Payee currencies: USD, CAD, GBP, EUR | Stored value: Virtual Bank Accounts, Multi-Currency Wallet
+Marketplace / Platform: Payment methods: Local Bank Transfers, Push to Cards, USDC ↔ Fiat | User/customer side: Payee | Payers: Consumers, Businesses | Number of payers: 25000 (estimated) | Payer regions: North America, Europe | Payer countries: United States, Canada, United Kingdom, Germany | Payer currencies: USD, CAD, GBP, EUR | Payees: Businesses | Number of payees: 9000 (confirmed) | Payee regions: North America, Europe | Payee countries: United States, Canada, United Kingdom, Germany | Payee currencies: USD, CAD, GBP, EUR | Stored value: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)
 
 Additional info: Partner wants to launch the B2B flow first, then add marketplace payouts after pilot approval.
 ```
@@ -428,16 +431,15 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
 | Payment count range | 500K - 1M |
 | Expected company growth (next 12 months) | 45 |
 | Average transaction size | 2500 |
-| Payment methods | B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) \| Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) |
-| Payment methods by use case | B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) \| Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) |
+| Payment methods | B2B Payments: Local Bank Transfers, Same Day ACH (US only), International Swift, Card Acceptance (Debit & Credit) \| Marketplace / Platform: Local Bank Transfers, Push to Cards, USDC ↔ Fiat |
 | Stored value accounts | B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet \| Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD) |
-| Additional services | Payer Plugin / Paylinks (interested), Plaid Bank Account Verification (interested), Risk Services (interested) |
+| Additional services | Payer Plugin / Paylinks, Plaid Bank Account Verification, Risk Services |
 | Use case payment flows | B2B Payments: User/customer side: Payer ... \|\| Marketplace / Platform: User/customer side: Payee ... |
-| Use case 1 - B2B Payments - Payment methods | Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) |
+| Use case 1 - B2B Payments - Payment methods | Local Bank Transfers, Same Day ACH (US only), International Swift, Card Acceptance (Debit & Credit) |
 | Use case 1 - B2B Payments - User/customer side | Payer |
 | Use case 1 - B2B Payments - Payer types | Businesses |
 | Use case 1 - B2B Payments - Payer count | 1200 |
-| Use case 1 - B2B Payments - Payer count basis | actual |
+| Use case 1 - B2B Payments - Payer count basis | confirmed |
 | Use case 1 - B2B Payments - Payer regions | North America |
 | Use case 1 - B2B Payments - Payer countries | United States, Canada |
 | Use case 1 - B2B Payments - Payer currencies | USD, CAD |
@@ -448,7 +450,7 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
 | Use case 1 - B2B Payments - Payee countries | United States, Canada, United Kingdom, Germany |
 | Use case 1 - B2B Payments - Payee currencies | USD, CAD, GBP, EUR |
 | Use case 1 - B2B Payments - Stored value account capabilities | Virtual Bank Accounts, Multi-Currency Wallet |
-| Use case 2 - Marketplace / Platform - Payment methods | Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested) |
+| Use case 2 - Marketplace / Platform - Payment methods | Local Bank Transfers, Push to Cards, USDC ↔ Fiat |
 | Use case 2 - Marketplace / Platform - User/customer side | Payee |
 | Use case 2 - Marketplace / Platform - Payer types | Consumers, Businesses |
 | Use case 2 - Marketplace / Platform - Payer count | 25000 |
@@ -458,7 +460,7 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
 | Use case 2 - Marketplace / Platform - Payer currencies | USD, CAD, GBP, EUR |
 | Use case 2 - Marketplace / Platform - Payee types | Businesses |
 | Use case 2 - Marketplace / Platform - Payee count | 9000 |
-| Use case 2 - Marketplace / Platform - Payee count basis | actual |
+| Use case 2 - Marketplace / Platform - Payee count basis | confirmed |
 | Use case 2 - Marketplace / Platform - Payee regions | North America, Europe |
 | Use case 2 - Marketplace / Platform - Payee countries | United States, Canada, United Kingdom, Germany |
 | Use case 2 - Marketplace / Platform - Payee currencies | USD, CAD, GBP, EUR |
@@ -489,7 +491,7 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
   "rawData": {
     "Company Name": "OrbitPay",
     "Use case categories": "B2B Payments, Marketplace / Platform",
-    "Payment methods": "B2B Payments: Local Bank Transfers (current + interested), Same Day ACH (interested), International Swift (interested), Card Acceptance (Debit & Credit) (current) | Marketplace / Platform: Local Bank Transfers (interested), Push to Cards (interested), USDC ↔ Fiat (interested)",
+    "Payment methods": "B2B Payments: Local Bank Transfers, Same Day ACH (US only), International Swift, Card Acceptance (Debit & Credit) | Marketplace / Platform: Local Bank Transfers, Push to Cards, USDC ↔ Fiat",
     "Stored value accounts": "B2B Payments: Virtual Bank Accounts, Multi-Currency Wallet | Marketplace / Platform: Stablecoin Wallet (USDC / USDT), Virtual Card (USD)"
   },
   "responses": {
@@ -499,34 +501,31 @@ Additional info: Partner wants to launch the B2B flow first, then add marketplac
       "highRiskIndustries": "no"
     },
     "paymentMethods": {
-      "b2b-payments": {
-        "swiftWire": { "current": true, "interested": true },
-        "sameDayAch": { "current": false, "interested": true },
-        "internationalSwift": { "current": false, "interested": true },
-        "cardAcquiring": { "current": true, "interested": false }
-      }
+      "b2b-payments": [
+        "Local Bank Transfers",
+        "Same Day ACH (US only)",
+        "International Swift",
+        "Card Acceptance (Debit & Credit)"
+      ],
+      "marketplace-platform": [
+        "Local Bank Transfers",
+        "Push to Cards",
+        "USDC ↔ Fiat"
+      ]
     },
     "useCaseFlows": {
       "b2b-payments": {
         "label": "B2B Payments",
-        "paymentMethods": {
-          "swiftWire": { "current": true, "interested": true },
-          "sameDayAch": { "current": false, "interested": true },
-          "internationalSwift": { "current": false, "interested": true },
-          "cardAcquiring": { "current": true, "interested": false }
-        },
-        "customerSides": ["payer"],
-        "senderTypes": ["businesses"],
-        "receiverTypes": ["businesses", "soleProprietors"],
-        "storedValueAccountTypes": ["virtualBankAccounts", "multiCurrencyWallets"]
-      }
-    },
-    "useCasePaymentMethods": {
-      "b2b-payments": {
-        "swiftWire": { "current": true, "interested": true },
-        "sameDayAch": { "current": false, "interested": true },
-        "internationalSwift": { "current": false, "interested": true },
-        "cardAcquiring": { "current": true, "interested": false }
+        "paymentMethods": [
+          "Local Bank Transfers",
+          "Same Day ACH (US only)",
+          "International Swift",
+          "Card Acceptance (Debit & Credit)"
+        ],
+        "userCustomerSide": ["Payer"],
+        "payerTypes": ["Businesses"],
+        "payeeTypes": ["Businesses", "Sole proprietors"],
+        "storedValueAccountCapabilities": ["Virtual Bank Accounts", "Multi-Currency Wallet"]
       }
     }
   }

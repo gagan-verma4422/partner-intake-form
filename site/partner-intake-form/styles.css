@@ -2396,8 +2396,43 @@ button {
   min-width: 0;
 }
 
+.option-card__header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  min-width: 0;
+}
+
 .option-card--select-only .option-card__title {
   padding-right: 0;
+}
+
+.option-card__header-row .option-card__title,
+.option-card__header-row h4 {
+  min-width: 0;
+  padding-right: 0;
+}
+
+.option-card__flow-tag {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(15, 121, 214, 0.08);
+  color: #1f6fc8;
+  font-size: 0.68rem;
+  font-weight: var(--weight-semibold);
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.option-card__flow-tag.is-payout {
+  background: rgba(34, 196, 216, 0.12);
+  color: var(--teal-deep);
 }
 
 .option-card--select-only .option-card__description {

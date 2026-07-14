@@ -22,12 +22,14 @@ const PAYMENT_METHODS = [
   {
     key: "ibtInstantBankTransfer",
     label: "IBT (Instant Bank Transfer)",
+    flowTag: "Pay-in",
     description:
       "U.S. instant bank-funded payments using ACH with Plaid bank validation and balance checks.",
   },
   {
     key: "rtp",
     label: "RTP (US only)",
+    flowTag: "Payout",
     description: "Real-Time Payments rail for instant U.S. payment delivery and immediate settlement.",
   },
   {
@@ -43,16 +45,19 @@ const PAYMENT_METHODS = [
   {
     key: "cardAcquiring",
     label: "Card Acceptance (Debit & Credit)",
+    flowTag: "Pay-in",
     description: "Accept debit and credit card-funded payments from payers.",
   },
   {
     key: "pushToCards",
     label: "Push to Cards",
+    flowTag: "Payout",
     description: "Send payments to Visa and Mastercard debit cards globally.",
   },
   {
     key: "instantCardIssue",
     label: "Instant Card Issuance",
+    flowTag: "Payout",
     description: "Issue USD virtual cards instantly for 30+ countries.",
   },
   {
@@ -730,6 +735,7 @@ const FLOW_USER_TYPE_OPTIONS = [
   { value: "businesses", label: "Businesses" },
   { value: "soleProprietors", label: "Sole proprietors" },
 ];
+const PERSONAL_REMITTANCE_USER_TYPE_VALUES = new Set(["consumers"]);
 const CUSTOMER_ROLE_OPTIONS = [
   {
     value: "payer",
@@ -1767,7 +1773,7 @@ function renderUseCasePaymentFlow(entry, options = {}) {
               <span class="flow-field-group-caption">Who &amp; Where</span>
               <div class="field">
                 <label>${renderLabelText("Who is sending the funds? *")}</label>
-                ${renderMultiSelectBubbles(`${basePath}.senderTypes`, flow.senderTypes, FLOW_USER_TYPE_OPTIONS)}
+                ${renderMultiSelectBubbles(`${basePath}.senderTypes`, flow.senderTypes, getFlowUserTypeOptions(entry.value))}
               </div>
             </div>
 
@@ -1822,7 +1828,7 @@ function renderUseCasePaymentFlow(entry, options = {}) {
               <span class="flow-field-group-caption">Who &amp; Where</span>
               <div class="field">
                 <label>${renderLabelText("Who is receiving the funds? *")}</label>
-                ${renderMultiSelectBubbles(`${basePath}.receiverTypes`, flow.receiverTypes, FLOW_USER_TYPE_OPTIONS)}
+                ${renderMultiSelectBubbles(`${basePath}.receiverTypes`, flow.receiverTypes, getFlowUserTypeOptions(entry.value))}
               </div>
             </div>
 
@@ -3298,6 +3304,9 @@ function renderInterestGrid(items, storeKey, options = {}) {
           const selected = current || interested;
           const titleId = `${toId(`${storeKey}-${item.key}`)}-title`;
           const descriptionId = `${toId(`${storeKey}-${item.key}`)}-description`;
+          const flowTagMarkup = item.flowTag
+            ? `<span class="option-card__flow-tag ${item.flowTag === "Pay-in" ? "is-pay-in" : "is-payout"}">${escapeHtml(item.flowTag)}</span>`
+            : "";
 
           if (selectOnly) {
             return `
@@ -3315,7 +3324,10 @@ function renderInterestGrid(items, storeKey, options = {}) {
                 <span class="option-card__checkbox" aria-hidden="true"></span>
                 <span class="option-card__body">
                   ${showCategory && item.category ? `<span class="option-card__category">${escapeHtml(item.category)}</span>` : ""}
-                  <span class="option-card__title" id="${titleId}">${escapeHtml(item.shortLabel || item.label)}</span>
+                  <span class="option-card__header-row">
+                    <span class="option-card__title" id="${titleId}">${escapeHtml(item.shortLabel || item.label)}</span>
+                    ${flowTagMarkup}
+                  </span>
                   <span class="option-card__description" id="${descriptionId}">${escapeHtml(item.description)}</span>
                   ${disabled ? `<span class="option-card__status">${escapeHtml(getInterestItemDisabledStatus(storeKey, item.key))}</span>` : ""}
                 </span>
@@ -3326,7 +3338,10 @@ function renderInterestGrid(items, storeKey, options = {}) {
           return `
             <article class="option-card ${options.compact ? "option-card--compact" : ""} ${selected ? "is-selected" : ""} ${disabled ? "is-disabled" : ""}" role="group" aria-labelledby="${titleId}" aria-describedby="${descriptionId}" ${disabled ? 'aria-disabled="true"' : ""}>
               ${showCategory && item.category ? `<span class="option-card__category">${escapeHtml(item.category)}</span>` : ""}
-              <h4 id="${titleId}">${escapeHtml(item.shortLabel || item.label)}</h4>
+              <div class="option-card__header-row">
+                <h4 id="${titleId}">${escapeHtml(item.shortLabel || item.label)}</h4>
+                ${flowTagMarkup}
+              </div>
               <p id="${descriptionId}">${escapeHtml(item.description)}</p>
               ${disabled ? `<p class="option-card__status">${escapeHtml(getInterestItemDisabledStatus(storeKey, item.key))}</p>` : ""}
               <div class="toggle-pair">
@@ -4193,13 +4208,21 @@ function getSelectedUseCaseEntries() {
   }));
 }
 
+function getFlowUserTypeOptions(useCaseValue) {
+  if (useCaseValue === "personal-remittance") {
+    return FLOW_USER_TYPE_OPTIONS.filter((option) => PERSONAL_REMITTANCE_USER_TYPE_VALUES.has(option.value));
+  }
+
+  return FLOW_USER_TYPE_OPTIONS;
+}
+
 function ensureUseCaseFlowsState() {
   state.useCase.categories.forEach((value) => {
     if (!state.useCaseFlows[value]) {
       state.useCaseFlows[value] = createUseCaseFlowState();
     }
 
-    normalizeUseCaseFlowState(state.useCaseFlows[value]);
+    normalizeUseCaseFlowState(state.useCaseFlows[value], value);
   });
 
   Object.keys(state.useCaseFlows).forEach((value) => {
@@ -4252,7 +4275,7 @@ function areArraysEqual(left = [], right = []) {
   return left.every((value) => rightSet.has(value));
 }
 
-function normalizeUseCaseFlowState(flow) {
+function normalizeUseCaseFlowState(flow, useCaseValue = "") {
   const defaults = createUseCaseFlowState();
 
   Object.entries(defaults).forEach(([key, defaultValue]) => {
@@ -4277,6 +4300,15 @@ function normalizeUseCaseFlowState(flow) {
     CUSTOMER_ROLE_OPTIONS.some((option) => option.value === value)
   );
   flow.customerRole = flow.customerSides.length === 2 ? "both" : flow.customerSides[0] || "";
+
+  const allowedUserTypeValues = new Set(getFlowUserTypeOptions(useCaseValue).map((option) => option.value));
+  flow.senderTypes = [...new Set(flow.senderTypes)].filter((value) => allowedUserTypeValues.has(value));
+  flow.receiverTypes = [...new Set(flow.receiverTypes)].filter((value) => allowedUserTypeValues.has(value));
+
+  if (useCaseValue === "personal-remittance") {
+    flow.senderTypes = [...PERSONAL_REMITTANCE_USER_TYPE_VALUES];
+    flow.receiverTypes = [...PERSONAL_REMITTANCE_USER_TYPE_VALUES];
+  }
 }
 
 function syncCustomerSidesState(path) {
@@ -4285,7 +4317,7 @@ function syncCustomerSidesState(path) {
     return;
   }
 
-  normalizeUseCaseFlowState(state.useCaseFlows[parsed.useCaseKey]);
+  normalizeUseCaseFlowState(state.useCaseFlows[parsed.useCaseKey], parsed.useCaseKey);
 }
 
 function getSelectedFlowPhrase() {
@@ -4781,6 +4813,20 @@ function buildSubmissionPayload() {
 }
 
 function buildSubmissionResponses() {
+  const selectedUseCaseEntries = getSelectedUseCaseEntries();
+  const paymentMethodsByUseCase = Object.fromEntries(
+    selectedUseCaseEntries.map(({ value }) => [
+      value,
+      getSelectedInterestLabels(PAYMENT_METHODS, state.useCasePaymentMethods[value], `useCasePaymentMethods.${value}`),
+    ])
+  );
+  const storedValueAccountsByUseCase = Object.fromEntries(
+    selectedUseCaseEntries.map(({ value, flow }) => [
+      value,
+      getStoredValueAccountLabels(flow.storedValueAccountTypes),
+    ])
+  );
+
   const responses = {
     contact: state.contact,
     company: state.company,
@@ -4792,38 +4838,56 @@ function buildSubmissionResponses() {
       implementationTimeline: state.role.implementationTimeline,
     },
     financials: state.financials,
-    modules: state.modules,
-    paymentMethods: state.useCasePaymentMethods,
-    useCasePaymentMethods: state.useCasePaymentMethods,
-    storedValueAccounts: state.storedValueAccounts,
-    additionalServices: state.additionalServices,
+    paymentMethods: paymentMethodsByUseCase,
+    storedValueAccounts: storedValueAccountsByUseCase,
+    additionalServices: getSelectedInterestLabels(ADDITIONAL_SERVICES, state.additionalServices, "additionalServices"),
     additionalInfo: state.additionalInfo,
   };
 
   if (hasPaymentFlowInterest()) {
     responses.useCaseFlows = Object.fromEntries(
-      getSelectedUseCaseEntries().map(({ value, label, flow }) => [
+      selectedUseCaseEntries.map(({ value, label, flow }) => [
         value,
-        {
-          label,
-          ...flow,
-          paymentMethods: state.useCasePaymentMethods[value],
-          highRiskIndustries: state.useCase.highRiskIndustries,
-          highRiskIndustryDetails:
-            state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails : "",
-        },
+        formatUseCaseFlowResponse(label, flow, paymentMethodsByUseCase[value]),
       ])
     );
   }
 
-  if (isModuleSelected("accounts")) {
-    responses.accounts = {
-      ...state.accounts,
-      storedValueAccounts: state.storedValueAccounts,
-    };
-  }
-
   return cloneSubmissionState(responses);
+}
+
+function formatUseCaseFlowResponse(label, flow, paymentMethods) {
+  return {
+    label,
+    paymentMethods,
+    userCustomerSide: flow.customerSides.map((side) => getCustomerRoleLabel(side)),
+    payerTypes: flow.senderTypes.map((type) => labelForOption(FLOW_USER_TYPE_OPTIONS, type)),
+    payerCount: flow.payerCount || "",
+    payerCountBasis: formatCountBasisLabel(flow.payerCountBasis),
+    payerRegions: flow.senderRegion,
+    payerCountries: flow.senderCountries.map((country) =>
+      country === OTHER_COUNTRY_VALUE
+        ? flow.senderCountriesOther.trim() || "Other"
+        : countryLookup.get(country)?.name || country
+    ),
+    payerOtherCountries: flow.senderCountriesOther || "",
+    payerCurrencies: flow.senderCurrencies,
+    payeeTypes: flow.receiverTypes.map((type) => labelForOption(FLOW_USER_TYPE_OPTIONS, type)),
+    payeeCount: flow.payeeCount || "",
+    payeeCountBasis: formatCountBasisLabel(flow.payeeCountBasis),
+    payeeRegions: flow.receiverRegion,
+    payeeCountries: flow.receiverCountries.map((country) =>
+      country === OTHER_COUNTRY_VALUE
+        ? flow.receiverCountriesOther.trim() || "Other"
+        : countryLookup.get(country)?.name || country
+    ),
+    payeeOtherCountries: flow.receiverCountriesOther || "",
+    payeeCurrencies: flow.receiverCurrencies,
+    storedValueAccountCapabilities: getStoredValueAccountLabels(flow.storedValueAccountTypes),
+    highRiskIndustries: formatYesNo(state.useCase.highRiskIndustries),
+    highRiskIndustryDetails:
+      state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails : "",
+  };
 }
 
 function buildZapierRawData(submittedAt) {
@@ -4847,11 +4911,6 @@ function buildZapierRawData(submittedAt) {
   const highRiskIndustries = formatYesNo(state.useCase.highRiskIndustries);
   const highRiskIndustryDetails =
     state.useCase.highRiskIndustries === "yes" ? state.useCase.highRiskIndustryDetails || "" : "";
-  const productSummary = [
-    paymentMethodSummary,
-    storedValueAccountSummary,
-  ].filter(Boolean).join(", ");
-
   return {
     "Submission date": submittedAt || "",
     "First Name": state.contact.firstName || "",
@@ -4881,15 +4940,10 @@ function buildZapierRawData(submittedAt) {
     "Expected company growth (next 12 months)": String(state.financials.companyGrowth ?? ""),
     "Average transaction size": String(state.financials.averageTicket ?? ""),
     "Product interest summary": productInterestSummary || "",
-    "Products": productSummary || "",
     "Payment methods": paymentMethodSummary || "",
-    "Payment methods by use case": paymentMethodSummary || "",
-    "Methods": paymentMethodSummary || "",
     "Stored value accounts": storedValueAccountSummary || "",
-    "Stored value account options": storedValueAccountSummary || "",
     "Additional services": servicesSummary || "",
     "Use case payment flows": paymentFlowByUseCaseSummary || "",
-    "Stored value by use case": storedValueAccountSummary || "",
     ...buildUseCaseFlowRawData(),
     "Payment flow High-risk industries": hasPaymentFlowInterest() ? highRiskIndustries : "",
     "Payment flow High-risk industry details": hasPaymentFlowInterest() ? highRiskIndustryDetails : "",
@@ -4905,14 +4959,14 @@ function buildUseCaseFlowRawData() {
     rawData[`${prefix} - User/customer side`] = formatCustomerSides(flow.customerSides);
     rawData[`${prefix} - Payer types`] = flow.senderTypes.map((value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value)).join(", ");
     rawData[`${prefix} - Payer count`] = flow.payerCount || "";
-    rawData[`${prefix} - Payer count basis`] = flow.payerCountBasis || "";
+    rawData[`${prefix} - Payer count basis`] = formatCountBasisLabel(flow.payerCountBasis);
     rawData[`${prefix} - Payer regions`] = formatRegionList(flow.senderRegion);
     rawData[`${prefix} - Payer countries`] = formatCountryList(flow.senderCountries, flow.senderCountriesOther);
     rawData[`${prefix} - Payer other countries`] = flow.senderCountriesOther || "";
     rawData[`${prefix} - Payer currencies`] = flow.senderCurrencies.join(", ");
     rawData[`${prefix} - Payee types`] = flow.receiverTypes.map((value) => labelForOption(FLOW_USER_TYPE_OPTIONS, value)).join(", ");
     rawData[`${prefix} - Payee count`] = flow.payeeCount || "";
-    rawData[`${prefix} - Payee count basis`] = flow.payeeCountBasis || "";
+    rawData[`${prefix} - Payee count basis`] = formatCountBasisLabel(flow.payeeCountBasis);
     rawData[`${prefix} - Payee regions`] = formatRegionList(flow.receiverRegion);
     rawData[`${prefix} - Payee countries`] = formatCountryList(flow.receiverCountries, flow.receiverCountriesOther);
     rawData[`${prefix} - Payee other countries`] = flow.receiverCountriesOther || "";
@@ -5005,6 +5059,12 @@ function summarizeInterestGroup(items, groupState, storeKey = "") {
       return `${item.label} (${states.join(" + ")})`;
     })
     .join(", ");
+}
+
+function getSelectedInterestLabels(items, groupState, storeKey = "") {
+  return items
+    .filter((item) => !isInterestItemDisabled(storeKey, item.key) && (groupState?.[item.key]?.current || groupState?.[item.key]?.interested))
+    .map((item) => item.label);
 }
 
 function getUseCasePaymentMethodSummaryForValue(value) {
@@ -5235,10 +5295,13 @@ function formatCustomerSides(values) {
 }
 
 function formatStoredValueAccountTypes(keys) {
+  return getStoredValueAccountLabels(keys).join(", ");
+}
+
+function getStoredValueAccountLabels(keys) {
   return keys
     .map((key) => STORED_VALUE_ACCOUNTS.find((item) => item.key === key)?.label || key)
-    .filter(Boolean)
-    .join(", ");
+    .filter(Boolean);
 }
 
 function formatUseCaseFlowSummary({ value, label, flow }) {
